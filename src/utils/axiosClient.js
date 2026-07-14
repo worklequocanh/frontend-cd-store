@@ -41,8 +41,8 @@ axiosClient.interceptors.response.use(
       // Clear invalid token
       localStorage.removeItem('token');
       
-      // Optionally toast error (if it's not the /auth/me call on load)
-      if (error.config.url !== '/api/auth/me') {
+      // Only show session expired and redirect if it wasn't a login attempt or initial auth check
+      if (error.config.url !== '/api/auth/me' && error.config.url !== '/api/auth/login') {
         toast.error('Session expired. Please login again.');
         window.location.href = '/auth'; // Redirect to login
       }
