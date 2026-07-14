@@ -45,7 +45,23 @@ function CheckoutPage() {
       );
       setCart({ items: [], subtotal: 0, total: 0, discountAmount: 0 });
       toast.success('Order created successfully!');
-      navigate(`/orders/${res.data.data._id}`);
+      
+      const orderId = res.data.data._id;
+      
+      if (paymentMethod === 'qr') {
+        try {
+          toast.loading('Redirecting to secure payment gateway...', { duration: 2000 });
+          const payosRes = await axiosClient.post(`/api/orders/${orderId}/create-payos-link`);
+          if (payosRes.data.data.checkoutUrl) {
+            window.location.href = payosRes.data.data.checkoutUrl;
+            return;
+          }
+        } catch (payosError) {
+          toast.error(payosError.response?.data?.message || 'Payment gateway is busy. Please try paying from the order page.');
+        }
+      }
+      
+      navigate(`/orders/${orderId}`);
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to create order');
     } finally {
