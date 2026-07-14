@@ -60,17 +60,26 @@ function OrderHistoryPage() {
           <div className='space-y-4'>
             {orders.map((order) => (
               <div key={order._id} className='border p-4 rounded hover:shadow-lg'>
-                <div className='flex justify-between items-center mb-2'>
-                  <h3 className='font-bold text-lg'>{order.orderNumber}</h3>
-                  <span className={`px-3 py-1 rounded text-sm font-semibold ${order.orderStatus === 'delivered' ? 'bg-green-100 text-green-800' : order.orderStatus === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                    {order.orderStatus.charAt(0).toUpperCase() + order.orderStatus.slice(1)}
-                  </span>
+                <div className='flex justify-between items-start mb-4'>
+                  <div>
+                    <h3 className='font-bold text-lg'>{order.orderNumber}</h3>
+                    <p className='text-gray-500 text-sm mt-0.5'>{new Date(order.createdAt).toLocaleString()}</p>
+                  </div>
+                  <div className='flex flex-col items-end gap-2'>
+                    <span className={`px-2 py-1 rounded text-xs font-semibold uppercase ${order.orderStatus === 'delivered' ? 'bg-green-100 text-green-800' : order.orderStatus === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                      Status: {order.orderStatus}
+                    </span>
+                    <span className={`px-2 py-1 rounded text-xs font-semibold uppercase ${order.paymentStatus === 'completed' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'}`}>
+                      {order.paymentMethod === 'qr' ? 'PAYOS' : 'COD'}: {order.paymentStatus}
+                    </span>
+                  </div>
                 </div>
-                <p className='text-gray-600 text-sm mb-2'>Date: {new Date(order.createdAt).toLocaleDateString()}</p>
-                <p className='font-semibold'>Total: ${order.total}</p>
-                <Link to={`/orders/${order._id}`} className='text-blue-600 hover:underline text-sm mt-2 inline-block'>
-                  View Details
-                </Link>
+                <div className='flex justify-between items-end border-t pt-4 mt-2'>
+                  <p className='font-bold text-brand-600'>Total: ${order.total?.toFixed(2)}</p>
+                  <Link to={`/orders/${order._id}`} className='text-brand-600 font-semibold hover:underline text-sm inline-block'>
+                    View Details
+                  </Link>
+                </div>
               </div>
             ))}
           </div>
