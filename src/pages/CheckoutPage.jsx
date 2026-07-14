@@ -156,12 +156,12 @@ function CheckoutPage() {
                     </div>
                   </label>
                   
-                  <label className={`flex items-center gap-4 p-4 border rounded-2xl cursor-not-allowed opacity-60 bg-slate-50`}>
-                    <input type='radio' name='payment' value='qr' checked={paymentMethod === 'qr'} onChange={(e) => setPaymentMethod(e.target.value)} disabled className='w-5 h-5 text-slate-400' />
-                    <CreditCard className={`w-6 h-6 text-slate-400`} />
+                  <label className={`flex items-center gap-4 p-4 border rounded-2xl cursor-pointer transition-all ${paymentMethod === 'qr' ? 'border-brand-500 bg-brand-50' : 'border-slate-200 hover:border-brand-300'}`}>
+                    <input type='radio' name='payment' value='qr' checked={paymentMethod === 'qr'} onChange={(e) => setPaymentMethod(e.target.value)} className='w-5 h-5 text-brand-600 focus:ring-brand-500' />
+                    <CreditCard className={`w-6 h-6 ${paymentMethod === 'qr' ? 'text-brand-600' : 'text-slate-400'}`} />
                     <div>
-                      <span className="block font-medium text-slate-900">QR Code / Bank Transfer</span>
-                      <span className="text-sm text-red-500 font-medium">Temporarily disabled for maintenance</span>
+                      <span className="block font-medium text-slate-900">PayOS - QR Code / Bank Transfer</span>
+                      <span className="text-sm text-slate-500">Fast & secure via PayOS</span>
                     </div>
                   </label>
                 </div>
