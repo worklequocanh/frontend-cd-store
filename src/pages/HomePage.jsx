@@ -149,7 +149,7 @@ function HomePage() {
             <h2 className='text-xl font-display font-semibold text-slate-900 flex items-center gap-2'>
               {searchQuery ? `Search: "${searchQuery}"` : categoryQuery ? 'Category Products' : 'All Products'}
               <span className='bg-slate-100 text-slate-500 text-sm font-medium px-2.5 py-0.5 rounded-full'>
-                {products.length}
+                {pageData.total}
               </span>
             </h2>
 
