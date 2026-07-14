@@ -45,8 +45,16 @@ function OrderDetailsPage() {
       toast.success('Payment successful! Order status is updating.');
       window.history.replaceState(null, '', window.location.pathname);
     } else if (params.get('payos') === 'cancel') {
-      toast.error('Payment was cancelled.');
-      window.history.replaceState(null, '', window.location.pathname);
+      // Auto restore cart and delete pending order
+      axiosClient.post(`/api/orders/${id}/restore-cart`)
+        .then(() => {
+          toast.error('Payment was cancelled. Items have been restored to your cart.');
+          navigate('/cart');
+        })
+        .catch((err) => {
+          toast.error('Payment was cancelled.');
+          window.history.replaceState(null, '', window.location.pathname);
+        });
     }
   }, [id, user, navigate]);
 
