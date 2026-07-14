@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axiosClient from '../utils/axiosClient';
 import { useStore } from '../store/store';
 import toast from 'react-hot-toast';
-import { Trash2, ShoppingBag, ArrowRight, Tag, ShieldCheck } from 'lucide-react';
+import { Trash2, ShoppingBag, ArrowRight, Tag, ShieldCheck, Minus, Plus } from 'lucide-react';
 
 function CartPage() {
   const { user, cart, setCart } = useStore();
@@ -38,6 +38,17 @@ function CartPage() {
       toast.success('Item removed from cart');
     } catch (error) {
       console.error('Failed to remove item:', error);
+    }
+  };
+
+  const handleUpdateQuantity = async (itemId, newQuantity) => {
+    if (newQuantity < 1) return;
+    try {
+      const res = await axiosClient.patch(`/api/cart/items/${itemId}`, { quantity: newQuantity });
+      setCart(res.data.data);
+    } catch (error) {
+      console.error('Failed to update quantity:', error);
+      toast.error('Failed to update quantity');
     }
   };
 
@@ -105,8 +116,21 @@ function CartPage() {
 
                     {/* Quantity */}
                     <div className="col-span-1 md:col-span-3 flex justify-start md:justify-center items-center mt-2 md:mt-0">
-                      <div className="bg-slate-50 border border-slate-200 rounded-full px-4 py-2 font-medium text-slate-700">
-                        Qty: {item.quantity}
+                      <div className="bg-slate-50 border border-slate-200 rounded-full flex items-center p-1">
+                        <button 
+                          onClick={() => handleUpdateQuantity(item._id, item.quantity - 1)}
+                          disabled={item.quantity <= 1}
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:bg-white hover:text-slate-900 transition-colors disabled:opacity-50 disabled:hover:bg-transparent"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="w-10 text-center font-medium text-slate-700">{item.quantity}</span>
+                        <button 
+                          onClick={() => handleUpdateQuantity(item._id, item.quantity + 1)}
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:bg-white hover:text-slate-900 transition-colors"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
                       </div>
                     </div>
 
