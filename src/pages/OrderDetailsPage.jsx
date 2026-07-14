@@ -24,6 +24,13 @@ function OrderDetailsPage() {
 
       try {
         const res = await axiosClient.get(`/api/orders/${id}`);
+        const params = new URLSearchParams(window.location.search);
+        
+        // Optimistically update status if returned from PayOS success
+        if (params.get('payos') === 'success') {
+          res.data.data.paymentStatus = 'completed';
+        }
+
         setOrder(res.data.data);
         
         if (res.data.data.paymentMethod === 'qr' && res.data.data.paymentStatus === 'pending') {
@@ -42,7 +49,7 @@ function OrderDetailsPage() {
 
     const params = new URLSearchParams(window.location.search);
     if (params.get('payos') === 'success') {
-      toast.success('Payment successful! Order status is updating.');
+      toast.success('Payment successful!');
       window.history.replaceState(null, '', window.location.pathname);
     } else if (params.get('payos') === 'cancel') {
       // Auto restore cart and delete pending order
