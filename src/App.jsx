@@ -10,6 +10,8 @@ import CheckoutPage from './pages/CheckoutPage';
 import OrderHistoryPage from './pages/OrderHistoryPage';
 import OrderDetailsPage from './pages/OrderDetailsPage';
 import AuthPage from './pages/AuthPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import ProfilePage from './pages/ProfilePage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
@@ -73,6 +75,16 @@ function App() {
           <Route path='/auth' element={
             <GuestRoute>
               <AuthPage />
+            </GuestRoute>
+          } />
+          <Route path='/forgot-password' element={
+            <GuestRoute>
+              <ForgotPasswordPage />
+            </GuestRoute>
+          } />
+          <Route path='/reset-password' element={
+            <GuestRoute>
+              <ResetPasswordPage />
             </GuestRoute>
           } />
 
