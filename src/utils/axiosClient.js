@@ -1,8 +1,12 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+const rawBaseURL = import.meta.env.VITE_API_URL || '/';
+// Ensure we don't have double /api if VITE_API_URL is set to end with /api
+const cleanBaseURL = rawBaseURL.endsWith('/api') ? rawBaseURL.slice(0, -4) : rawBaseURL;
+
 const axiosClient = axios.create({
-  baseURL: '/',
+  baseURL: cleanBaseURL,
   headers: {
     'Content-Type': 'application/json',
   },
