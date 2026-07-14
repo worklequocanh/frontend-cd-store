@@ -12,6 +12,8 @@ const axiosClient = axios.create({
   },
 });
 
+console.log('🚀 [CD-Store] Frontend is connecting to Backend at:', cleanBaseURL);
+
 // Interceptor for Requests (Attach token)
 axiosClient.interceptors.request.use(
   (config) => {
