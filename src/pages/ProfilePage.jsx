@@ -1,101 +1,214 @@
-import React, { useState, useEffect } from 'react';
-import axiosClient from '../utils/axiosClient';
+import React, { useState } from 'react';
 import { useStore } from '../store/store';
+import axiosClient from '../utils/axiosClient';
 import toast from 'react-hot-toast';
+import { User, Mail, Phone, MapPin, Lock, ShoppingBag, Save, Eye, EyeOff } from 'lucide-react';
 
 function ProfilePage() {
-  const [profile, setProfile] = useState(null);
-  const [editing, setEditing] = useState(false);
-  const [formData, setFormData] = useState({});
-  const { user } = useStore();
+  const { user, setUser } = useStore();
+  const [activeTab, setActiveTab] = useState('profile');
+  const [formData, setFormData] = useState({
+    name: user?.name || '',
+    phone: user?.phone || '',
+    address: user?.address || '',
+  });
+  const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [showPw, setShowPw] = useState({ current: false, new: false, confirm: false });
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (!user) return;
-
-      try {
-        const res = await axiosClient.get('/api/auth/me');
-        setProfile(res.data.data);
-        setFormData(res.data.data);
-      } catch (error) {
-        toast.error('Failed to load profile');
-      }
-    };
-
-    fetchProfile();
-  }, [user]);
-
-  const handleSave = async (e) => {
+  const handleUpdateProfile = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      await axiosClient.patch(`/api/users/${user._id || user.id}`, formData);
-      setProfile(formData);
-      setEditing(false);
-      toast.success('Profile updated!');
-    } catch (error) {
-      toast.error('Failed to update profile');
+      const res = await axiosClient.put('/api/users/profile', formData);
+      setUser(res.data.data);
+      toast.success('Profile updated successfully!');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Update failed');
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (!profile) return <div className='text-center py-8'>Loading...</div>;
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+    if (passwordData.newPassword.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+    setLoading(true);
+    try {
+      await axiosClient.put('/api/users/change-password', {
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword,
+      });
+      toast.success('Password changed successfully!');
+      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to change password');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const tabs = [
+    { id: 'profile', label: 'Profile', icon: <User className='w-4 h-4' /> },
+    { id: 'security', label: 'Security', icon: <Lock className='w-4 h-4' /> },
+  ];
+
+  const avatarLetter = user?.name?.charAt(0).toUpperCase() || '?';
 
   return (
-    <div className='container mx-auto px-4 py-8'>
-      <h1 className='text-3xl font-bold mb-8'>My Profile</h1>
+    <div className='min-h-screen bg-slate-50 pb-20'>
+      <div className='bg-white border-b border-slate-100'>
+        <div className='container mx-auto px-4 py-10'>
+          <div className='flex flex-col sm:flex-row items-center sm:items-start gap-6'>
+            {/* Avatar */}
+            <div className='relative'>
+              <div className='w-20 h-20 bg-gradient-to-br from-brand-500 to-violet-600 rounded-2xl flex items-center justify-center text-white font-display font-bold text-3xl shadow-lg shadow-brand-500/30'>
+                {avatarLetter}
+              </div>
+              <div className='absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 border-2 border-white rounded-full'></div>
+            </div>
+            <div>
+              <h1 className='text-2xl font-display font-bold text-slate-900'>{user?.name}</h1>
+              <p className='text-slate-400 text-sm'>{user?.email}</p>
+              <div className='flex items-center gap-4 mt-3'>
+                <span className='inline-flex items-center gap-1.5 bg-brand-50 text-brand-700 text-xs font-semibold px-3 py-1.5 rounded-full'>
+                  <ShoppingBag className='w-3 h-3' />
+                  Member
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <div className='max-w-2xl'>
-        {editing ? (
-          <form onSubmit={handleSave} className='border p-6 rounded'>
-            <div className='mb-4'>
-              <label className='block font-semibold mb-2'>Name</label>
-              <input type='text' value={formData.name || ''} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className='w-full border rounded px-4 py-2' />
-            </div>
-
-            <div className='mb-4'>
-              <label className='block font-semibold mb-2'>Email</label>
-              <input type='email' value={formData.email || ''} disabled className='w-full border rounded px-4 py-2 bg-gray-100' />
-            </div>
-
-            <div className='mb-4'>
-              <label className='block font-semibold mb-2'>Phone</label>
-              <input type='tel' value={formData.phone || ''} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className='w-full border rounded px-4 py-2' />
-            </div>
-
-            <div className='mb-6'>
-              <label className='block font-semibold mb-2'>Address</label>
-              <textarea value={formData.address || ''} onChange={(e) => setFormData({ ...formData, address: e.target.value })} className='w-full border rounded px-4 py-2' rows="3"></textarea>
-            </div>
-
-            <div className='flex gap-4'>
-              <button type='submit' className='bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700'>
-                Save
-              </button>
-              <button type='button' onClick={() => setEditing(false)} className='bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500'>
-                Cancel
-              </button>
-            </div>
-          </form>
-        ) : (
-          <div className='border p-6 rounded'>
-            <div className='mb-4'>
-              <span className='font-semibold text-gray-600'>Name:</span>
-              <p className='text-lg'>{profile.name}</p>
-            </div>
-            <div className='mb-4'>
-              <span className='font-semibold text-gray-600'>Email:</span>
-              <p className='text-lg'>{profile.email}</p>
-            </div>
-            <div className='mb-4'>
-              <span className='font-semibold text-gray-600'>Phone:</span>
-              <p className='text-lg'>{profile.phone || 'Not provided'}</p>
-            </div>
-            <div className='mb-6'>
-              <span className='font-semibold text-gray-600'>Address:</span>
-              <p className='text-lg'>{profile.address || 'Not provided'}</p>
-            </div>
-            <button onClick={() => setEditing(true)} className='bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700'>
-              Edit Profile
+      <div className='container mx-auto px-4 py-8 max-w-3xl'>
+        {/* Tab bar */}
+        <div className='flex bg-white rounded-2xl border border-slate-100 shadow-sm p-1 mb-8'>
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                activeTab === tab.id
+                  ? 'bg-brand-600 text-white shadow-md shadow-brand-500/20'
+                  : 'text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              {tab.icon}
+              {tab.label}
             </button>
+          ))}
+        </div>
+
+        {/* Profile tab */}
+        {activeTab === 'profile' && (
+          <div className='bg-white rounded-3xl border border-slate-100 shadow-sm p-6 md:p-8'>
+            <h2 className='text-lg font-display font-bold text-slate-900 mb-6'>Personal Information</h2>
+            <form onSubmit={handleUpdateProfile} className='space-y-5'>
+              <div>
+                <label className='block text-sm font-semibold text-slate-700 mb-2'>Full Name</label>
+                <div className='relative'>
+                  <User className='absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400' />
+                  <input
+                    type='text'
+                    value={formData.name}
+                    onChange={e => setFormData({...formData, name: e.target.value})}
+                    className='w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-slate-400 transition-colors'
+                    placeholder='Your full name'
+                  />
+                </div>
+              </div>
+              <div>
+                <label className='block text-sm font-semibold text-slate-700 mb-2'>Email Address</label>
+                <div className='relative'>
+                  <Mail className='absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300' />
+                  <input
+                    type='email'
+                    value={user?.email}
+                    disabled
+                    className='w-full bg-slate-100 border border-slate-200 rounded-xl pl-11 pr-4 py-3 focus:outline-none placeholder:text-slate-400 opacity-60 cursor-not-allowed'
+                  />
+                </div>
+                <p className='text-xs text-slate-400 mt-1'>Email cannot be changed</p>
+              </div>
+              <div>
+                <label className='block text-sm font-semibold text-slate-700 mb-2'>Phone Number</label>
+                <div className='relative'>
+                  <Phone className='absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400' />
+                  <input
+                    type='tel'
+                    value={formData.phone}
+                    onChange={e => setFormData({...formData, phone: e.target.value})}
+                    className='w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-slate-400 transition-colors'
+                    placeholder='Your phone number'
+                  />
+                </div>
+              </div>
+              <div>
+                <label className='block text-sm font-semibold text-slate-700 mb-2'>Address</label>
+                <div className='relative'>
+                  <MapPin className='absolute left-4 top-4 w-4 h-4 text-slate-400' />
+                  <textarea
+                    value={formData.address}
+                    onChange={e => setFormData({...formData, address: e.target.value})}
+                    rows={3}
+                    className='w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-slate-400 transition-colors resize-none'
+                    placeholder='Your delivery address'
+                  />
+                </div>
+              </div>
+              <button type='submit' disabled={loading} className='btn-primary flex items-center gap-2'>
+                <Save className='w-4 h-4' />
+                {loading ? 'Saving...' : 'Save Changes'}
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* Security tab */}
+        {activeTab === 'security' && (
+          <div className='bg-white rounded-3xl border border-slate-100 shadow-sm p-6 md:p-8'>
+            <h2 className='text-lg font-display font-bold text-slate-900 mb-6'>Change Password</h2>
+            <form onSubmit={handleChangePassword} className='space-y-5'>
+              {[
+                { id: 'current', label: 'Current Password', key: 'currentPassword', placeholder: '••••••••' },
+                { id: 'new', label: 'New Password', key: 'newPassword', placeholder: 'At least 6 characters' },
+                { id: 'confirm', label: 'Confirm New Password', key: 'confirmPassword', placeholder: 'Repeat new password' },
+              ].map(field => (
+                <div key={field.id}>
+                  <label className='block text-sm font-semibold text-slate-700 mb-2'>{field.label}</label>
+                  <div className='relative'>
+                    <Lock className='absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400' />
+                    <input
+                      type={showPw[field.id] ? 'text' : 'password'}
+                      value={passwordData[field.key]}
+                      onChange={e => setPasswordData({...passwordData, [field.key]: e.target.value})}
+                       className='w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-11 py-3 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-slate-400 transition-colors'
+                      placeholder={field.placeholder}
+                      required
+                    />
+                    <button
+                      type='button'
+                      onClick={() => setShowPw({...showPw, [field.id]: !showPw[field.id]})}
+                      className='absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600'
+                    >
+                      {showPw[field.id] ? <EyeOff className='w-4 h-4' /> : <Eye className='w-4 h-4' />}
+                    </button>
+                  </div>
+                </div>
+              ))}
+              <button type='submit' disabled={loading} className='btn-primary flex items-center gap-2'>
+                <Lock className='w-4 h-4' />
+                {loading ? 'Changing...' : 'Change Password'}
+              </button>
+            </form>
           </div>
         )}
       </div>

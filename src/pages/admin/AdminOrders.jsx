@@ -163,7 +163,7 @@ function AdminOrders() {
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-medium'>
                     <Link 
-                      to={`/orders/${order._id}`} 
+                      to={`/admin/orders/${order._id}`} 
                       className='inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 hover:text-brand-600 transition-colors shadow-sm'
                     >
                       <Eye className="w-4 h-4" /> View Details

@@ -9,11 +9,15 @@ function ProtectedRoute({ children, adminOnly = false }) {
   if (authLoading) return null;
 
   if (!user) {
-    return <Navigate to="/auth" state={{ from: location.pathname }} replace />;
+    // If it's an admin route, redirect to the new admin login page instead of the client auth page
+    if (adminOnly) {
+      return <Navigate to="/admin/login" state={{ from: location.pathname + location.search }} replace />;
+    }
+    return <Navigate to="/auth" state={{ from: location.pathname + location.search }} replace />;
   }
 
   if (adminOnly && user.role !== 'admin') {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/admin/login" replace />;
   }
 
   return children;

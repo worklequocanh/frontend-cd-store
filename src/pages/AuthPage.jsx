@@ -9,7 +9,7 @@ function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
-  const { setUser } = useStore();
+  const { setUser, setCart } = useStore();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -24,7 +24,22 @@ function AuthPage() {
       localStorage.setItem('token', res.data.data.token);
       setUser(res.data.data.user);
       toast.success(isLogin ? 'Welcome back!' : 'Account created successfully!');
+      
       const from = location.state?.from || '/';
+      const pendingCartItem = location.state?.pendingCartItem;
+
+      if (pendingCartItem) {
+        try {
+          const cartRes = await axiosClient.post('/api/cart/items', pendingCartItem, {
+            headers: { Authorization: `Bearer ${res.data.data.token}` }
+          });
+          setCart(cartRes.data.data);
+          toast.success('Item added to cart!');
+        } catch (err) {
+          toast.error('Failed to add pending item to cart');
+        }
+      }
+
       navigate(from, { replace: true });
     } catch (error) {
       toast.error(error.response?.data?.message || 'An error occurred. Please try again.');

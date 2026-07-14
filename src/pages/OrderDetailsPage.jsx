@@ -3,7 +3,7 @@ import axiosClient from '../utils/axiosClient';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useStore } from '../store/store';
 import toast from 'react-hot-toast';
-import { Package, Truck, CheckCircle2, Clock, MapPin, Phone, CreditCard, ChevronLeft } from 'lucide-react';
+import { Package, Truck, CheckCircle2, Clock, MapPin, Phone, CreditCard, ChevronLeft, Banknote, AlertCircle } from 'lucide-react';
 
 function OrderDetailsPage() {
   const { id } = useParams();
@@ -234,18 +234,37 @@ function OrderDetailsPage() {
             {/* Payment Info */}
             <div className='bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100'>
               <h2 className='text-xl font-display font-bold text-slate-900 mb-6 flex items-center gap-2'>
-                <CreditCard className="w-5 h-5 text-brand-600" /> Payment
+                <CreditCard className="w-5 h-5 text-brand-600" /> Payment Details
               </h2>
               
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center border border-slate-200">
-                  <CreditCard className="w-6 h-6 text-slate-600" />
+              <div className="flex items-center gap-4 mb-6">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center border ${
+                  order.paymentMethod === 'cod' ? 'bg-slate-50 border-slate-200 text-slate-600' : 'bg-violet-50 border-violet-200 text-violet-600'
+                }`}>
+                  {order.paymentMethod === 'cod' ? <Banknote className="w-6 h-6" /> : <CreditCard className="w-6 h-6" />}
                 </div>
                 <div>
-                  <p className="font-bold text-slate-900 uppercase">{order.paymentMethod === 'cod' ? 'Cash on Delivery' : order.paymentMethod}</p>
-                  <p className="text-sm text-slate-500">
-                    {order.paymentStatus === 'completed' ? 'Paid completely' : 'Pending payment'}
+                  <p className="font-bold text-slate-900 mb-1">
+                    {order.paymentMethod === 'cod' ? 'Cash on Delivery (COD)' : 'Online Payment'}
                   </p>
+                  
+                  {order.paymentMethod !== 'cod' ? (
+                    <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full ${
+                      order.paymentStatus === 'completed' || order.paymentStatus === 'paid'
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-red-100 text-red-600'
+                    }`}>
+                      {order.paymentStatus === 'completed' || order.paymentStatus === 'paid' ? (
+                        <><CheckCircle2 className="w-3.5 h-3.5" /> Successfully Paid</>
+                      ) : (
+                        <><AlertCircle className="w-3.5 h-3.5" /> Unpaid</>
+                      )}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
+                      Payment on delivery
+                    </span>
+                  )}
                 </div>
               </div>
 

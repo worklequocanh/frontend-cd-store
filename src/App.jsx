@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import axiosClient from './utils/axiosClient';
 import { useStore } from './store/store';
 import HomePage from './pages/HomePage';
+import ShopPage from './pages/ShopPage';
 import ProductPage from './pages/ProductPage';
 import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
@@ -16,23 +17,29 @@ import ProfilePage from './pages/ProfilePage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
+import AdminOrderDetails from './pages/admin/AdminOrderDetails';
 import AdminUsers from './pages/admin/AdminUsers';
+import AdminCoupons from './pages/admin/AdminCoupons';
 import AdminLayout from './pages/admin/AdminLayout';
+import AdminLoginPage from './pages/admin/AdminLoginPage';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import GuestRoute from './components/GuestRoute';
+import ClientRoute from './components/ClientRoute';
 import ScrollToTop from './components/ScrollToTop';
 
 function ClientLayout() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <main className='flex-1'>
-        <Outlet />
-      </main>
-      <Footer />
-    </div>
+    <ClientRoute>
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className='flex-1'>
+          <Outlet />
+        </main>
+        <Footer />
+      </div>
+    </ClientRoute>
   );
 }
 
@@ -69,6 +76,7 @@ function App() {
         {/* Client Routes wrapped with Header and Footer */}
         <Route element={<ClientLayout />}>
           <Route path='/' element={<HomePage />} />
+          <Route path='/shop' element={<ShopPage />} />
           <Route path='/products/:slug' element={<ProductPage />} />
           
           {/* Guest Only Routes */}
@@ -116,6 +124,13 @@ function App() {
           } />
         </Route>
 
+        {/* Admin Login - Isolated from Client and Admin Layout */}
+        <Route path='/admin/login' element={
+          <GuestRoute>
+            <AdminLoginPage />
+          </GuestRoute>
+        } />
+
         {/* Admin Routes - No global Header/Footer */}
         <Route path='/admin' element={
           <ProtectedRoute adminOnly={true}>
@@ -125,7 +140,9 @@ function App() {
           <Route index element={<AdminDashboard />} />
           <Route path='products' element={<AdminProducts />} />
           <Route path='orders' element={<AdminOrders />} />
+          <Route path='orders/:id' element={<AdminOrderDetails />} />
           <Route path='users' element={<AdminUsers />} />
+          <Route path='coupons' element={<AdminCoupons />} />
         </Route>
       </Routes>
     </Router>

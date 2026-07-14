@@ -12,5 +12,14 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+    hmr: {
+      protocol: 'ws',
+      host: 'localhost',
+    },
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/setupTests.js',
   },
 });
