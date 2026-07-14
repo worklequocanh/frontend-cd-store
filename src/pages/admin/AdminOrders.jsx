@@ -116,6 +116,7 @@ function AdminOrders() {
                 <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider'>Order ID</th>
                 <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider'>Customer</th>
                 <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider'>Total</th>
+                <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider'>Payment</th>
                 <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider'>Status</th>
                 <th className='px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider'>Actions</th>
               </tr>
@@ -136,6 +137,14 @@ function AdminOrders() {
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap'>
                     <span className="font-bold text-brand-600">${order.total?.toFixed(2)}</span>
+                  </td>
+                  <td className='px-6 py-4 whitespace-nowrap'>
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-slate-900 uppercase">{order.paymentMethod === 'qr' ? 'PayOS (QR)' : 'COD'}</span>
+                      <span className={`text-xs font-bold mt-0.5 ${order.paymentStatus === 'completed' ? 'text-green-600' : 'text-amber-600'}`}>
+                        {order.paymentStatus?.toUpperCase() || 'PENDING'}
+                      </span>
+                    </div>
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap'>
                     <div className="flex items-center gap-2">
@@ -165,7 +174,7 @@ function AdminOrders() {
               
               {orders.length === 0 && (
                 <tr>
-                  <td colSpan="5" className="px-6 py-12 text-center text-slate-500">
+                  <td colSpan="6" className="px-6 py-12 text-center text-slate-500">
                     <div className="flex flex-col items-center justify-center">
                       <ShoppingCart className="w-12 h-12 text-slate-300 mb-4" />
                       <p className="text-lg font-medium text-slate-900">No orders found</p>
