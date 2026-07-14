@@ -224,13 +224,13 @@ function CheckoutPage() {
                     </div>
                     <div className='flex justify-between'>
                       <span>Shipping</span>
-                      <span className='font-medium text-white'>${(cart.subtotal > 500000 ? 0 : 25000).toFixed(2)}</span>
+                      <span className='font-medium text-white'>${(cart.subtotal > 500000 ? 0 : 250).toFixed(2)}</span>
                     </div>
                     
                     <div className='flex justify-between items-end mt-6 pt-6 border-t border-slate-700'>
                       <span className='font-bold text-lg text-white'>Total</span>
                       <span className='font-display font-bold text-3xl text-brand-400'>
-                        ${(cart.subtotal + (cart.subtotal > 500000 ? 0 : 25000) - (cart.discountAmount || 0)).toFixed(2)}
+                        ${(cart.subtotal + (cart.subtotal > 500000 ? 0 : 250) - (cart.discountAmount || 0)).toFixed(2)}
                       </span>
                     </div>
                   </div>
