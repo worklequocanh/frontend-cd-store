@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import axiosClient from '../../utils/axiosClient';
 import { useStore } from '../../store/store';
 import toast from 'react-hot-toast';
 import { ShoppingCart, Users, PackageSearch, DollarSign, Clock, ArrowRight, TrendingUp } from 'lucide-react';
@@ -17,10 +17,7 @@ function AdminDashboard() {
       }
 
       try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get('/api/admin/dashboard', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axiosClient.get('/api/admin/dashboard');
         setDashboard(res.data.data);
       } catch (error) {
         toast.error('Failed to load dashboard');
