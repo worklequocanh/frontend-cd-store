@@ -57,7 +57,8 @@ function CheckoutPage() {
             return;
           }
         } catch (payosError) {
-          toast.error(payosError.response?.data?.message || 'Payment gateway is busy. Please try paying from the order page.');
+          const errorMsg = payosError.response?.data?.message || payosError.message || 'Unknown error';
+          alert('PAYOS ERROR: ' + errorMsg + '\n\nPlease check Render environment variables (PAYOS_CLIENT_ID, etc.)');
         }
       }
       
