@@ -50,15 +50,30 @@ function CheckoutPage() {
       
       if (paymentMethod === 'qr') {
         try {
-          toast.loading('Redirecting to secure payment gateway...', { duration: 2000 });
-          const payosRes = await axiosClient.post(`/api/orders/${orderId}/create-payos-link`);
-          if (payosRes.data.data.checkoutUrl) {
-            window.location.href = payosRes.data.data.checkoutUrl;
+          toast.loading('Redirecting to SePay payment gateway...', { duration: 2000 });
+          const sepayRes = await axiosClient.post(`/api/orders/${orderId}/create-sepay-link`);
+          const { checkoutUrl, formFields } = sepayRes.data.data || {};
+          if (checkoutUrl && formFields) {
+            const form = document.createElement('form');
+            form.action = checkoutUrl;
+            form.method = 'POST';
+            Object.keys(formFields).forEach(field => {
+              const input = document.createElement('input');
+              input.type = 'hidden';
+              input.name = field;
+              input.value = formFields[field];
+              form.appendChild(input);
+            });
+            document.body.appendChild(form);
+            form.submit();
+            return;
+          } else if (checkoutUrl) {
+            window.location.href = checkoutUrl;
             return;
           }
-        } catch (payosError) {
-          const errorMsg = payosError.response?.data?.message || payosError.message || 'Unknown error';
-          alert('PAYOS ERROR: ' + errorMsg + '\n\nPlease check Render environment variables (PAYOS_CLIENT_ID, etc.)');
+        } catch (sepayError) {
+          const errorMsg = sepayError.response?.data?.message || sepayError.message || 'Unknown error';
+          alert('SEPAY ERROR: ' + errorMsg + '\n\nPlease check SePay environment variables (SEPAY_MERCHANT_ID, etc.)');
         }
       }
       
@@ -177,8 +192,8 @@ function CheckoutPage() {
                     <input type='radio' name='payment' value='qr' checked={paymentMethod === 'qr'} onChange={(e) => setPaymentMethod(e.target.value)} className='w-5 h-5 text-brand-600 focus:ring-brand-500' />
                     <CreditCard className={`w-6 h-6 ${paymentMethod === 'qr' ? 'text-brand-600' : 'text-slate-400'}`} />
                     <div>
-                      <span className="block font-medium text-slate-900">PayOS - QR Code / Bank Transfer</span>
-                      <span className="text-sm text-slate-500">Fast & secure via PayOS</span>
+                      <span className="block font-medium text-slate-900">SePay - QR Code / Bank Transfer (Sandbox)</span>
+                      <span className="text-sm text-slate-500">Fast & secure via SePay Sandbox</span>
                     </div>
                   </label>
                 </div>
@@ -224,13 +239,19 @@ function CheckoutPage() {
                     </div>
                     <div className='flex justify-between'>
                       <span>Shipping</span>
-                      <span className='font-medium text-white'>${(cart.subtotal > 500000 ? 0 : 250).toFixed(2)}</span>
+                      <span className='font-medium text-white'>${((cart.subtotal || 0) > 500000 ? 0 : 250).toFixed(2)}</span>
                     </div>
+                    {cart.discountAmount > 0 && (
+                      <div className='flex justify-between text-brand-400 font-semibold'>
+                        <span>Discount ({cart.couponCode})</span>
+                        <span>-${cart.discountAmount.toFixed(2)}</span>
+                      </div>
+                    )}
                     
                     <div className='flex justify-between items-end mt-6 pt-6 border-t border-slate-700'>
                       <span className='font-bold text-lg text-white'>Total</span>
                       <span className='font-display font-bold text-3xl text-brand-400'>
-                        ${(cart.subtotal + (cart.subtotal > 500000 ? 0 : 250) - (cart.discountAmount || 0)).toFixed(2)}
+                        ${Math.max(0, (cart.subtotal || 0) + ((cart.subtotal || 0) > 500000 ? 0 : 250) - (cart.discountAmount || 0)).toFixed(2)}
                       </span>
                     </div>
                   </div>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useStore } from '../../store/store';
-import { LayoutDashboard, PackageSearch, ShoppingCart, Users, LogOut, Package, Menu, X, Ticket, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, PackageSearch, ShoppingCart, Users, LogOut, Package, Menu, X, Ticket, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 function AdminLayout() {
@@ -18,6 +18,7 @@ function AdminLayout() {
     { name: 'Orders', path: '/admin/orders', icon: <ShoppingCart className="w-5 h-5" /> },
     { name: 'Users', path: '/admin/users', icon: <Users className="w-5 h-5" /> },
     { name: 'Coupons', path: '/admin/coupons', icon: <Ticket className="w-5 h-5" /> },
+    { name: 'Reviews', path: '/admin/reviews', icon: <Star className="w-5 h-5" /> },
   ];
 
   const handleLogout = () => {

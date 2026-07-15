@@ -12,7 +12,7 @@ const STATUS_CONFIG = {
 };
 
 function PaymentBadge({ method, paymentStatus }) {
-  const isOnline = method === 'qr' || method === 'online' || method === 'payos';
+  const isOnline = method === 'qr' || method === 'online' || method === 'payos' || method === 'sepay';
   const isPaid = paymentStatus === 'completed' || paymentStatus === 'paid';
 
   if (!isOnline) {

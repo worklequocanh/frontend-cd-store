@@ -82,6 +82,42 @@ function AdminOrderDetails() {
         
         {/* Left Column */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Visual Stepper */}
+          <div className='bg-white rounded-3xl p-6 shadow-sm border border-slate-100'>
+            <h2 className='text-lg font-bold text-slate-900 mb-6 flex items-center gap-2'>
+              <Truck className="w-5 h-5 text-brand-600" /> Order Tracking Timeline
+            </h2>
+            {order.orderStatus === 'cancelled' ? (
+              <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-center">
+                <p className="font-bold text-red-700">✕ Order Cancelled</p>
+                {order.cancelReason && <p className="text-xs text-red-600 mt-1">{order.cancelReason}</p>}
+              </div>
+            ) : (
+              <div className="grid grid-cols-4 gap-2 relative">
+                {['pending', 'confirmed', 'shipped', 'delivered'].map((stepStatus, idx) => {
+                  const stepsOrder = ['pending', 'confirmed', 'shipped', 'delivered'];
+                  const currentIdx = stepsOrder.indexOf(order.orderStatus);
+                  const isCompleted = currentIdx >= idx;
+                  const isCurrent = currentIdx === idx;
+                  const stepTitles = ['Pending Approval', 'Order Confirmed', 'In Transit (Shipped)', 'Delivered'];
+
+                  return (
+                    <div key={stepStatus} className="flex flex-col items-center text-center">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs transition-all mb-2 ${
+                        isCompleted ? 'bg-brand-600 text-white shadow' : 'bg-slate-100 text-slate-400'
+                      }`}>
+                        {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : idx + 1}
+                      </div>
+                      <span className={`text-xs font-bold ${isCurrent ? 'text-brand-600' : isCompleted ? 'text-slate-800' : 'text-slate-400'}`}>
+                        {stepTitles[idx]}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
           {/* Items */}
           <div className='bg-white rounded-3xl p-6 shadow-sm border border-slate-100'>
             <h2 className='text-lg font-bold text-slate-900 mb-6 flex items-center gap-2'>
@@ -156,8 +192,8 @@ function AdminOrderDetails() {
                 <span className='font-medium text-white'>${order.shippingFee?.toFixed(2)}</span>
               </div>
               {order.discountAmount > 0 && (
-                <div className='flex justify-between text-brand-400'>
-                  <span>Discount</span>
+                <div className='flex justify-between text-brand-400 font-semibold'>
+                  <span>Discount {order.couponCode ? `(${order.couponCode})` : ''}</span>
                   <span className='font-medium'>-${order.discountAmount.toFixed(2)}</span>
                 </div>
               )}

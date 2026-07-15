@@ -20,6 +20,7 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminOrderDetails from './pages/admin/AdminOrderDetails';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminCoupons from './pages/admin/AdminCoupons';
+import AdminReviews from './pages/admin/AdminReviews';
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminLoginPage from './pages/admin/AdminLoginPage';
 import Header from './components/Header';
@@ -143,6 +144,7 @@ function App() {
           <Route path='orders/:id' element={<AdminOrderDetails />} />
           <Route path='users' element={<AdminUsers />} />
           <Route path='coupons' element={<AdminCoupons />} />
+          <Route path='reviews' element={<AdminReviews />} />
         </Route>
       </Routes>
     </Router>

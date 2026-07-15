@@ -140,7 +140,7 @@ function AdminOrders() {
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap'>
                     <div className="flex flex-col">
-                      <span className="font-semibold text-slate-900 uppercase">{order.paymentMethod === 'qr' ? 'PayOS (QR)' : 'COD'}</span>
+                      <span className="font-semibold text-slate-900 uppercase">{order.paymentMethod === 'qr' ? 'SePay (QR)' : 'COD'}</span>
                       <span className={`text-xs font-bold mt-0.5 ${order.paymentStatus === 'completed' ? 'text-green-600' : 'text-amber-600'}`}>
                         {order.paymentStatus?.toUpperCase() || 'PENDING'}
                       </span>

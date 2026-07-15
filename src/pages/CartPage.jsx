@@ -55,13 +55,22 @@ function CartPage() {
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) return;
     try {
-      const res = await axiosClient.post(
-        '/api/coupons/validate',
-        { code: couponCode, orderValue: cart?.subtotal }
-      );
-      toast.success(`Coupon applied! Discount: $${res.data.data.discount}`);
+      const res = await axiosClient.post('/api/cart/apply-coupon', { code: couponCode });
+      setCart(res.data.data);
+      toast.success(`Coupon applied! Discount: $${res.data.data.discountAmount?.toFixed(2)}`);
+      setCouponCode('');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Invalid coupon');
+    }
+  };
+
+  const handleRemoveCoupon = async () => {
+    try {
+      const res = await axiosClient.delete('/api/cart/coupon');
+      setCart(res.data.data);
+      toast.success('Coupon removed');
+    } catch (error) {
+      toast.error('Failed to remove coupon');
     }
   };
 
@@ -170,12 +179,21 @@ function CartPage() {
                     <span>Estimated Shipping</span>
                     <span className="font-medium text-slate-900">$25.00</span>
                   </div>
+                  {cart.discountAmount > 0 && (
+                    <div className='flex justify-between items-center text-brand-600 font-semibold'>
+                      <div className="flex items-center gap-2">
+                        <span>Discount ({cart.couponCode})</span>
+                        <button onClick={handleRemoveCoupon} className="text-xs text-red-500 hover:underline">Remove</button>
+                      </div>
+                      <span>-${cart.discountAmount.toFixed(2)}</span>
+                    </div>
+                  )}
                   
                   <div className='pt-4 mt-4 border-t border-slate-100'>
                     <div className='flex justify-between items-end'>
                       <span className="font-medium text-lg text-slate-900">Total</span>
                       <span className="text-3xl font-display font-bold text-brand-600">
-                        ${((cart.subtotal || 0) + 25).toFixed(2)}
+                        ${Math.max(0, (cart.subtotal || 0) + 25 - (cart.discountAmount || 0)).toFixed(2)}
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 text-right mt-1">Includes taxes and fees</p>

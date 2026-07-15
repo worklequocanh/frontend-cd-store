@@ -26,8 +26,8 @@ function OrderDetailsPage() {
         const res = await axiosClient.get(`/api/orders/${id}`);
         const params = new URLSearchParams(window.location.search);
         
-        // Optimistically update status if returned from PayOS success
-        if (params.get('payos') === 'success') {
+        // Optimistically update status if returned from SePay/PayOS success
+        if (params.get('payos') === 'success' || params.get('sepay') === 'success') {
           res.data.data.paymentStatus = 'completed';
         }
 
@@ -48,10 +48,10 @@ function OrderDetailsPage() {
     fetchOrder();
 
     const params = new URLSearchParams(window.location.search);
-    if (params.get('payos') === 'success') {
+    if (params.get('payos') === 'success' || params.get('sepay') === 'success') {
       toast.success('Payment successful!');
       window.history.replaceState(null, '', window.location.pathname);
-    } else if (params.get('payos') === 'cancel') {
+    } else if (params.get('payos') === 'cancel' || params.get('sepay') === 'cancel') {
       // Auto restore cart and delete pending order
       axiosClient.post(`/api/orders/${id}/restore-cart`)
         .then(() => {
@@ -65,15 +65,30 @@ function OrderDetailsPage() {
     }
   }, [id, user, navigate]);
 
-  const handlePayOSCheckout = async () => {
+  const handleSePayCheckout = async () => {
     try {
       setPayosLoading(true);
-      const res = await axiosClient.post(`/api/orders/${id}/create-payos-link`);
-      if (res.data.data.checkoutUrl) {
-        window.location.href = res.data.data.checkoutUrl;
+      const res = await axiosClient.post(`/api/orders/${id}/create-sepay-link`);
+      const { checkoutUrl, formFields } = res.data.data || {};
+      if (checkoutUrl && formFields) {
+        const form = document.createElement('form');
+        form.action = checkoutUrl;
+        form.method = 'POST';
+        Object.keys(formFields).forEach(field => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = field;
+          input.value = formFields[field];
+          form.appendChild(input);
+        });
+        document.body.appendChild(form);
+        form.submit();
+        return;
+      } else if (checkoutUrl) {
+        window.location.href = checkoutUrl;
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Error creating payment link');
+      toast.error(error.response?.data?.message || 'Error creating SePay checkout form');
       setPayosLoading(false);
     }
   };
@@ -153,34 +168,61 @@ function OrderDetailsPage() {
             {/* Order Timeline (Status) */}
             <div className='bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100'>
               <h2 className='text-xl font-display font-bold text-slate-900 mb-8 flex items-center gap-2'>
-                <Truck className="w-6 h-6 text-brand-600" /> Order Tracking
+                <Truck className="w-6 h-6 text-brand-600" /> Order Tracking Timeline
               </h2>
               
-              <div className="relative pl-6 border-l-2 border-brand-100 space-y-8">
-                <div className="relative">
-                  <div className="absolute -left-[35px] w-6 h-6 bg-brand-500 rounded-full flex items-center justify-center ring-4 ring-white">
-                    <CheckCircle2 className="w-4 h-4 text-white" />
-                  </div>
-                  <h3 className="font-bold text-slate-900">Order Placed</h3>
-                  <p className="text-sm text-slate-500">{new Date(order.createdAt).toLocaleString()}</p>
+              {order.orderStatus === 'cancelled' ? (
+                <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center">
+                  <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3 text-red-600 font-bold">✕</div>
+                  <h3 className="text-lg font-bold text-red-700">Order Cancelled</h3>
+                  <p className="text-sm text-red-600 mt-1">{order.cancelReason || 'This order has been cancelled.'}</p>
+                  {order.cancelledAt && <p className="text-xs text-red-400 mt-2">Cancelled on {new Date(order.cancelledAt).toLocaleString()}</p>}
                 </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Stepper Bar */}
+                  <div className="grid grid-cols-4 gap-2 relative">
+                    {['pending', 'confirmed', 'shipped', 'delivered'].map((stepStatus, idx) => {
+                      const stepsOrder = ['pending', 'confirmed', 'shipped', 'delivered'];
+                      const currentIdx = stepsOrder.indexOf(order.orderStatus);
+                      const isCompleted = currentIdx >= idx;
+                      const isCurrent = currentIdx === idx;
+                      
+                      const stepTitles = ['Pending Approval', 'Order Confirmed', 'In Transit (Shipped)', 'Delivered'];
+                      const stepDescs = ['Order received', 'Processing in warehouse', 'Handed to courier', 'Completed'];
 
-                <div className={`relative ${order.paymentStatus === 'completed' ? 'opacity-100' : 'opacity-50'}`}>
-                  <div className={`absolute -left-[35px] w-6 h-6 rounded-full flex items-center justify-center ring-4 ring-white ${order.paymentStatus === 'completed' ? 'bg-brand-500' : 'bg-slate-200'}`}>
-                    <CheckCircle2 className={`w-4 h-4 ${order.paymentStatus === 'completed' ? 'text-white' : 'text-slate-400'}`} />
+                      return (
+                        <div key={stepStatus} className="flex flex-col items-center text-center">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all mb-3 ${
+                            isCompleted ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/30' : 'bg-slate-100 text-slate-400'
+                          }`}>
+                            {isCompleted ? <CheckCircle2 className="w-5 h-5" /> : idx + 1}
+                          </div>
+                          <span className={`text-xs md:text-sm font-bold ${isCurrent ? 'text-brand-600' : isCompleted ? 'text-slate-800' : 'text-slate-400'}`}>
+                            {stepTitles[idx]}
+                          </span>
+                          <span className="text-[10px] md:text-xs text-slate-500 mt-1 hidden sm:block">
+                            {stepDescs[idx]}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
-                  <h3 className="font-bold text-slate-900">Payment Confirmed</h3>
-                  <p className="text-sm text-slate-500">{order.paymentStatus === 'completed' ? 'We have received your payment' : 'Awaiting payment'}</p>
-                </div>
-                
-                <div className={`relative ${order.orderStatus === 'shipped' || order.orderStatus === 'delivered' ? 'opacity-100' : 'opacity-50'}`}>
-                  <div className={`absolute -left-[35px] w-6 h-6 rounded-full flex items-center justify-center ring-4 ring-white ${order.orderStatus === 'shipped' || order.orderStatus === 'delivered' ? 'bg-brand-500' : 'bg-slate-200'}`}>
-                    <Truck className={`w-3.5 h-3.5 ${order.orderStatus === 'shipped' || order.orderStatus === 'delivered' ? 'text-white' : 'text-slate-400'}`} />
+
+                  {/* Payment Status row */}
+                  <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${order.paymentStatus === 'completed' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'}`}>
+                        {order.paymentStatus === 'completed' ? <CheckCircle2 className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-slate-900">Payment Status: {order.paymentStatus.toUpperCase()}</p>
+                        <p className="text-xs text-slate-500">{order.paymentMethod === 'cod' ? 'Cash on delivery' : 'Online payment via SePay Sandbox'}</p>
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="font-bold text-slate-900">Shipped</h3>
-                  <p className="text-sm text-slate-500">Your order is on the way</p>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
@@ -199,8 +241,8 @@ function OrderDetailsPage() {
                   <span className='font-medium text-white'>${order.shippingFee?.toFixed(2)}</span>
                 </div>
                 {order.discountAmount > 0 && (
-                  <div className='flex justify-between text-brand-400'>
-                    <span>Discount</span>
+                  <div className='flex justify-between text-brand-400 font-semibold'>
+                    <span>Discount {order.couponCode ? `(${order.couponCode})` : ''}</span>
                     <span className='font-medium'>-${order.discountAmount.toFixed(2)}</span>
                   </div>
                 )}
@@ -268,18 +310,18 @@ function OrderDetailsPage() {
                 </div>
               </div>
 
-              {/* PayOS Payment Section */}
+              {/* SePay Payment Section */}
               {order.paymentMethod === 'qr' && order.paymentStatus === 'pending' && (
                 <div className='mt-6 border-t border-slate-100 pt-6'>
                   <div className="bg-brand-50 p-4 rounded-2xl mb-4">
-                    <h3 className='font-bold text-brand-900 text-sm mb-2'>Pay with PayOS</h3>
+                    <h3 className='font-bold text-brand-900 text-sm mb-2'>Pay with SePay Sandbox</h3>
                     <p className='text-xs text-brand-700 leading-relaxed'>
-                      Securely pay via QR code using any banking app. Instant confirmation.
+                      Securely pay via Bank Transfer / QR code. Instant confirmation.
                     </p>
                   </div>
 
                   <button 
-                    onClick={handlePayOSCheckout}
+                    onClick={handleSePayCheckout}
                     disabled={payosLoading}
                     className='w-full bg-slate-900 text-white px-6 py-4 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20 disabled:opacity-50 disabled:hover:translate-y-0 disabled:shadow-none'
                   >
