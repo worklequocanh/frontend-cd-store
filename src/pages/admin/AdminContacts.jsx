@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import axiosClient from '../../utils/axiosClient';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, Search, Trash2, Eye, CheckCircle2, Clock, Mail, Phone, User, Calendar, X, Save, Filter, AlertCircle } from 'lucide-react';
+import { MessageSquare, Search, Trash2, Eye, CheckCircle2, Clock, Mail, Phone, User, Calendar, X, Save, Filter, AlertCircle, Send } from 'lucide-react';
 
 function AdminContacts() {
   const [contacts, setContacts] = useState([]);
@@ -13,6 +13,10 @@ function AdminContacts() {
   const [adminNotes, setAdminNotes] = useState('');
   const [modalStatus, setModalStatus] = useState('unread');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [replySubject, setReplySubject] = useState('');
+  const [replyMessage, setReplyMessage] = useState('');
+  const [isSendingReply, setIsSendingReply] = useState(false);
+  const [showReplyForm, setShowReplyForm] = useState(false);
 
   const fetchContacts = async () => {
     try {
@@ -31,11 +35,13 @@ function AdminContacts() {
     fetchContacts();
   }, []);
 
-  // Open modal and optionally mark unread as read
   const handleOpenDetail = async (contact) => {
     setSelectedContact(contact);
     setAdminNotes(contact.adminNotes || '');
     setModalStatus(contact.status || 'unread');
+    setReplySubject(`[CD Store] Phản hồi yêu cầu hỗ trợ: ${contact.subject}`);
+    setReplyMessage('');
+    setShowReplyForm(false);
 
     // Auto mark as read if currently unread
     if (contact.status === 'unread') {
@@ -69,6 +75,34 @@ function AdminContacts() {
       toast.error('Lỗi khi cập nhật lời nhắn');
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  // Send email reply directly to customer
+  const handleSendReply = async () => {
+    if (!selectedContact || !replyMessage.trim()) {
+      toast.error('Vui lòng nhập nội dung email phản hồi');
+      return;
+    }
+    setIsSendingReply(true);
+    try {
+      const res = await axiosClient.post(`/api/admin/contacts/${selectedContact._id}/reply`, {
+        subject: replySubject,
+        replyMessage: replyMessage,
+      });
+      const updated = res.data.data;
+      setContacts((prev) => prev.map((c) => (c._id === selectedContact._id ? updated : c)));
+      setSelectedContact(updated);
+      setAdminNotes(updated.adminNotes || '');
+      setModalStatus(updated.status || 'replied');
+      setReplyMessage('');
+      setShowReplyForm(false);
+      toast.success('Đã gửi email phản hồi trực tiếp cho khách hàng!');
+    } catch (error) {
+      console.error('Error sending reply email:', error);
+      toast.error(error.response?.data?.message || 'Lỗi khi gửi email phản hồi');
+    } finally {
+      setIsSendingReply(false);
     }
   };
 
@@ -388,6 +422,76 @@ function AdminContacts() {
                   <div className="bg-white p-5 rounded-2xl border border-slate-200/80 text-slate-800 leading-relaxed whitespace-pre-wrap">
                     {selectedContact.message}
                   </div>
+                </div>
+
+                {/* Email Reply Box */}
+                <div className="bg-brand-50/60 rounded-2xl p-5 border border-brand-200/60 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Mail className="w-5 h-5 text-brand-600" />
+                      <h4 className="font-display font-bold text-slate-800">
+                        Gửi Email Phản Hồi Trực Tiếp Cho Khách
+                      </h4>
+                    </div>
+                    <button
+                      onClick={() => setShowReplyForm(!showReplyForm)}
+                      className="text-xs font-bold text-brand-600 hover:text-brand-700 bg-white px-3 py-1.5 rounded-xl shadow-sm border border-brand-200 transition-colors"
+                    >
+                      {showReplyForm ? 'Ẩn form trả lời' : 'Soạn Email Phản Hồi'}
+                    </button>
+                  </div>
+
+                  <AnimatePresence>
+                    {showReplyForm && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="space-y-3 pt-2 overflow-hidden"
+                      >
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-600 mb-1">
+                            Người nhận: <span className="font-bold text-slate-800">{selectedContact.name} ({selectedContact.email})</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={replySubject}
+                            onChange={(e) => setReplySubject(e.target.value)}
+                            placeholder="Tiêu đề email..."
+                            className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                          />
+                        </div>
+                        <div>
+                          <textarea
+                            rows={5}
+                            value={replyMessage}
+                            onChange={(e) => setReplyMessage(e.target.value)}
+                            placeholder="Nhập nội dung câu trả lời/giải quyết yêu cầu của khách hàng..."
+                            className="w-full bg-white border border-slate-200 rounded-xl p-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
+                          ></textarea>
+                        </div>
+                        <div className="flex justify-end">
+                          <button
+                            onClick={handleSendReply}
+                            disabled={isSendingReply}
+                            className="bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm px-5 py-2.5 rounded-xl shadow-md shadow-brand-500/25 flex items-center gap-2 transition-all"
+                          >
+                            {isSendingReply ? (
+                              <>
+                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                <span>Đang Gửi Email...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Send className="w-4 h-4" />
+                                <span>Gửi Email Trả Lời Ngay</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 {/* Status & Admin Notes Management */}
