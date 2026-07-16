@@ -117,6 +117,18 @@ function Header() {
             >
               Shop
             </Link>
+            <Link
+              to='/about'
+              className='px-4 py-2 text-sm font-medium text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors'
+            >
+              About
+            </Link>
+            <Link
+              to='/contact'
+              className='px-4 py-2 text-sm font-medium text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors'
+            >
+              Contact
+            </Link>
 
             {/* Cart */}
             <Link
@@ -237,6 +249,8 @@ function Header() {
             <div className="flex flex-col gap-1">
               <Link to='/' className='px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl transition-colors'>Home</Link>
               <Link to='/shop' className='px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl transition-colors'>Shop All</Link>
+              <Link to='/about' className='px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl transition-colors'>About Us</Link>
+              <Link to='/contact' className='px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl transition-colors'>Contact Us</Link>
               <Link to='/cart' className='px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl flex items-center justify-between'>
                 Cart
                 {cartItemCount > 0 && <span className='bg-brand-600 text-white text-xs font-bold px-2 py-0.5 rounded-full'>{cartItemCount}</span>}

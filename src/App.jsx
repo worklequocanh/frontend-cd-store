@@ -21,8 +21,11 @@ import AdminOrderDetails from './pages/admin/AdminOrderDetails';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminCoupons from './pages/admin/AdminCoupons';
 import AdminReviews from './pages/admin/AdminReviews';
+import AdminContacts from './pages/admin/AdminContacts';
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminLoginPage from './pages/admin/AdminLoginPage';
+import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -79,6 +82,8 @@ function App() {
           <Route path='/' element={<HomePage />} />
           <Route path='/shop' element={<ShopPage />} />
           <Route path='/products/:slug' element={<ProductPage />} />
+          <Route path='/about' element={<AboutPage />} />
+          <Route path='/contact' element={<ContactPage />} />
           
           {/* Guest Only Routes */}
           <Route path='/auth' element={
@@ -155,6 +160,7 @@ function App() {
           <Route path='users' element={<AdminUsers />} />
           <Route path='coupons' element={<AdminCoupons />} />
           <Route path='reviews' element={<AdminReviews />} />
+          <Route path='contacts' element={<AdminContacts />} />
         </Route>
       </Routes>
     </Router>

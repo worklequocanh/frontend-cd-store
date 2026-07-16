@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import axiosClient from '../../utils/axiosClient';
 import { useStore } from '../../store/store';
 import toast from 'react-hot-toast';
-import { ShoppingCart, Users, PackageSearch, DollarSign, Clock, ArrowRight, TrendingUp, Activity, Package, ChevronRight } from 'lucide-react';
+import { ShoppingCart, Users, PackageSearch, DollarSign, Clock, ArrowRight, TrendingUp, Activity, Package, ChevronRight, MessageSquare } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { motion } from 'framer-motion';
 
@@ -63,6 +63,7 @@ function AdminDashboard() {
     { title: 'Total Orders', value: dashboard.totalOrders || 0, icon: <ShoppingCart className="w-7 h-7" />, color: 'from-blue-500 to-cyan-400', shadow: 'shadow-blue-500/20' },
     { title: 'Total Users', value: dashboard.totalUsers || 0, icon: <Users className="w-7 h-7" />, color: 'from-violet-500 to-purple-400', shadow: 'shadow-violet-500/20' },
     { title: 'Total Products', value: dashboard.totalProducts || 0, icon: <PackageSearch className="w-7 h-7" />, color: 'from-brand-500 to-indigo-400', shadow: 'shadow-brand-500/20' },
+    { title: 'Unread Messages', value: dashboard.unreadContacts || 0, icon: <MessageSquare className="w-7 h-7" />, color: 'from-red-500 to-rose-400', shadow: 'shadow-red-500/20' },
   ];
 
   const containerVariants = {
@@ -100,7 +101,7 @@ function AdminDashboard() {
       </div>
 
       {/* KPI Cards */}
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6'>
         {statCards.map((stat, idx) => (
           <motion.div 
             variants={itemVariants}
@@ -284,6 +285,63 @@ function AdminDashboard() {
           </div>
         </motion.div>
       </div>
+
+      {/* Recent Customer Inquiries Widget */}
+      <motion.div variants={itemVariants} className='bg-white rounded-3xl p-6 lg:p-8 border border-slate-100 shadow-sm'>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className='text-xl font-display font-bold text-slate-800 flex items-center gap-2'>
+            <MessageSquare className="w-5 h-5 text-brand-500" /> Recent Customer Inquiries
+          </h2>
+          <Link to='/admin/contacts' className="text-sm font-semibold text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 px-4 py-2 rounded-lg transition-colors flex items-center gap-1">
+            Manage All Messages <ChevronRight className="w-4 h-4" />
+          </Link>
+        </div>
+
+        <div>
+          {dashboard.recentContacts && dashboard.recentContacts.length > 0 ? (
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+              {dashboard.recentContacts.slice(0, 6).map((contact) => (
+                <Link
+                  to='/admin/contacts'
+                  key={contact._id}
+                  className={`p-5 rounded-2xl border transition-all flex flex-col justify-between gap-3 ${
+                    contact.status === 'unread'
+                      ? 'bg-red-50/40 border-red-200/80 shadow-sm hover:shadow-md'
+                      : 'bg-slate-50/50 border-slate-100 hover:border-slate-200 hover:bg-white'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-bold text-slate-900 truncate text-sm">{contact.name}</span>
+                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full shrink-0 ${
+                      contact.status === 'unread'
+                        ? 'bg-red-500 text-white animate-pulse'
+                        : contact.status === 'read'
+                        ? 'bg-amber-100 text-amber-800'
+                        : 'bg-emerald-100 text-emerald-800'
+                    }`}>
+                      {contact.status === 'unread' ? 'Mới' : contact.status === 'read' ? 'Đã đọc' : 'Đã phản hồi'}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-slate-800 text-sm line-clamp-1">{contact.subject}</p>
+                    <p className="text-xs text-slate-500 line-clamp-2 mt-1">{contact.message}</p>
+                  </div>
+                  <div className="pt-2 border-t border-slate-100/80 flex items-center justify-between text-[11px] text-slate-400">
+                    <span className="truncate">{contact.email}</span>
+                    <span className="shrink-0">{new Date(contact.createdAt).toLocaleDateString('vi-VN')}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200 p-8 text-center">
+              <MessageSquare className="w-10 h-10 text-slate-300 mb-2" />
+              <p className="text-slate-500 font-medium">Chưa có lời nhắn nào từ khách hàng.</p>
+              <p className="text-slate-400 text-xs mt-0.5">Các lời nhắn gửi qua form Contact sẽ xuất hiện tại đây.</p>
+            </div>
+          )}
+        </div>
+      </motion.div>
     </motion.div>
   );
 }

@@ -63,13 +63,13 @@ function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className='font-display font-bold text-white text-base mb-5'>Shop</h3>
+            <h3 className='font-display font-bold text-white text-base mb-5'>Shop & About</h3>
             <ul className='space-y-3 text-sm'>
               {[
-                { label: 'All Products', to: '/' },
-                { label: 'New Arrivals', to: '/?sort=-createdAt' },
-                { label: 'Best Deals', to: '/?sort=price' },
-                { label: 'Top Rated', to: '/?sort=-rating' },
+                { label: 'All Products', to: '/shop' },
+                { label: 'About Us', to: '/about' },
+                { label: 'New Arrivals', to: '/shop?sort=-createdAt' },
+                { label: 'Best Deals', to: '/shop?sort=price' },
               ].map(l => (
                 <li key={l.label}>
                   <Link to={l.to} className='hover:text-brand-400 transition-colors'>{l.label}</Link>
@@ -82,8 +82,15 @@ function Footer() {
           <div>
             <h3 className='font-display font-bold text-white text-base mb-5'>Support</h3>
             <ul className='space-y-3 text-sm'>
-              {['FAQ', 'Returns & Exchanges', 'Shipping Info', 'Contact Us', 'Track Order'].map(l => (
-                <li key={l}><a href='#' className='hover:text-brand-400 transition-colors'>{l}</a></li>
+              {[
+                { label: 'Contact Us', to: '/contact' },
+                { label: 'FAQ', to: '/contact' },
+                { label: 'Track Order', to: '/orders' },
+                { label: 'Returns & Exchanges', to: '/contact' },
+              ].map(l => (
+                <li key={l.label}>
+                  <Link to={l.to} className='hover:text-brand-400 transition-colors'>{l.label}</Link>
+                </li>
               ))}
             </ul>
           </div>

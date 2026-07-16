@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useStore } from '../../store/store';
-import { LayoutDashboard, PackageSearch, ShoppingCart, Users, LogOut, Package, Menu, X, Ticket, ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import axiosClient from '../../utils/axiosClient';
+import { LayoutDashboard, PackageSearch, ShoppingCart, Users, LogOut, Package, Menu, X, Ticket, ChevronLeft, ChevronRight, Star, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 function AdminLayout() {
@@ -9,6 +10,24 @@ function AdminLayout() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [unreadMessages, setUnreadMessages] = useState(0);
+
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const res = await axiosClient.get('/api/admin/contacts?status=unread&limit=1');
+        setUnreadMessages(res.data.data?.total || 0);
+      } catch (error) {
+        console.error('Failed to fetch unread contacts count', error);
+      }
+    };
+    if (user?.role === 'admin') {
+      fetchUnreadCount();
+      // Optional polling every 60s
+      const timer = setInterval(fetchUnreadCount, 60000);
+      return () => clearInterval(timer);
+    }
+  }, [user, location.pathname]);
 
   const isActive = (path) => location.pathname === path || (path !== '/admin' && location.pathname.startsWith(path));
 
@@ -19,6 +38,7 @@ function AdminLayout() {
     { name: 'Users', path: '/admin/users', icon: <Users className="w-5 h-5" /> },
     { name: 'Coupons', path: '/admin/coupons', icon: <Ticket className="w-5 h-5" /> },
     { name: 'Reviews', path: '/admin/reviews', icon: <Star className="w-5 h-5" /> },
+    { name: 'Messages', path: '/admin/contacts', icon: <MessageSquare className="w-5 h-5" />, badge: unreadMessages },
   ];
 
   const handleLogout = () => {
@@ -51,10 +71,20 @@ function AdminLayout() {
             )}
             <div className={`relative z-10 flex items-center justify-center ${active ? 'text-white' : 'text-slate-400 group-hover:text-brand-500 transition-colors'}`}>
               {item.icon}
+              {sidebarCollapsed && item.badge > 0 && (
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
+              )}
             </div>
             {!sidebarCollapsed && (
-              <span className={`relative z-10 font-medium whitespace-nowrap transition-opacity duration-300 ${active ? 'text-white' : ''}`}>
-                {item.name}
+              <span className={`relative z-10 font-medium whitespace-nowrap transition-opacity duration-300 flex-1 flex items-center justify-between ${active ? 'text-white' : ''}`}>
+                <span>{item.name}</span>
+                {item.badge > 0 && (
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                    active ? 'bg-white text-brand-600' : 'bg-red-500 text-white animate-pulse'
+                  }`}>
+                    {item.badge}
+                  </span>
+                )}
               </span>
             )}
           </Link>
