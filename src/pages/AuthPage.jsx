@@ -1,17 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axiosClient from '../utils/axiosClient';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useStore } from '../store/store';
 import toast from 'react-hot-toast';
 import { Mail, Lock, User as UserIcon, ArrowRight, Package } from 'lucide-react';
 
-function AuthPage() {
-  const [isLogin, setIsLogin] = useState(true);
+function AuthPage({ initialMode }) {
+  const location = useLocation();
+  const [isLogin, setIsLogin] = useState(() => {
+    if (initialMode === 'register' || location.pathname === '/register') return false;
+    return true;
+  });
+
+  useEffect(() => {
+    if (initialMode === 'register' || location.pathname === '/register') {
+      setIsLogin(false);
+    } else if (initialMode === 'login' || location.pathname === '/login') {
+      setIsLogin(true);
+    }
+  }, [initialMode, location.pathname]);
+
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const { setUser, setCart } = useStore();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();

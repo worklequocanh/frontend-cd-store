@@ -86,6 +86,16 @@ function App() {
               <AuthPage />
             </GuestRoute>
           } />
+          <Route path='/login' element={
+            <GuestRoute>
+              <AuthPage initialMode="login" />
+            </GuestRoute>
+          } />
+          <Route path='/register' element={
+            <GuestRoute>
+              <AuthPage initialMode="register" />
+            </GuestRoute>
+          } />
           <Route path='/forgot-password' element={
             <GuestRoute>
               <ForgotPasswordPage />

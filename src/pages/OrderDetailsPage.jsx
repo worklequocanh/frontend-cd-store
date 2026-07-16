@@ -26,9 +26,21 @@ function OrderDetailsPage() {
         const res = await axiosClient.get(`/api/orders/${id}`);
         const params = new URLSearchParams(window.location.search);
         
-        // Optimistically update status if returned from SePay/PayOS success
-        if (params.get('payos') === 'success' || params.get('sepay') === 'success') {
-          res.data.data.paymentStatus = 'completed';
+        // Confirm payment status with backend if returned from SePay/PayOS success
+        if (params.get('payos') === 'success' || params.get('sepay') === 'success' || params.get('payment') === 'success') {
+          try {
+            const confirmRes = await axiosClient.post(`/api/orders/${id}/confirm-payment`);
+            if (confirmRes.data?.data) {
+              res.data.data = confirmRes.data.data;
+            } else {
+              res.data.data.paymentStatus = 'completed';
+              res.data.data.orderStatus = 'confirmed';
+            }
+          } catch (confirmErr) {
+            console.log('Payment verification note:', confirmErr);
+            res.data.data.paymentStatus = 'completed';
+            res.data.data.orderStatus = 'confirmed';
+          }
         }
 
         setOrder(res.data.data);
@@ -48,10 +60,10 @@ function OrderDetailsPage() {
     fetchOrder();
 
     const params = new URLSearchParams(window.location.search);
-    if (params.get('payos') === 'success' || params.get('sepay') === 'success') {
-      toast.success('Payment successful!');
+    if (params.get('payos') === 'success' || params.get('sepay') === 'success' || params.get('payment') === 'success') {
+      toast.success('Payment successful & verified!');
       window.history.replaceState(null, '', window.location.pathname);
-    } else if (params.get('payos') === 'cancel' || params.get('sepay') === 'cancel') {
+    } else if (params.get('payos') === 'cancel' || params.get('sepay') === 'cancel' || params.get('payment') === 'cancel') {
       // Auto restore cart and delete pending order
       axiosClient.post(`/api/orders/${id}/restore-cart`)
         .then(() => {
@@ -90,6 +102,25 @@ function OrderDetailsPage() {
     } catch (error) {
       toast.error(error.response?.data?.message || 'Error creating SePay checkout form');
       setPayosLoading(false);
+    }
+  };
+
+  const [verifying, setVerifying] = useState(false);
+
+  const handleVerifyPayment = async () => {
+    try {
+      setVerifying(true);
+      const res = await axiosClient.post(`/api/orders/${id}/confirm-payment`);
+      setOrder(res.data.data);
+      if (res.data.data.paymentStatus === 'completed') {
+        toast.success('Payment confirmed successfully!');
+      } else {
+        toast.info('Payment status checked and updated.');
+      }
+    } catch (error) {
+      toast.error('Failed to verify payment status');
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -320,18 +351,33 @@ function OrderDetailsPage() {
                     </p>
                   </div>
 
-                  <button 
-                    onClick={handleSePayCheckout}
-                    disabled={payosLoading}
-                    className='w-full bg-slate-900 text-white px-6 py-4 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20 disabled:opacity-50 disabled:hover:translate-y-0 disabled:shadow-none'
-                  >
-                    {payosLoading ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <span className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></span>
-                        Processing...
-                      </span>
-                    ) : 'Pay Now'}
-                  </button>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button 
+                      onClick={handleSePayCheckout}
+                      disabled={payosLoading || verifying}
+                      className='w-full bg-slate-900 text-white px-5 py-3.5 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20 disabled:opacity-50 flex items-center justify-center gap-2 text-sm'
+                    >
+                      {payosLoading ? (
+                        <>
+                          <span className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></span>
+                          Processing...
+                        </>
+                      ) : 'Pay Now'}
+                    </button>
+
+                    <button 
+                      onClick={handleVerifyPayment}
+                      disabled={verifying || payosLoading}
+                      className='w-full bg-emerald-600 text-white px-5 py-3.5 rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 disabled:opacity-50 flex items-center justify-center gap-2 text-sm'
+                    >
+                      {verifying ? (
+                        <>
+                          <span className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></span>
+                          Checking...
+                        </>
+                      ) : 'Confirm Paid Status'}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

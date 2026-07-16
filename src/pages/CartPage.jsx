@@ -55,7 +55,7 @@ function CartPage() {
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) return;
     try {
-      const res = await axiosClient.post('/api/cart/apply-coupon', { code: couponCode });
+      const res = await axiosClient.put('/api/cart/coupon', { code: couponCode });
       setCart(res.data.data);
       toast.success(`Coupon applied! Discount: $${res.data.data.discountAmount?.toFixed(2)}`);
       setCouponCode('');
