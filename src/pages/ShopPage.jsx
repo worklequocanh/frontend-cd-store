@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import axiosClient from '../utils/axiosClient';
 import ProductCard from '../components/ProductCard';
 import Pagination from '../components/Pagination';
-import { ChevronRight, Sparkles, Truck, Shield, RotateCcw, Headphones, SlidersHorizontal, X } from 'lucide-react';
+import { X } from 'lucide-react';
 
 // Floating product card for hero decoration
 function HeroFloatCard({ style, emoji, name, price, delay }) {

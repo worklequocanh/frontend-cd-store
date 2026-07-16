@@ -3,7 +3,7 @@ import axiosClient from '../utils/axiosClient';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useStore } from '../store/store';
 import toast from 'react-hot-toast';
-import { Package, Truck, CheckCircle2, Clock, MapPin, Phone, CreditCard, ChevronLeft, Banknote, AlertCircle, Copy, Check, QrCode, Sparkles, RefreshCw } from 'lucide-react';
+import { Package, Truck, CheckCircle2, Clock, MapPin, Phone, CreditCard, ChevronLeft, Banknote, AlertCircle, Copy, Check, QrCode, Sparkles } from 'lucide-react';
 
 function OrderDetailsPage() {
   const { id } = useParams();

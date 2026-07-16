@@ -3,7 +3,7 @@ import axiosClient from '../utils/axiosClient';
 import { useStore } from '../store/store';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Phone, User, Building, Landmark, CreditCard, Banknote, ShieldCheck } from 'lucide-react';
+import { MapPin, Phone, User, CreditCard, Banknote, ShieldCheck } from 'lucide-react';
 
 function CheckoutPage() {
   const navigate = useNavigate();

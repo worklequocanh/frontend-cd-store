@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axiosClient from '../../utils/axiosClient';
 import toast from 'react-hot-toast';
-import { Star, CheckCircle2, XCircle, Search, Eye, EyeOff, MessageSquare, User, Package, Calendar } from 'lucide-react';
+import { Star, CheckCircle2, Search, Eye, EyeOff, MessageSquare, User, Package, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 function AdminReviews() {

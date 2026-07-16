@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axiosClient from '../../utils/axiosClient';
 import toast from 'react-hot-toast';
-import { ChevronLeft, Package, Truck, CheckCircle2, Clock, MapPin, Phone, CreditCard, Banknote, AlertCircle, ShoppingCart } from 'lucide-react';
+import { ChevronLeft, Package, Truck, CheckCircle2, Clock, MapPin, Phone, CreditCard, Banknote, ShoppingCart } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 function AdminOrderDetails() {

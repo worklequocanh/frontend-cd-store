@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axiosClient from '../../utils/axiosClient';
 import toast from 'react-hot-toast';
-import { Ticket, Plus, Trash2, Edit, CheckCircle, XCircle } from 'lucide-react';
-import { useStore } from '../../store/store';
+import { Ticket, Plus, Trash2, CheckCircle, XCircle } from 'lucide-react';
 
 function AdminCoupons() {
   const [coupons, setCoupons] = useState([]);
