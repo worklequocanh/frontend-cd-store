@@ -4,6 +4,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useStore } from '../store/store';
 import toast from 'react-hot-toast';
 import { Mail, Lock, User as UserIcon, ArrowRight, Package } from 'lucide-react';
+import { GoogleLogin } from '@react-oauth/google';
 
 function AuthPage({ initialMode }) {
   const location = useLocation();
@@ -58,6 +59,44 @@ function AuthPage({ initialMode }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true);
+    try {
+      const res = await axiosClient.post('/api/auth/google', {
+        credential: credentialResponse.credential
+      });
+
+      localStorage.setItem('token', res.data.data.token);
+      setUser(res.data.data.user);
+      toast.success(res.data.data.isNewUser ? '🎉 Tạo tài khoản bằng Google thành công!' : '🎉 Đăng nhập Google thành công!');
+      
+      const from = location.state?.from || '/';
+      const pendingCartItem = location.state?.pendingCartItem;
+
+      if (pendingCartItem) {
+        try {
+          const cartRes = await axiosClient.post('/api/cart/items', pendingCartItem, {
+            headers: { Authorization: `Bearer ${res.data.data.token}` }
+          });
+          setCart(cartRes.data.data);
+          toast.success('Item added to cart!');
+        } catch (err) {
+          toast.error('Failed to add pending item to cart');
+        }
+      }
+
+      navigate(from, { replace: true });
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Đăng nhập Google thất bại');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    toast.error('Đăng nhập Google thất bại hoặc bị hủy');
   };
 
   return (
@@ -172,6 +211,24 @@ function AuthPage({ initialMode }) {
               )}
             </button>
           </form>
+
+          <div className="mt-6 flex items-center gap-4">
+            <div className="h-px bg-slate-200 flex-1"></div>
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Hoặc tiếp tục với</span>
+            <div className="h-px bg-slate-200 flex-1"></div>
+          </div>
+
+          <div className="mt-6 flex justify-center">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              theme="outline"
+              size="large"
+              shape="pill"
+              width="100%"
+              text={isLogin ? 'signin_with' : 'signup_with'}
+            />
+          </div>
 
           <div className="mt-8 pt-8 border-t border-slate-100 text-center">
             <p className="text-slate-600">

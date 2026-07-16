@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axiosClient from '../../utils/axiosClient';
 import { useStore } from '../../store/store';
 import toast from 'react-hot-toast';
-import { Plus, Edit2, Trash2, Image as ImageIcon, X, PackageSearch, Save } from 'lucide-react';
+import { Plus, Edit2, Trash2, Image as ImageIcon, X, PackageSearch, Save, Download } from 'lucide-react';
 import Pagination from '../../components/Pagination';
 
 function AdminProducts() {
@@ -109,6 +109,26 @@ function AdminProducts() {
     setShowForm(true);
   };
 
+  const handleExport = async (format = 'xlsx') => {
+    try {
+      const toastId = toast.loading(`Đang xuất file kho hàng ${format.toUpperCase()}...`);
+      const response = await axiosClient.get(`/api/admin/export/products?format=${format}`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Products_Inventory_${Date.now()}.${format}`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.dismiss(toastId);
+      toast.success(`Xuất kho hàng ${format.toUpperCase()} thành công!`);
+    } catch (error) {
+      toast.error(`Lỗi xuất file ${format.toUpperCase()}`);
+    }
+  };
+
   return (
     <div className='pb-10'>
       <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8'>
@@ -116,16 +136,30 @@ function AdminProducts() {
           <h1 className='text-3xl font-display font-bold text-slate-900'>Products</h1>
           <p className="text-slate-500 mt-1">Manage your store's inventory and product details.</p>
         </div>
-        <button onClick={() => {
-          if (showForm) {
-            setEditingId(null);
-            setFormData({ name: '', slug: '', price: 0, stock: 0, categoryId: '', images: [] });
-          }
-          setShowForm(!showForm);
-        }} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all shadow-sm ${showForm ? 'bg-slate-200 text-slate-700 hover:bg-slate-300' : 'bg-brand-600 text-white hover:bg-brand-700 hover:shadow-brand-500/30 hover:-translate-y-0.5'}`}>
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={() => handleExport('xlsx')}
+            className="px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm flex items-center gap-2 shadow-sm transition-colors"
+          >
+            <Download className="w-4 h-4" /> Xuất Excel (.xlsx)
+          </button>
+          <button
+            onClick={() => handleExport('csv')}
+            className="px-4 py-3 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-sm flex items-center gap-2 shadow-sm transition-colors"
+          >
+            <Download className="w-4 h-4" /> Xuất CSV (.csv)
+          </button>
+          <button onClick={() => {
+            if (showForm) {
+              setEditingId(null);
+              setFormData({ name: '', slug: '', price: 0, stock: 0, categoryId: '', images: [] });
+            }
+            setShowForm(!showForm);
+          }} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all shadow-sm ${showForm ? 'bg-slate-200 text-slate-700 hover:bg-slate-300' : 'bg-brand-600 text-white hover:bg-brand-700 hover:shadow-brand-500/30 hover:-translate-y-0.5'}`}>
           {showForm ? <X className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
           {showForm ? 'Cancel' : 'Add New Product'}
         </button>
+        </div>
       </div>
 
       {showForm && (

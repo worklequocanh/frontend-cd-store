@@ -3,13 +3,19 @@ import { Link } from 'react-router-dom';
 import axiosClient from '../../utils/axiosClient';
 import { useStore } from '../../store/store';
 import toast from 'react-hot-toast';
-import { ShoppingCart, Users, PackageSearch, DollarSign, Clock, ArrowRight, TrendingUp, Activity, Package, ChevronRight, MessageSquare } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { ShoppingCart, Users, PackageSearch, DollarSign, Clock, ArrowRight, TrendingUp, Activity, Package, ChevronRight, MessageSquare, BarChart2, PieChart as PieIcon, Layers } from 'lucide-react';
+import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { motion } from 'framer-motion';
+
+const CATEGORY_COLORS = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899', '#6366f1'];
 
 function AdminDashboard() {
   const [dashboard, setDashboard] = useState(null);
+  const [timeframe, setTimeframe] = useState('30d');
   const [revenueData, setRevenueData] = useState([]);
+  const [productData, setProductData] = useState([]);
+  const [categoryData, setCategoryData] = useState([]);
+  const [statusData, setStatusData] = useState([]);
   const { user } = useStore();
 
   useEffect(() => {
@@ -20,30 +26,34 @@ function AdminDashboard() {
       }
 
       try {
-        const [dashRes, revRes] = await Promise.all([
+        const [dashRes, revRes, prodRes, catRes, statRes] = await Promise.all([
           axiosClient.get('/api/admin/dashboard'),
-          axiosClient.get('/api/admin/analytics/revenue')
+          axiosClient.get(`/api/admin/analytics/revenue?timeframe=${timeframe}`),
+          axiosClient.get(`/api/admin/analytics/products?timeframe=${timeframe}&limit=6`),
+          axiosClient.get(`/api/admin/analytics/categories?timeframe=${timeframe}`),
+          axiosClient.get(`/api/admin/analytics/status?timeframe=${timeframe}`)
         ]);
         
         setDashboard(dashRes.data.data);
         
-        // Format revenue data for chart
-        const formattedData = [...revRes.data.data].reverse().map(item => ({
-          date: new Date(item._id).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          revenue: item.total
+        // Format revenue data
+        const formattedRev = (revRes.data.data || []).map(item => ({
+          date: new Date(item.date).toLocaleDateString('vi-VN', { month: 'short', day: 'numeric' }),
+          revenue: item.revenue,
+          orders: item.orders
         }));
-        setRevenueData(formattedData);
+        setRevenueData(formattedRev);
+        setProductData(prodRes.data.data || []);
+        setCategoryData(catRes.data.data || []);
+        setStatusData(statRes.data.data || []);
       } catch (error) {
         console.error("Dashboard fetch error:", error);
-        if (error.response) {
-          console.error("Error data:", error.response.data);
-        }
         toast.error('Failed to load dashboard data');
       }
     };
 
     fetchDashboard();
-  }, [user]);
+  }, [user, timeframe]);
 
   if (!dashboard) return (
     <div className='flex items-center justify-center h-full min-h-[400px]'>
@@ -59,7 +69,7 @@ function AdminDashboard() {
   );
 
   const statCards = [
-    { title: 'Total Revenue', value: `$${Number(dashboard.totalRevenue || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`, icon: <DollarSign className="w-7 h-7" />, color: 'from-emerald-500 to-teal-400', shadow: 'shadow-emerald-500/20' },
+    { title: 'Total Revenue', value: `${Number(dashboard.totalRevenue || 0).toLocaleString('vi-VN')} VND`, icon: <DollarSign className="w-7 h-7" />, color: 'from-emerald-500 to-teal-400', shadow: 'shadow-emerald-500/20' },
     { title: 'Total Orders', value: dashboard.totalOrders || 0, icon: <ShoppingCart className="w-7 h-7" />, color: 'from-blue-500 to-cyan-400', shadow: 'shadow-blue-500/20' },
     { title: 'Total Users', value: dashboard.totalUsers || 0, icon: <Users className="w-7 h-7" />, color: 'from-violet-500 to-purple-400', shadow: 'shadow-violet-500/20' },
     { title: 'Total Products', value: dashboard.totalProducts || 0, icon: <PackageSearch className="w-7 h-7" />, color: 'from-brand-500 to-indigo-400', shadow: 'shadow-brand-500/20' },
@@ -91,12 +101,14 @@ function AdminDashboard() {
           <h1 className='text-3xl font-display font-bold text-slate-800 tracking-tight'>Dashboard Overview</h1>
           <p className="text-slate-500 mt-1">Monitor your store's performance and recent activity.</p>
         </div>
-        <div className="flex items-center gap-2 bg-white px-4 py-2.5 rounded-full border border-slate-200/60 shadow-sm text-sm font-medium text-slate-600 glass">
-          <span className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-          </span>
-          Live System Active
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 bg-white px-4 py-2.5 rounded-full border border-slate-200/60 shadow-sm text-sm font-medium text-slate-600">
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+            </span>
+            Live System Active
+          </div>
         </div>
       </div>
 
@@ -112,13 +124,12 @@ function AdminDashboard() {
             <div className="flex items-start justify-between relative z-10">
               <div>
                 <p className='text-sm font-semibold text-slate-500 mb-1'>{stat.title}</p>
-                <p className='text-3xl font-display font-bold text-slate-800 tracking-tight'>{stat.value}</p>
+                <p className='text-2xl font-display font-bold text-slate-800 tracking-tight'>{stat.value}</p>
               </div>
               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br ${stat.color} text-white shadow-lg ${stat.shadow}`}>
                 {stat.icon}
               </div>
             </div>
-            
             <div className="mt-4 flex items-center gap-2 text-xs font-medium text-slate-400">
               <TrendingUp className="w-3 h-3 text-emerald-500" /> 
               <span className="text-emerald-500">Updated</span> just now
@@ -127,29 +138,36 @@ function AdminDashboard() {
         ))}
       </div>
 
-      {/* Charts Section */}
+      {/* Revenue AreaChart Section */}
       <motion.div variants={itemVariants} className='bg-white rounded-3xl p-6 lg:p-8 border border-slate-100 shadow-sm relative overflow-hidden'>
-        {/* Decorative background element */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-50 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
         
-        <div className="mb-8 flex items-center justify-between relative z-10">
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
           <div>
             <h2 className='text-xl font-display font-bold text-slate-800 flex items-center gap-2'>
-              <Activity className="w-5 h-5 text-brand-500" /> Revenue Analytics
+              <Activity className="w-5 h-5 text-brand-500" /> Biểu Đồ Thống Kê Doanh Thu Trực Quan
             </h2>
-            <p className="text-sm text-slate-500 mt-1">Daily revenue progression over the last 30 days</p>
+            <p className="text-sm text-slate-500 mt-1">Xu hướng doanh thu theo thời gian</p>
           </div>
-          <select className="bg-slate-50 border border-slate-200 text-sm rounded-xl px-4 py-2 font-medium text-slate-700 outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all">
-            <option>Last 30 Days</option>
-            <option>This Month</option>
-            <option>This Year</option>
-          </select>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-slate-400 uppercase">Khung thời gian:</span>
+            <select 
+              value={timeframe} 
+              onChange={(e) => setTimeframe(e.target.value)}
+              className="bg-slate-50 border border-slate-200 text-sm rounded-xl px-4 py-2 font-bold text-slate-700 outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all cursor-pointer shadow-sm"
+            >
+              <option value="7d">7 Ngày Qua</option>
+              <option value="30d">30 Ngày Qua</option>
+              <option value="90d">90 Ngày Qua</option>
+              <option value="1y">1 Năm Qua</option>
+            </select>
+          </div>
         </div>
         
         <div className="h-[380px] w-full relative z-10">
           {revenueData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: 20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4}/>
@@ -168,7 +186,7 @@ function AdminDashboard() {
                   axisLine={false} 
                   tickLine={false} 
                   tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 500 }}
-                  tickFormatter={(value) => `$${value}`}
+                  tickFormatter={(value) => `${(value/1000).toLocaleString()}k`}
                   dx={-10}
                 />
                 <Tooltip 
@@ -176,14 +194,15 @@ function AdminDashboard() {
                   contentStyle={{ 
                     borderRadius: '16px', 
                     border: '1px solid rgba(255,255,255,0.2)', 
-                    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+                    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
                     backgroundColor: 'rgba(255, 255, 255, 0.95)',
                     backdropFilter: 'blur(8px)',
                     padding: '12px 16px'
                   }}
-                  itemStyle={{ color: '#0f172a', fontWeight: '800', fontSize: '16px' }}
-                  labelStyle={{ color: '#64748b', fontSize: '13px', marginBottom: '4px' }}
-                  formatter={(value) => [`$${value.toLocaleString('en-US', {minimumFractionDigits: 2})}`, 'Revenue']}
+                  formatter={(value, name) => [
+                    name === 'revenue' ? `${value.toLocaleString('vi-VN')} VND` : value,
+                    name === 'revenue' ? 'Doanh Thu' : 'Số Đơn'
+                  ]}
                 />
                 <Area 
                   type="monotone" 
@@ -192,24 +211,122 @@ function AdminDashboard() {
                   strokeWidth={4}
                   fillOpacity={1} 
                   fill="url(#colorRevenue)" 
-                  activeDot={{ r: 6, strokeWidth: 4, stroke: '#ffffff', fill: '#4f46e5', style: { filter: 'drop-shadow(0px 4px 6px rgba(79, 70, 229, 0.4))' } }}
+                  activeDot={{ r: 6, strokeWidth: 4, stroke: '#ffffff', fill: '#4f46e5' }}
                 />
               </AreaChart>
             </ResponsiveContainer>
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
               <Activity className="w-10 h-10 text-slate-300 mb-3" />
-              <p className="text-slate-500 font-medium">Not enough data to generate chart.</p>
+              <p className="text-slate-500 font-medium">Chưa có dữ liệu doanh thu trong khoảng thời gian này.</p>
             </div>
           )}
         </div>
       </motion.div>
 
+      {/* Advanced Visual Charts Grid */}
+      <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
+        {/* Top Selling Products BarChart */}
+        <motion.div variants={itemVariants} className='bg-white rounded-3xl p-6 lg:p-8 border border-slate-100 shadow-sm flex flex-col'>
+          <h2 className='text-lg font-display font-bold text-slate-800 flex items-center gap-2 mb-6'>
+            <BarChart2 className="w-5 h-5 text-brand-500" /> Top Sản Phẩm Bán Chạy
+          </h2>
+          <div className="h-[280px] w-full flex-1">
+            {productData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={productData} layout="vertical" margin={{ top: 5, right: 20, left: 60, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                  <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
+                  <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 11, fontWeight: 600 }} width={80} />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
+                    formatter={(value, name) => [name === 'sold' ? `${value} đĩa` : `${value.toLocaleString('vi-VN')} VND`, name === 'sold' ? 'Đã bán' : 'Doanh thu']}
+                  />
+                  <Bar dataKey="sold" fill="#3b82f6" radius={[0, 8, 8, 0]} barSize={20} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-slate-400 text-sm">Chưa có dữ liệu sản phẩm</div>
+            )}
+          </div>
+        </motion.div>
+
+        {/* Category Sales Distribution PieChart */}
+        <motion.div variants={itemVariants} className='bg-white rounded-3xl p-6 lg:p-8 border border-slate-100 shadow-sm flex flex-col'>
+          <h2 className='text-lg font-display font-bold text-slate-800 flex items-center gap-2 mb-6'>
+            <Layers className="w-5 h-5 text-brand-500" /> Tỷ Trọng Theo Danh Mục
+          </h2>
+          <div className="h-[280px] w-full flex-1">
+            {categoryData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={categoryData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    innerRadius={45}
+                    paddingAngle={3}
+                  >
+                    {categoryData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0' }}
+                    formatter={(val, name) => [`${val} đĩa`, name]}
+                  />
+                  <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-slate-400 text-sm">Chưa có dữ liệu danh mục</div>
+            )}
+          </div>
+        </motion.div>
+
+        {/* Order Status Distribution PieChart */}
+        <motion.div variants={itemVariants} className='bg-white rounded-3xl p-6 lg:p-8 border border-slate-100 shadow-sm flex flex-col'>
+          <h2 className='text-lg font-display font-bold text-slate-800 flex items-center gap-2 mb-6'>
+            <PieIcon className="w-5 h-5 text-brand-500" /> Trạng Thái Đơn Hàng
+          </h2>
+          <div className="h-[280px] w-full flex-1">
+            {statusData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={statusData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    paddingAngle={4}
+                  >
+                    {statusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color || CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0' }}
+                    formatter={(val, name) => [`${val} đơn`, name]}
+                  />
+                  <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-slate-400 text-sm">Chưa có dữ liệu trạng thái</div>
+            )}
+          </div>
+        </motion.div>
+      </div>
+
       <div className='grid grid-cols-1 xl:grid-cols-3 gap-8'>
         {/* Pending Orders Action Card */}
         <motion.div variants={itemVariants} className='xl:col-span-1'>
           <div className='bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 shadow-xl shadow-slate-900/10 flex flex-col items-center text-center relative overflow-hidden h-full justify-center min-h-[300px]'>
-            {/* Glowing orbs */}
             <div className="absolute -right-20 -top-20 w-64 h-64 bg-brand-500/30 rounded-full blur-[64px]"></div>
             <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-purple-500/30 rounded-full blur-[64px]"></div>
             
@@ -279,7 +396,6 @@ function AdminDashboard() {
               <div className="h-full min-h-[200px] flex flex-col items-center justify-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200 p-8">
                 <PackageSearch className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                 <p className="text-slate-500 font-medium">No recent orders found.</p>
-                <p className="text-slate-400 text-sm mt-1">When customers place orders, they will appear here.</p>
               </div>
             )}
           </div>
@@ -337,7 +453,6 @@ function AdminDashboard() {
             <div className="flex flex-col items-center justify-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200 p-8 text-center">
               <MessageSquare className="w-10 h-10 text-slate-300 mb-2" />
               <p className="text-slate-500 font-medium">Chưa có lời nhắn nào từ khách hàng.</p>
-              <p className="text-slate-400 text-xs mt-0.5">Các lời nhắn gửi qua form Contact sẽ xuất hiện tại đây.</p>
             </div>
           )}
         </div>

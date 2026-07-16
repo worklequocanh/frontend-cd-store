@@ -3,7 +3,7 @@ import axiosClient from '../utils/axiosClient';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useStore } from '../store/store';
 import toast from 'react-hot-toast';
-import { Package, Truck, CheckCircle2, Clock, MapPin, Phone, CreditCard, ChevronLeft, Banknote, AlertCircle, Copy, Check, QrCode, Sparkles } from 'lucide-react';
+import { Package, Truck, CheckCircle2, Clock, MapPin, Phone, CreditCard, ChevronLeft, Banknote, AlertCircle, Copy, Check, QrCode, Sparkles, FileText } from 'lucide-react';
 
 function OrderDetailsPage() {
   const { id } = useParams();
@@ -124,6 +124,26 @@ function OrderDetailsPage() {
     setTimeout(() => setCopiedField(''), 2000);
   };
 
+  const handleDownloadPdf = async () => {
+    try {
+      const toastId = toast.loading('Đang tạo hóa đơn PDF...');
+      const response = await axiosClient.get(`/api/orders/${id}/invoice/pdf`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Invoice-${order.orderNumber || id}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.dismiss(toastId);
+      toast.success('Tải hóa đơn PDF thành công!');
+    } catch (error) {
+      toast.error('Không thể tải hóa đơn PDF lúc này.');
+    }
+  };
+
   const handleMockPay = async () => {
     try {
       setMockLoading(true);
@@ -168,6 +188,12 @@ function OrderDetailsPage() {
               <p className="text-slate-500 font-mono">#{order.orderNumber}</p>
             </div>
             <div className="flex items-center gap-3">
+              <button
+                onClick={handleDownloadPdf}
+                className="px-4 py-2 bg-slate-900 hover:bg-brand-600 text-white rounded-full text-sm font-bold flex items-center gap-2 transition-all shadow-sm"
+              >
+                <FileText className="w-4 h-4" /> Tải Hóa Đơn PDF
+              </button>
               <span className={`px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 ${order.paymentStatus === 'completed' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
                 {order.paymentStatus === 'completed' ? <CheckCircle2 className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
                 {order.paymentStatus.toUpperCase()}

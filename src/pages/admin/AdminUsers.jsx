@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import axiosClient from '../../utils/axiosClient';
 import toast from 'react-hot-toast';
-import { Users, Shield, User as UserIcon, Mail, Calendar, Trash2, Edit, Search, Filter, AlertCircle, X, ChevronDown, Save, MapPin, Phone } from 'lucide-react';
+import { Users, Shield, User as UserIcon, Mail, Calendar, Trash2, Edit, Search, Filter, AlertCircle, X, ChevronDown, Save, MapPin, Phone, Download } from 'lucide-react';
 import Pagination from '../../components/Pagination';
 import { useStore } from '../../store/store';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -329,6 +329,26 @@ function AdminUsers() {
     if (modalConfig.action === 'delete') executeDelete();
   };
 
+  const handleExport = async (format = 'xlsx') => {
+    try {
+      const toastId = toast.loading(`Đang xuất danh sách người dùng ${format.toUpperCase()}...`);
+      const response = await axiosClient.get(`/api/admin/export/users?format=${format}`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Users_Directory_${Date.now()}.${format}`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.dismiss(toastId);
+      toast.success(`Xuất danh sách người dùng ${format.toUpperCase()} thành công!`);
+    } catch (error) {
+      toast.error(`Lỗi xuất file ${format.toUpperCase()}`);
+    }
+  };
+
   // Client-side filtering
   const filteredUsers = useMemo(() => {
     return users.filter(u => {
@@ -358,7 +378,19 @@ function AdminUsers() {
         </div>
         
         {/* Toolbar */}
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col sm:flex-row flex-wrap items-center gap-3">
+          <button
+            onClick={() => handleExport('xlsx')}
+            className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm flex items-center gap-2 shadow-sm transition-colors"
+          >
+            <Download className="w-4 h-4" /> Xuất Excel (.xlsx)
+          </button>
+          <button
+            onClick={() => handleExport('csv')}
+            className="px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-sm flex items-center gap-2 shadow-sm transition-colors"
+          >
+            <Download className="w-4 h-4" /> Xuất CSV (.csv)
+          </button>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input 

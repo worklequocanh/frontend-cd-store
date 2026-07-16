@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import axiosClient from '../../utils/axiosClient';
 import { useStore } from '../../store/store';
 import toast from 'react-hot-toast';
-import { ShoppingCart, Eye, Package, Truck, CheckCircle2, Clock, XCircle, Filter } from 'lucide-react';
+import { ShoppingCart, Eye, Package, Truck, CheckCircle2, Clock, XCircle, Filter, Download } from 'lucide-react';
 import Pagination from '../../components/Pagination';
 
 function AdminOrders() {
@@ -31,6 +31,26 @@ function AdminOrders() {
 
     fetchOrders();
   }, [user, filter, page]);
+
+  const handleExport = async (format = 'xlsx') => {
+    try {
+      const toastId = toast.loading(`Đang xuất file ${format.toUpperCase()}...`);
+      const response = await axiosClient.get(`/api/admin/export/orders?format=${format}&status=${filter || 'all'}`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Orders_Export_${Date.now()}.${format}`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.dismiss(toastId);
+      toast.success(`Xuất file ${format.toUpperCase()} thành công!`);
+    } catch (error) {
+      toast.error(`Lỗi xuất file ${format.toUpperCase()}`);
+    }
+  };
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
@@ -83,6 +103,20 @@ function AdminOrders() {
         <div>
           <h1 className='text-3xl font-display font-bold text-slate-900'>Orders</h1>
           <p className="text-slate-500 mt-1">Manage and track customer orders.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => handleExport('xlsx')}
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm flex items-center gap-2 shadow-sm transition-colors"
+          >
+            <Download className="w-4 h-4" /> Xuất Excel (.xlsx)
+          </button>
+          <button
+            onClick={() => handleExport('csv')}
+            className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-sm flex items-center gap-2 shadow-sm transition-colors"
+          >
+            <Download className="w-4 h-4" /> Xuất CSV (.csv)
+          </button>
         </div>
       </div>
 

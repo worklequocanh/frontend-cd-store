@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axiosClient from '../../utils/axiosClient';
 import toast from 'react-hot-toast';
-import { ChevronLeft, Package, Truck, CheckCircle2, Clock, MapPin, Phone, CreditCard, Banknote, ShoppingCart } from 'lucide-react';
+import { ChevronLeft, Package, Truck, CheckCircle2, Clock, MapPin, Phone, CreditCard, Banknote, ShoppingCart, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 function AdminOrderDetails() {
@@ -37,6 +37,26 @@ function AdminOrderDetails() {
     }
   };
 
+  const handleDownloadPdf = async () => {
+    try {
+      const toastId = toast.loading('Đang xuất hóa đơn PDF...');
+      const response = await axiosClient.get(`/api/orders/${id}/invoice/pdf`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Invoice-${order.orderNumber || id}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.dismiss(toastId);
+      toast.success('Xuất hóa đơn PDF thành công!');
+    } catch (error) {
+      toast.error('Không thể tải hóa đơn PDF.');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full min-h-[400px]">
@@ -64,6 +84,12 @@ function AdminOrderDetails() {
           <p className="text-slate-500 font-mono mt-1">#{order.orderNumber}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={handleDownloadPdf}
+            className="px-4 py-2 bg-slate-900 hover:bg-brand-600 text-white rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-sm"
+          >
+            <FileText className="w-4 h-4" /> Tải Hóa Đơn PDF
+          </button>
           <select 
             value={order.orderStatus} 
             onChange={(e) => handleStatusChange(e.target.value)} 
