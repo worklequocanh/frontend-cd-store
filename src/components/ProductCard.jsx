@@ -10,11 +10,10 @@ function ProductCard({ product }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const discountPercent = product.discountPrice
-    ? Math.round(((product.discountPrice - product.price) / product.discountPrice) * 100)
-    : Math.round(((product.price * 1.2 - product.price) / (product.price * 1.2)) * 100);
-
-  const originalPrice = product.discountPrice || (product.price * 1.2).toFixed(2);
+  const hasDiscount = product.discountPrice && Number(product.discountPrice) > Number(product.price);
+  const discountPercent = hasDiscount
+    ? product.discountPercent || Math.round(((product.discountPrice - product.price) / product.discountPrice) * 100)
+    : 0;
 
   const isLowStock = product.stock > 0 && product.stock <= 5;
   const isOutOfStock = product.stock === 0;
@@ -47,8 +46,8 @@ function ProductCard({ product }) {
       className='group relative bg-white rounded-2xl border border-slate-100 overflow-hidden flex flex-col card-hover'
     >
       {/* Discount Badge */}
-      {discountPercent > 0 && (
-        <span className='absolute top-3 left-3 z-10 bg-red-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full shadow-sm'>
+      {hasDiscount && discountPercent > 0 && (
+        <span className='absolute top-3 left-3 z-10 bg-gradient-to-r from-red-600 to-rose-500 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-md animate-pulse'>
           -{discountPercent}%
         </span>
       )}
@@ -125,9 +124,11 @@ function ProductCard({ product }) {
         <div className='flex items-center justify-between pt-3 border-t border-slate-50'>
           <div className='flex items-baseline gap-2'>
             <span className='font-display font-bold text-lg text-slate-900'>${product.price}</span>
-            <span className='text-xs text-slate-400 line-through'>${Number(originalPrice).toFixed(2)}</span>
+            {hasDiscount && (
+              <span className='text-xs text-slate-400 line-through'>${Number(product.discountPrice).toFixed(2)}</span>
+            )}
           </div>
-          {product.rating && (
+          {product.rating > 0 && (
             <div className='bg-amber-50 px-2 py-1 rounded-lg'>
               <span className='text-xs font-bold text-amber-600'>{product.rating}★</span>
             </div>

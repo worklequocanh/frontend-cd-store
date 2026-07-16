@@ -229,12 +229,12 @@ function ProductPage() {
 
               {/* Price */}
               <div className='flex items-end gap-3 mb-6'>
-                <span className='text-4xl font-display font-bold text-slate-900'>${product.price}</span>
-                {product.discountPrice && (
+                <span className='text-4xl font-display font-bold text-slate-900'>${product.price?.toFixed(2)}</span>
+                {product.discountPrice && Number(product.discountPrice) > Number(product.price) && (
                   <>
-                    <span className='text-xl text-slate-400 line-through mb-0.5'>${product.discountPrice}</span>
-                    <span className='bg-red-100 text-red-600 text-sm font-bold px-2 py-0.5 rounded-full mb-0.5'>
-                      {Math.round(((product.discountPrice - product.price) / product.discountPrice) * 100)}% OFF
+                    <span className='text-xl text-slate-400 line-through mb-0.5'>${Number(product.discountPrice).toFixed(2)}</span>
+                    <span className='bg-gradient-to-r from-red-600 to-rose-500 text-white text-sm font-bold px-3 py-0.5 rounded-full mb-0.5 shadow-sm animate-pulse'>
+                      -{Math.round(((product.discountPrice - product.price) / product.discountPrice) * 100)}% (Tiết kiệm ${(product.discountPrice - product.price).toFixed(2)})
                     </span>
                   </>
                 )}

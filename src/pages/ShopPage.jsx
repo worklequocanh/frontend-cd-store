@@ -69,6 +69,7 @@ function ShopPage() {
   const searchQuery = params.get('search') || '';
   const categoryQuery = params.get('category') || '';
   const sortQuery = params.get('sort') || '-createdAt';
+  const onSaleQuery = params.get('onSale') === 'true';
   const pageQuery = parseInt(params.get('page')) || 1;
 
   useEffect(() => {
@@ -78,6 +79,7 @@ function ShopPage() {
         const queryParams = new URLSearchParams();
         if (searchQuery) queryParams.append('search', searchQuery);
         if (categoryQuery) queryParams.append('category', categoryQuery);
+        if (onSaleQuery) queryParams.append('onSale', 'true');
         if (sortQuery) queryParams.append('sort', sortQuery);
         queryParams.append('page', pageQuery);
 
@@ -99,7 +101,7 @@ function ShopPage() {
       }
     };
     fetchData();
-  }, [searchQuery, categoryQuery, sortQuery, pageQuery]);
+  }, [searchQuery, categoryQuery, sortQuery, onSaleQuery, pageQuery]);
 
   const updateParam = (key, value) => {
     const p = new URLSearchParams(location.search);
@@ -118,6 +120,7 @@ function ShopPage() {
   const activeFilters = [
     searchQuery && { key: 'search', label: `"${searchQuery}"` },
     categoryQuery && { key: 'category', label: categories.find(c => c._id === categoryQuery)?.name || 'Category' },
+    onSaleQuery && { key: 'onSale', label: '🔥 Flash Sale (-X%)' },
   ].filter(Boolean);
 
   return (
@@ -154,6 +157,16 @@ function ShopPage() {
                   {cat.name}
                 </button>
               ))}
+              <button
+                onClick={() => updateParam('onSale', onSaleQuery ? '' : 'true')}
+                className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 border flex items-center gap-1.5 ${
+                  onSaleQuery
+                    ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white border-red-600 shadow-md shadow-red-500/30 animate-pulse'
+                    : 'bg-white text-rose-600 border-rose-200 hover:border-rose-400 hover:bg-rose-50'
+                }`}
+              >
+                🔥 Flash Sale (-X%)
+              </button>
             </div>
           </div>
         </section>

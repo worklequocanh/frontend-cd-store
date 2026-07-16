@@ -9,7 +9,7 @@ function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [formData, setFormData] = useState({ name: '', slug: '', price: 0, stock: 0, categoryId: '', images: [] });
+  const [formData, setFormData] = useState({ name: '', slug: '', price: 0, discountPrice: '', stock: 0, categoryId: '', images: [] });
   const [uploadingImage, setUploadingImage] = useState(false);
   const { user } = useStore();
 
@@ -74,7 +74,7 @@ function AdminProducts() {
 
       setShowForm(false);
       setEditingId(null);
-      setFormData({ name: '', slug: '', price: 0, stock: 0, categoryId: '', images: [] });
+      setFormData({ name: '', slug: '', price: 0, discountPrice: '', stock: 0, categoryId: '', images: [] });
 
       const res = await axiosClient.get(`/api/products?limit=10&page=${page}`);
       setProducts(res.data.data.products);
@@ -101,8 +101,9 @@ function AdminProducts() {
       name: product.name,
       slug: product.slug,
       price: product.price,
+      discountPrice: product.discountPrice || '',
       stock: product.stock,
-      categoryId: product.categoryId || '',
+      categoryId: product.categoryId?._id || product.categoryId || '',
       images: product.images || []
     });
     setEditingId(product._id);
@@ -152,7 +153,7 @@ function AdminProducts() {
           <button onClick={() => {
             if (showForm) {
               setEditingId(null);
-              setFormData({ name: '', slug: '', price: 0, stock: 0, categoryId: '', images: [] });
+              setFormData({ name: '', slug: '', price: 0, discountPrice: '', stock: 0, categoryId: '', images: [] });
             }
             setShowForm(!showForm);
           }} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all shadow-sm ${showForm ? 'bg-slate-200 text-slate-700 hover:bg-slate-300' : 'bg-brand-600 text-white hover:bg-brand-700 hover:shadow-brand-500/30 hover:-translate-y-0.5'}`}>
@@ -178,11 +179,20 @@ function AdminProducts() {
               </div>
               <div>
                 <label className='block text-sm font-medium text-slate-700 mb-2'>Price ($)</label>
-                <input type='number' step="0.01" value={formData.price} onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })} className='w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors' required />
+                <input type='number' step="0.01" value={formData.price} onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })} className='w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors' required />
+              </div>
+              <div>
+                <label className='block text-sm font-medium text-slate-700 mb-2'>Original Market Price ($) <span className="text-xs text-slate-400 font-normal">(Optional for Strike-through)</span></label>
+                <input type='number' step="0.01" value={formData.discountPrice} onChange={(e) => setFormData({ ...formData, discountPrice: e.target.value ? parseFloat(e.target.value) : '' })} className='w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors' placeholder="Leave blank if not on sale" />
+                {formData.discountPrice > formData.price && formData.price > 0 && (
+                  <p className="text-xs text-emerald-600 font-semibold mt-1">
+                    🔥 Khuyến mãi: Tiết kiệm {Math.round(((formData.discountPrice - formData.price) / formData.discountPrice) * 100)}% (${(formData.discountPrice - formData.price).toFixed(2)})
+                  </p>
+                )}
               </div>
               <div>
                 <label className='block text-sm font-medium text-slate-700 mb-2'>Stock Quantity</label>
-                <input type='number' value={formData.stock} onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) })} className='w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors' required />
+                <input type='number' value={formData.stock} onChange={(e) => setFormData({ ...formData, stock: parseInt(e.target.value) || 0 })} className='w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors' required />
               </div>
             </div>
 
@@ -264,7 +274,17 @@ function AdminProducts() {
                     </div>
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap'>
-                    <span className="font-medium text-slate-900">${product.price?.toFixed(2)}</span>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-slate-900">${product.price?.toFixed(2)}</span>
+                      {product.discountPrice > product.price && (
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className="text-xs text-slate-400 line-through">${Number(product.discountPrice).toFixed(2)}</span>
+                          <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                            -{Math.round(((product.discountPrice - product.price) / product.discountPrice) * 100)}%
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap'>
                     <span className="font-medium text-slate-900">{product.stock}</span>
