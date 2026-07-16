@@ -30,7 +30,9 @@ function OrderDetailsPage() {
         
         if (params.get('payos') === 'success' || params.get('sepay') === 'success' || params.get('payment') === 'success') {
           try {
-            const redirectRes = await axiosClient.post(`/api/orders/${id}/verify-sepay-redirect`);
+            const redirectRes = await axiosClient.post(`/api/orders/${id}/verify-sepay-redirect`, {
+              redirectStatus: 'success'
+            });
             if (redirectRes.data?.data) {
               res.data.data = redirectRes.data.data;
             }
