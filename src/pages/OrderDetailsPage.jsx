@@ -24,11 +24,15 @@ function OrderDetailsPage() {
         return;
       }
 
+      const initialSearch = window.location.search;
+      const params = new URLSearchParams(initialSearch);
+      const isRedirectSuccess = params.get('payos') === 'success' || params.get('sepay') === 'success' || params.get('payment') === 'success';
+      const isRedirectCancel = params.get('payos') === 'cancel' || params.get('sepay') === 'cancel' || params.get('payment') === 'cancel';
+
       try {
         const res = await axiosClient.get(`/api/orders/${id}`);
-        const params = new URLSearchParams(window.location.search);
         
-        if (params.get('payos') === 'success' || params.get('sepay') === 'success' || params.get('payment') === 'success') {
+        if (isRedirectSuccess) {
           try {
             const redirectRes = await axiosClient.post(`/api/orders/${id}/verify-sepay-redirect`, {
               redirectStatus: 'success'
@@ -47,6 +51,14 @@ function OrderDetailsPage() {
           const configRes = await axiosClient.get('/api/orders/config/payment');
           setPaymentConfig(configRes.data.data);
         }
+
+        if (isRedirectSuccess) {
+          window.history.replaceState(null, '', window.location.pathname);
+          toast.success('Xác nhận thanh toán qua cổng SePay thành công!');
+        } else if (isRedirectCancel) {
+          window.history.replaceState(null, '', window.location.pathname);
+          toast.info('Bạn đã quay lại từ cổng thanh toán SePay. Vui lòng tiếp tục thanh toán bên dưới!');
+        }
       } catch (error) {
         console.error('Failed to fetch order:', error);
         toast.error(error.response?.data?.message || 'Failed to load order');
@@ -56,22 +68,6 @@ function OrderDetailsPage() {
     };
 
     fetchOrder();
-
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('payos') === 'success' || params.get('sepay') === 'success' || params.get('payment') === 'success') {
-      window.history.replaceState(null, '', window.location.pathname);
-    } else if (params.get('payos') === 'cancel' || params.get('sepay') === 'cancel' || params.get('payment') === 'cancel') {
-      // Auto restore cart and delete pending order
-      axiosClient.post(`/api/orders/${id}/restore-cart`)
-        .then(() => {
-          toast.error('Payment was cancelled. Items have been restored to your cart.');
-          navigate('/cart');
-        })
-        .catch((err) => {
-          toast.error('Payment was cancelled.');
-          window.history.replaceState(null, '', window.location.pathname);
-        });
-    }
   }, [id, user, navigate]);
 
   // Automatic API polling for QR status updates via SePay IPN webhook
