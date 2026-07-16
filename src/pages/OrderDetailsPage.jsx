@@ -24,6 +24,19 @@ function OrderDetailsPage() {
 
       try {
         const res = await axiosClient.get(`/api/orders/${id}`);
+        const params = new URLSearchParams(window.location.search);
+        
+        if (params.get('payos') === 'success' || params.get('sepay') === 'success' || params.get('payment') === 'success') {
+          try {
+            const redirectRes = await axiosClient.post(`/api/orders/${id}/verify-sepay-redirect`);
+            if (redirectRes.data?.data) {
+              res.data.data = redirectRes.data.data;
+            }
+          } catch (redirectErr) {
+            console.log('Redirect verification note:', redirectErr);
+          }
+        }
+
         setOrder(res.data.data);
         
         if (res.data.data.paymentMethod === 'qr' && res.data.data.paymentStatus === 'pending') {
