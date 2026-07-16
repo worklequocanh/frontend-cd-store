@@ -3,7 +3,7 @@ import axiosClient from '../utils/axiosClient';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useStore } from '../store/store';
 import toast from 'react-hot-toast';
-import { Package, Truck, CheckCircle2, Clock, MapPin, Phone, CreditCard, ChevronLeft, Banknote, AlertCircle } from 'lucide-react';
+import { Package, Truck, CheckCircle2, Clock, MapPin, Phone, CreditCard, ChevronLeft, Banknote, AlertCircle, Copy, Check, QrCode, Sparkles, RefreshCw } from 'lucide-react';
 
 function OrderDetailsPage() {
   const { id } = useParams();
@@ -13,6 +13,8 @@ function OrderDetailsPage() {
   const [loading, setLoading] = useState(true);
   const { user } = useStore();
   const [payosLoading, setPayosLoading] = useState(false);
+  const [mockLoading, setMockLoading] = useState(false);
+  const [copiedField, setCopiedField] = useState('');
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -114,6 +116,28 @@ function OrderDetailsPage() {
     } catch (error) {
       toast.error(error.response?.data?.message || 'Error creating SePay checkout form');
       setPayosLoading(false);
+    }
+  };
+
+  const handleCopy = (text, fieldName) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(fieldName);
+    toast.success(`Đã sao chép ${fieldName}!`);
+    setTimeout(() => setCopiedField(''), 2000);
+  };
+
+  const handleMockPay = async () => {
+    try {
+      setMockLoading(true);
+      const res = await axiosClient.post(`/api/orders/${id}/mock-pay`);
+      if (res.data?.data) {
+        setOrder(res.data.data);
+        toast.success('🎉 Giả lập thanh toán SePay thành công!');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Lỗi mô phỏng thanh toán');
+    } finally {
+      setMockLoading(false);
     }
   };
 
@@ -336,26 +360,122 @@ function OrderDetailsPage() {
 
               {/* SePay Payment Section */}
               {order.paymentMethod === 'qr' && order.paymentStatus === 'pending' && (
-                <div className='mt-6 border-t border-slate-100 pt-6'>
-                  <div className="bg-brand-50 p-4 rounded-2xl mb-4">
-                    <h3 className='font-bold text-brand-900 text-sm mb-2'>Pay with SePay Sandbox</h3>
-                    <p className='text-xs text-brand-700 leading-relaxed'>
-                      Securely pay via Bank Transfer / QR code. Instant confirmation.
-                    </p>
+                <div className='mt-6 border-t border-slate-100 pt-6 space-y-6'>
+                  <div className="bg-brand-50 border border-brand-100 p-4 rounded-2xl flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="relative flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-500"></span>
+                      </span>
+                      <span className="font-bold text-brand-900 text-xs md:text-sm">Chờ tự động nhận thanh toán qua SePay Webhook...</span>
+                    </div>
                   </div>
 
+                  {/* VietQR Box */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-3xl p-6 text-center space-y-4">
+                    <div className="flex items-center justify-center gap-2 text-slate-800 font-display font-bold">
+                      <QrCode className="w-5 h-5 text-brand-600" />
+                      Quét mã VietQR (Tự động nhập nội dung)
+                    </div>
+
+                    <div className="bg-white p-4 rounded-2xl inline-block shadow-md mx-auto border border-slate-100">
+                      <img 
+                        src={`https://qr.sepay.vn/img?acc=${paymentConfig?.accountNo || '0123456789'}&bank=${paymentConfig?.bankId || 'MBBank'}&amount=${Math.round(order.total)}&des=${order.orderNumber}`}
+                        alt="SePay VietQR Code"
+                        className="w-48 h-48 md:w-56 md:h-56 object-contain mx-auto"
+                      />
+                    </div>
+
+                    {/* Bank transfer info details */}
+                    <div className="bg-white rounded-2xl p-4 border border-slate-200 text-left text-sm space-y-3">
+                      <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                        <span className="text-slate-500">Ngân hàng:</span>
+                        <span className="font-bold text-slate-900">{paymentConfig?.bankId || 'MBBank'}</span>
+                      </div>
+                      <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                        <span className="text-slate-500">Số tài khoản:</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-slate-900 font-mono">{paymentConfig?.accountNo || '0123456789'}</span>
+                          <button 
+                            onClick={() => handleCopy(paymentConfig?.accountNo || '0123456789', 'Số tài khoản')}
+                            className="text-brand-600 hover:bg-brand-50 p-1 rounded transition-colors"
+                          >
+                            {copiedField === 'Số tài khoản' ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                        <span className="text-slate-500">Chủ tài khoản:</span>
+                        <span className="font-bold text-slate-900 uppercase">{paymentConfig?.accountName || 'CD STORE'}</span>
+                      </div>
+                      <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                        <span className="text-slate-500">Số tiền:</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-brand-600 text-base">${order.total?.toFixed(2)} ({Math.round(order.total).toLocaleString('vi-VN')} VND)</span>
+                          <button 
+                            onClick={() => handleCopy(String(Math.round(order.total)), 'Số tiền')}
+                            className="text-brand-600 hover:bg-brand-50 p-1 rounded transition-colors"
+                          >
+                            {copiedField === 'Số tiền' ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-500">Nội dung chuyển khoản:</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded font-mono text-base">{order.orderNumber}</span>
+                          <button 
+                            onClick={() => handleCopy(order.orderNumber, 'Nội dung')}
+                            className="text-brand-600 hover:bg-brand-50 p-1 rounded transition-colors"
+                          >
+                            {copiedField === 'Nội dung' ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Gateway Checkout Button */}
                   <button 
                     onClick={handleSePayCheckout}
                     disabled={payosLoading}
-                    className='w-full bg-slate-900 text-white px-6 py-4 rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20 disabled:opacity-50 disabled:hover:translate-y-0 disabled:shadow-none flex items-center justify-center gap-2'
+                    className='w-full bg-slate-900 text-white px-6 py-4 rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20 disabled:opacity-50 flex items-center justify-center gap-2'
                   >
                     {payosLoading ? (
                       <>
                         <span className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></span>
-                        Processing...
+                        Đang chuyển đến cổng SePay...
                       </>
-                    ) : 'Pay Now'}
+                    ) : (
+                      <>
+                        <CreditCard className="w-5 h-5 text-brand-400" />
+                        Chuyển đến cổng thanh toán SePay Checkout
+                      </>
+                    )}
                   </button>
+
+                  {/* Sandbox Test Simulator Panel */}
+                  <div className="bg-amber-50 border border-amber-200 rounded-3xl p-5 space-y-3">
+                    <div className="flex items-center gap-2 font-bold text-amber-900 text-sm">
+                      <Sparkles className="w-4 h-4 text-amber-600" />
+                      🧪 SePay Sandbox Mode - Công cụ kiểm thử Đồ án
+                    </div>
+                    <p className="text-xs text-amber-800 leading-relaxed">
+                      Nhấn nút dưới đây để giả lập webhook từ SePay báo thanh toán thành công (Trừ tồn kho, cập nhật trạng thái COMPLETED & gửi email):
+                    </p>
+                    <button 
+                      onClick={handleMockPay}
+                      disabled={mockLoading}
+                      className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      {mockLoading ? (
+                        <>
+                          <span className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></span>
+                          Đang xác nhận giả lập...
+                        </>
+                      ) : '⚡ Mô phỏng thanh toán SePay thành công (Sandbox Test)'}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
