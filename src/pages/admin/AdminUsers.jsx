@@ -8,7 +8,7 @@ import { useStore } from '../../store/store';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Custom Confirm Modal Component
-const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message, type = 'danger', confirmText = 'Confirm' }) => {
+const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message, type = 'danger', confirmText = 'Xác nhận' }) => {
   return createPortal(
     <AnimatePresence>
       {isOpen && (
@@ -43,7 +43,7 @@ const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message, type = 'dang
                 onClick={onClose}
                 className="px-5 py-2.5 rounded-xl text-slate-600 font-medium hover:bg-slate-200/50 transition-colors"
               >
-                Cancel
+                Hủy
               </button>
               <button 
                 onClick={() => { onConfirm(); onClose(); }}
@@ -81,7 +81,7 @@ const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name.trim()) return toast.error("Name is required");
+    if (!formData.name.trim()) return toast.error("Vui lòng nhập tên");
     
     setLoading(true);
     try {
@@ -113,7 +113,7 @@ const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
                   <Edit className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-display font-bold text-slate-800">Edit User Info</h3>
+                  <h3 className="text-xl font-display font-bold text-slate-800">Chỉnh Sửa Thông Tin</h3>
                   <p className="text-xs text-slate-500">{user?.email}</p>
                 </div>
               </div>
@@ -124,7 +124,7 @@ const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
             
             <form onSubmit={handleSubmit} className="p-6 space-y-4 bg-slate-50/50">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Full Name</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Họ và Tên</label>
                 <div className="relative">
                   <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input 
@@ -132,13 +132,13 @@ const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                     className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all shadow-sm"
-                    placeholder="John Doe"
+                    placeholder="Nguyễn Văn A"
                   />
                 </div>
               </div>
               
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Phone Number</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Số Điện Thoại</label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input 
@@ -146,20 +146,20 @@ const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
                     value={formData.phone}
                     onChange={(e) => setFormData({...formData, phone: e.target.value})}
                     className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all shadow-sm"
-                    placeholder="+1 234 567 890"
+                    placeholder="0912 345 678"
                   />
                 </div>
               </div>
               
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Address</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Địa Chỉ</label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
                   <textarea 
                     value={formData.address}
                     onChange={(e) => setFormData({...formData, address: e.target.value})}
                     className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all shadow-sm resize-none min-h-[80px]"
-                    placeholder="123 Main St, City, Country"
+                    placeholder="123 Đường A, Quận B, TP HCM"
                   />
                 </div>
               </div>
@@ -170,7 +170,7 @@ const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
                   onClick={onClose}
                   className="px-5 py-2.5 rounded-xl text-slate-600 font-medium hover:bg-slate-200/50 transition-colors bg-white border border-slate-200 shadow-sm"
                 >
-                  Cancel
+                  Hủy
                 </button>
                 <button 
                   type="submit"
@@ -182,7 +182,7 @@ const EditUserModal = ({ isOpen, onClose, onSave, user }) => {
                   ) : (
                     <Save className="w-4 h-4" />
                   )}
-                  Save Changes
+                  Lưu Thay Đổi
                 </button>
               </div>
             </form>
@@ -244,7 +244,7 @@ function AdminUsers() {
       setUsers(res.data.data.users);
       setTotalPages(res.data.data.pages);
     } catch (error) {
-      toast.error('Failed to fetch users');
+      toast.error('Tải danh sách người dùng thất bại');
     } finally {
       // Small delay to let skeleton animation play smoothly visually
       setTimeout(() => setLoading(false), 400);
@@ -256,10 +256,10 @@ function AdminUsers() {
     const newRole = currentRole === 'admin' ? 'user' : 'admin';
     try {
       await axiosClient.patch(`/api/users/${userId}/role`, { role: newRole });
-      toast.success('User role updated successfully');
+      toast.success('Đã cập nhật vai trò người dùng!');
       fetchUsers();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to update user role');
+      toast.error(error.response?.data?.message || 'Cập nhật vai trò thất bại');
     }
   };
 
@@ -267,26 +267,26 @@ function AdminUsers() {
     const { userId } = modalConfig;
     try {
       await axiosClient.delete(`/api/users/${userId}`);
-      toast.success('User deleted successfully');
+      toast.success('Đã xóa người dùng!');
       fetchUsers();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to delete user');
+      toast.error(error.response?.data?.message || 'Xóa người dùng thất bại');
     }
   };
 
   const handleUpdateUser = async (userId, data) => {
     try {
       await axiosClient.patch(`/api/users/${userId}`, data);
-      toast.success('User information updated successfully');
+      toast.success('Đã cập nhật thông tin người dùng!');
       fetchUsers();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to update user info');
+      toast.error(error.response?.data?.message || 'Cập nhật thông tin thất bại');
     }
   };
 
   const openRoleModal = (u) => {
     if (u._id === currentUser.id) {
-      toast.error('You cannot change your own role.');
+      toast.error('Bạn không thể tự thay đổi vai trò của chính mình.');
       return;
     }
     setModalConfig({
@@ -295,15 +295,15 @@ function AdminUsers() {
       type: 'warning',
       userId: u._id,
       currentRole: u.role,
-      title: 'Change User Role',
-      message: `Are you sure you want to change ${u.name}'s role to ${u.role === 'admin' ? 'USER' : 'ADMIN'}?`,
-      confirmText: 'Change Role'
+      title: 'Thay Đổi Vai Trò',
+      message: `Bạn có chắc chắn muốn chuyển quyền của ${u.name} thành ${u.role === 'admin' ? 'NGƯỜI DÙNG' : 'QUẢN TRỊ VIÊN'} không?`,
+      confirmText: 'Đổi Quyền'
     });
   };
 
   const openDeleteModal = (u) => {
     if (u._id === currentUser.id) {
-      toast.error('You cannot delete your own account.');
+      toast.error('Bạn không thể tự xóa tài khoản của chính mình.');
       return;
     }
     setModalConfig({
@@ -311,9 +311,9 @@ function AdminUsers() {
       action: 'delete',
       type: 'danger',
       userId: u._id,
-      title: 'Delete User Account',
-      message: `Are you sure you want to permanently delete ${u.name}? This action cannot be undone and will remove all their data.`,
-      confirmText: 'Delete Account'
+      title: 'Xóa Tài Khoản',
+      message: `Bạn có chắc chắn muốn xóa vĩnh viễn ${u.name}? Thao tác này không thể khôi phục.`,
+      confirmText: 'Xóa Tài Khoản'
     });
   };
   
@@ -338,7 +338,7 @@ function AdminUsers() {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `Users_Directory_${Date.now()}.${format}`);
+      link.setAttribute('download', `DanhSachNguoiDung_${Date.now()}.${format}`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -373,8 +373,8 @@ function AdminUsers() {
     <div className='pb-10 max-w-[1400px] mx-auto'>
       <div className='flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8'>
         <div>
-          <h1 className='text-3xl font-display font-bold text-slate-800 tracking-tight'>User Management</h1>
-          <p className="text-slate-500 mt-1">Manage customers, staff, and system administrators.</p>
+          <h1 className='text-3xl font-display font-bold text-slate-800 tracking-tight'>Quản Lý Người Dùng</h1>
+          <p className="text-slate-500 mt-1">Quản lý khách hàng, nhân viên và quản trị viên hệ thống.</p>
         </div>
         
         {/* Toolbar */}
@@ -395,7 +395,7 @@ function AdminUsers() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input 
               type="text" 
-              placeholder="Search users..." 
+              placeholder="Tìm kiếm người dùng..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full sm:w-64 pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all shadow-sm"
@@ -411,9 +411,9 @@ function AdminUsers() {
               onChange={(e) => setRoleFilter(e.target.value)}
               className="w-full sm:w-auto pl-10 pr-10 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all shadow-sm cursor-pointer"
             >
-              <option value="all">All Roles</option>
-              <option value="admin">Admins</option>
-              <option value="user">Users</option>
+              <option value="all">Tất cả vai trò</option>
+              <option value="admin">Quản Trị Viên</option>
+              <option value="user">Khách Hàng</option>
             </select>
             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
           </div>
@@ -425,10 +425,10 @@ function AdminUsers() {
           <table className='w-full'>
             <thead>
               <tr className='bg-slate-50/50 border-b border-slate-100'>
-                <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider w-[35%]'>User Detail</th>
-                <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider w-[20%]'>Role</th>
-                <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider w-[25%]'>Joined Date</th>
-                <th className='px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider w-[20%]'>Actions</th>
+                <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider w-[35%]'>Thông Tin Người Dùng</th>
+                <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider w-[20%]'>Vai Trò</th>
+                <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider w-[25%]'>Ngày Tham Gia</th>
+                <th className='px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider w-[20%]'>Thao Tác</th>
               </tr>
             </thead>
             
@@ -480,13 +480,13 @@ function AdminUsers() {
                           : 'bg-slate-100 text-slate-600 border border-slate-200'
                       }`}>
                         {u.role === 'admin' ? <Shield className="w-3.5 h-3.5" /> : <UserIcon className="w-3.5 h-3.5" />}
-                        {u.role}
+                        {u.role === 'admin' ? 'Quản Trị Viên' : 'Khách Hàng'}
                       </span>
                     </td>
                     <td className='px-6 py-4 whitespace-nowrap'>
                       <div className="flex items-center gap-2 text-slate-600 text-sm font-medium">
                         <Calendar className="w-4 h-4 text-slate-400" />
-                        {new Date(u.createdAt).toLocaleDateString('en-US', {
+                        {new Date(u.createdAt).toLocaleDateString('vi-VN', {
                           year: 'numeric',
                           month: 'short',
                           day: 'numeric'
@@ -498,7 +498,7 @@ function AdminUsers() {
                         <button 
                           onClick={() => openEditModal(u)}
                           className="p-2.5 text-blue-600 bg-blue-50 rounded-xl hover:bg-blue-600 hover:text-white hover:shadow-md hover:shadow-blue-500/20 transition-all"
-                          title="Edit Info"
+                          title="Sửa thông tin"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
@@ -506,7 +506,7 @@ function AdminUsers() {
                           onClick={() => openRoleModal(u)}
                           disabled={u._id === currentUser.id}
                           className="p-2.5 text-brand-600 bg-brand-50 rounded-xl hover:bg-brand-600 hover:text-white hover:shadow-md hover:shadow-brand-500/20 transition-all disabled:opacity-30 disabled:hover:bg-brand-50 disabled:hover:text-brand-600 disabled:cursor-not-allowed"
-                          title="Change Role"
+                          title="Đổi vai trò"
                         >
                           <Shield className="w-4 h-4" />
                         </button>
@@ -514,14 +514,10 @@ function AdminUsers() {
                           onClick={() => openDeleteModal(u)}
                           disabled={u._id === currentUser.id}
                           className="p-2.5 text-red-600 bg-red-50 rounded-xl hover:bg-red-500 hover:text-white hover:shadow-md hover:shadow-red-500/20 transition-all disabled:opacity-30 disabled:hover:bg-red-50 disabled:hover:text-red-600 disabled:cursor-not-allowed"
-                          title="Delete User"
+                          title="Xóa người dùng"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
-                      </div>
-                      {/* Mobile view - always show actions slightly faded */}
-                      <div className="flex md:hidden items-center justify-end gap-2 mt-2">
-                         <span className="text-xs text-slate-400">Swipe or tap actions</span>
                       </div>
                     </td>
                   </motion.tr>
@@ -534,8 +530,8 @@ function AdminUsers() {
                         <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-4">
                           <Users className="w-8 h-8 text-slate-400" />
                         </div>
-                        <p className="text-lg font-bold text-slate-700">No users found</p>
-                        <p className="text-slate-500 mt-1">Try adjusting your search or filter criteria.</p>
+                        <p className="text-lg font-bold text-slate-700">Không tìm thấy người dùng nào</p>
+                        <p className="text-slate-500 mt-1">Thử điều chỉnh từ khóa tìm kiếm hoặc bộ lọc.</p>
                       </div>
                     </td>
                   </tr>

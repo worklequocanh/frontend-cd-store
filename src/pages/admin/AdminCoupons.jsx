@@ -27,7 +27,7 @@ function AdminCoupons() {
       const res = await axiosClient.get('/api/coupons/admin');
       setCoupons(res.data.data);
     } catch (error) {
-      toast.error('Failed to fetch coupons');
+      toast.error('Tải danh sách mã ưu đãi thất bại');
     } finally {
       setLoading(false);
     }
@@ -37,32 +37,32 @@ function AdminCoupons() {
     e.preventDefault();
     try {
       await axiosClient.post('/api/coupons', formData);
-      toast.success('Coupon created successfully');
+      toast.success('Đã tạo mã giảm giá!');
       setShowModal(false);
       fetchCoupons();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to create coupon');
+      toast.error(error.response?.data?.message || 'Tạo mã giảm giá thất bại');
     }
   };
 
   const handleDeleteCoupon = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this coupon?')) return;
+    if (!window.confirm('Bạn có chắc chắn muốn xóa mã giảm giá này không?')) return;
     try {
       await axiosClient.delete(`/api/coupons/${id}`);
-      toast.success('Coupon deleted successfully');
+      toast.success('Đã xóa mã giảm giá!');
       fetchCoupons();
     } catch (error) {
-      toast.error('Failed to delete coupon');
+      toast.error('Xóa mã giảm giá thất bại');
     }
   };
 
   const handleToggleActive = async (id, currentStatus) => {
     try {
       await axiosClient.patch(`/api/coupons/${id}`, { isActive: !currentStatus });
-      toast.success(`Coupon ${!currentStatus ? 'activated' : 'deactivated'}`);
+      toast.success(`Đã ${!currentStatus ? 'kích hoạt' : 'tắt'} mã giảm giá!`);
       fetchCoupons();
     } catch (error) {
-      toast.error('Failed to update coupon status');
+      toast.error('Cập nhật trạng thái mã giảm giá thất bại');
     }
   };
 
@@ -85,14 +85,14 @@ function AdminCoupons() {
     <div className='pb-10 max-w-7xl mx-auto'>
       <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8'>
         <div>
-          <h1 className='text-3xl font-display font-bold text-slate-900'>Coupons & Discounts</h1>
-          <p className="text-slate-500 mt-1">Manage promotional codes for your store.</p>
+          <h1 className='text-3xl font-display font-bold text-slate-900'>Quản Lý Mã Giảm Giá</h1>
+          <p className="text-slate-500 mt-1">Quản lý mã ưu đãi và chương trình khuyến mãi của cửa hàng.</p>
         </div>
         <button 
           onClick={() => setShowModal(true)}
           className="bg-brand-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-brand-700 transition-all shadow-md shadow-brand-500/20 flex items-center gap-2"
         >
-          <Plus className="w-5 h-5" /> Create Coupon
+          <Plus className="w-5 h-5" /> Tạo Mã Ưu Đãi
         </button>
       </div>
 
@@ -101,12 +101,12 @@ function AdminCoupons() {
           <table className='w-full'>
             <thead>
               <tr className='bg-slate-50 border-b border-slate-100'>
-                <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider'>Code</th>
-                <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider'>Discount</th>
-                <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider'>Usage Limit</th>
-                <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider'>Status</th>
-                <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider'>Expires</th>
-                <th className='px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider'>Actions</th>
+                <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider'>Mã Ưu Đãi</th>
+                <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider'>Mức Giảm</th>
+                <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider'>Giới Hạn Sử Dụng</th>
+                <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider'>Trạng Thái</th>
+                <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider'>Ngày Hết Hạn</th>
+                <th className='px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider'>Thao Tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -126,9 +126,9 @@ function AdminCoupons() {
                     </td>
                     <td className='px-6 py-4 whitespace-nowrap'>
                       <span className="font-bold text-brand-600">
-                        {c.type === 'percent' ? `${c.value}% OFF` : `$${c.value} OFF`}
+                        {c.type === 'percent' ? `Giảm ${c.value}%` : `Giảm $${c.value}`}
                       </span>
-                      {c.maxDiscount > 0 && <span className="block text-xs text-slate-500">Up to ${c.maxDiscount}</span>}
+                      {c.maxDiscount > 0 && <span className="block text-xs text-slate-500">Tối đa ${c.maxDiscount}</span>}
                     </td>
                     <td className='px-6 py-4 whitespace-nowrap'>
                       <div className="text-sm font-medium text-slate-700">
@@ -148,9 +148,9 @@ function AdminCoupons() {
                         }`}
                       >
                         {c.isActive ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
-                        {c.isActive ? 'Active' : 'Disabled'}
+                        {c.isActive ? 'Đang mở' : 'Đã tắt'}
                       </button>
-                      {isExpired && <span className="block text-xs text-red-500 font-semibold mt-1">Expired</span>}
+                      {isExpired && <span className="block text-xs text-red-500 font-semibold mt-1">Hết hạn</span>}
                     </td>
                     <td className='px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-medium'>
                       {new Date(c.expiredAt).toLocaleDateString()}
@@ -159,7 +159,7 @@ function AdminCoupons() {
                       <button 
                         onClick={() => handleDeleteCoupon(c._id)}
                         className="p-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 hover:text-red-700 transition-colors"
-                        title="Delete Coupon"
+                        title="Xóa mã ưu đãi"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -172,7 +172,7 @@ function AdminCoupons() {
                 <tr>
                   <td colSpan="6" className="px-6 py-12 text-center text-slate-500">
                     <Ticket className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                    <p className="text-lg font-medium text-slate-900">No coupons created yet</p>
+                    <p className="text-lg font-medium text-slate-900">Chưa có mã giảm giá nào</p>
                   </td>
                 </tr>
               )}
@@ -186,7 +186,7 @@ function AdminCoupons() {
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden animate-fade-in">
             <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-              <h2 className="text-xl font-display font-bold text-slate-900">Create New Coupon</h2>
+              <h2 className="text-xl font-display font-bold text-slate-900">Tạo Mã Ưu Đãi Mới</h2>
               <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600">
                 <XCircle className="w-6 h-6" />
               </button>
@@ -194,7 +194,7 @@ function AdminCoupons() {
             
             <form onSubmit={handleCreateCoupon} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Coupon Code</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Mã Khuyến Mãi</label>
                 <div className="flex gap-2">
                   <input 
                     type="text" 
@@ -202,28 +202,28 @@ function AdminCoupons() {
                     value={formData.code}
                     onChange={(e) => setFormData({...formData, code: e.target.value.toUpperCase()})}
                     className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 font-mono uppercase font-bold"
-                    placeholder="SUMMER50"
+                    placeholder="GIAM50"
                   />
                   <button type="button" onClick={generateRandomCode} className="px-4 py-2 bg-slate-100 text-slate-700 font-semibold rounded-xl hover:bg-slate-200 transition-colors">
-                    Random
+                    Ngẫu nhiên
                   </button>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Type</label>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Loại Mã</label>
                   <select 
                     value={formData.type}
                     onChange={(e) => setFormData({...formData, type: e.target.value})}
                     className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500"
                   >
-                    <option value="percent">Percentage (%)</option>
-                    <option value="fixed">Fixed Amount ($)</option>
+                    <option value="percent">Theo phần trăm (%)</option>
+                    <option value="fixed">Số tiền cố định ($)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Discount Value</label>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Giá Trị Giảm</label>
                   <input 
                     type="number" 
                     required 
@@ -237,7 +237,7 @@ function AdminCoupons() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Min Order Value ($)</label>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Đơn Hàng Tối Thiểu ($)</label>
                   <input 
                     type="number" 
                     min="0"
@@ -247,7 +247,7 @@ function AdminCoupons() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Max Discount ($) *percent only</label>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Giảm Tối Đa ($) *loại %</label>
                   <input 
                     type="number" 
                     min="0"
@@ -260,7 +260,7 @@ function AdminCoupons() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Usage Limit</label>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Giới Hạn Sử Dụng</label>
                   <input 
                     type="number" 
                     required 
@@ -271,7 +271,7 @@ function AdminCoupons() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Expiration Date</label>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Ngày Hết Hạn</label>
                   <input 
                     type="date" 
                     required 
@@ -284,10 +284,10 @@ function AdminCoupons() {
 
               <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
                 <button type="button" onClick={() => setShowModal(false)} className="px-6 py-2.5 font-bold text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors">
-                  Cancel
+                  Hủy
                 </button>
                 <button type="submit" className="px-6 py-2.5 font-bold text-white bg-brand-600 rounded-xl hover:bg-brand-700 transition-colors">
-                  Create Coupon
+                  Tạo Mã Ưu Đãi
                 </button>
               </div>
             </form>

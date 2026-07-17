@@ -17,7 +17,7 @@ function AdminOrderDetails() {
         const res = await axiosClient.get(`/api/orders/${id}`);
         setOrder(res.data.data);
       } catch (error) {
-        toast.error('Failed to load order details');
+        toast.error('Tải chi tiết đơn hàng thất bại');
         navigate('/admin/orders');
       } finally {
         setLoading(false);
@@ -30,10 +30,10 @@ function AdminOrderDetails() {
   const handleStatusChange = async (newStatus) => {
     try {
       await axiosClient.patch(`/api/admin/orders/${id}/status`, { status: newStatus });
-      toast.success('Order status updated!');
+      toast.success('Đã cập nhật trạng thái đơn hàng!');
       setOrder({ ...order, orderStatus: newStatus });
     } catch (error) {
-      toast.error('Failed to update order status');
+      toast.error('Cập nhật trạng thái đơn hàng thất bại');
     }
   };
 
@@ -46,7 +46,7 @@ function AdminOrderDetails() {
       const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `Invoice-${order.orderNumber || id}.pdf`);
+      link.setAttribute('download', `HoaDon-${order.orderNumber || id}.pdf`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -75,12 +75,12 @@ function AdminOrderDetails() {
     >
       {/* Header */}
       <button onClick={() => navigate('/admin/orders')} className="flex items-center gap-2 text-sm text-slate-500 hover:text-brand-600 transition-colors mb-6">
-        <ChevronLeft className="w-4 h-4" /> Back to Orders
+        <ChevronLeft className="w-4 h-4" /> Quay Lại Danh Sách Đơn
       </button>
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className='text-3xl font-display font-bold text-slate-900'>Order Details</h1>
+          <h1 className='text-3xl font-display font-bold text-slate-900'>Chi Tiết Đơn Hàng</h1>
           <p className="text-slate-500 font-mono mt-1">#{order.orderNumber}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -95,11 +95,11 @@ function AdminOrderDetails() {
             onChange={(e) => handleStatusChange(e.target.value)} 
             className="px-4 py-2 rounded-xl text-sm font-semibold border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm bg-white"
           >
-            <option value="pending">Pending</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="shipped">Shipped</option>
-            <option value="delivered">Delivered</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="pending">Chờ xác nhận</option>
+            <option value="confirmed">Đã xác nhận</option>
+            <option value="shipped">Đang giao</option>
+            <option value="delivered">Đã giao</option>
+            <option value="cancelled">Đã hủy</option>
           </select>
         </div>
       </div>
@@ -111,11 +111,11 @@ function AdminOrderDetails() {
           {/* Visual Stepper */}
           <div className='bg-white rounded-3xl p-6 shadow-sm border border-slate-100'>
             <h2 className='text-lg font-bold text-slate-900 mb-6 flex items-center gap-2'>
-              <Truck className="w-5 h-5 text-brand-600" /> Order Tracking Timeline
+              <Truck className="w-5 h-5 text-brand-600" /> Tiến Trình Xử Lý Đơn Hàng
             </h2>
             {order.orderStatus === 'cancelled' ? (
               <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-center">
-                <p className="font-bold text-red-700">✕ Order Cancelled</p>
+                <p className="font-bold text-red-700">✕ Đơn Hàng Đã Bị Hủy</p>
                 {order.cancelReason && <p className="text-xs text-red-600 mt-1">{order.cancelReason}</p>}
               </div>
             ) : (
@@ -125,7 +125,7 @@ function AdminOrderDetails() {
                   const currentIdx = stepsOrder.indexOf(order.orderStatus);
                   const isCompleted = currentIdx >= idx;
                   const isCurrent = currentIdx === idx;
-                  const stepTitles = ['Pending Approval', 'Order Confirmed', 'In Transit (Shipped)', 'Delivered'];
+                  const stepTitles = ['Chờ xác nhận', 'Đã xác nhận', 'Đang giao hàng', 'Đã giao thành công'];
 
                   return (
                     <div key={stepStatus} className="flex flex-col items-center text-center">
@@ -147,7 +147,7 @@ function AdminOrderDetails() {
           {/* Items */}
           <div className='bg-white rounded-3xl p-6 shadow-sm border border-slate-100'>
             <h2 className='text-lg font-bold text-slate-900 mb-6 flex items-center gap-2'>
-              <ShoppingCart className="w-5 h-5 text-brand-600" /> Items in Order
+              <ShoppingCart className="w-5 h-5 text-brand-600" /> Danh Sách Sản Phẩm
             </h2>
             
             <div className='space-y-4'>
@@ -162,7 +162,7 @@ function AdminOrderDetails() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className='font-semibold text-slate-900 line-clamp-2 text-sm'>{item.name}</p>
-                    <p className='text-slate-500 text-xs mt-1'>Qty: {item.quantity}</p>
+                    <p className='text-slate-500 text-xs mt-1'>SL: {item.quantity}</p>
                   </div>
                   <div className="text-right shrink-0">
                     <p className='font-bold text-slate-900'>${(item.price * item.quantity).toFixed(2)}</p>
@@ -175,25 +175,25 @@ function AdminOrderDetails() {
           {/* Customer & Shipping */}
           <div className='bg-white rounded-3xl p-6 shadow-sm border border-slate-100'>
             <h2 className='text-lg font-bold text-slate-900 mb-6 flex items-center gap-2'>
-              <MapPin className="w-5 h-5 text-brand-600" /> Customer & Delivery
+              <MapPin className="w-5 h-5 text-brand-600" /> Khách Hàng & Giao Nhận
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <p className="text-sm font-semibold text-slate-500 mb-2">Customer Account</p>
+                <p className="text-sm font-semibold text-slate-500 mb-2">Tài Khoản Khách</p>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-600">
                     {order.userId?.name?.charAt(0) || 'G'}
                   </div>
                   <div>
-                    <p className="font-bold text-slate-900">{order.userId?.name || 'Guest User'}</p>
-                    <p className="text-xs text-slate-500">{order.userId?.email || 'No email'}</p>
+                    <p className="font-bold text-slate-900">{order.userId?.name || 'Khách vãng lai'}</p>
+                    <p className="text-xs text-slate-500">{order.userId?.email || 'Không có email'}</p>
                   </div>
                 </div>
               </div>
               
               <div>
-                <p className="text-sm font-semibold text-slate-500 mb-2">Shipping Details</p>
+                <p className="text-sm font-semibold text-slate-500 mb-2">Địa Chỉ Nhận Hàng</p>
                 <p className='font-bold text-slate-900'>{order.shippingAddress.name}</p>
                 <p className="flex items-center gap-2 mt-1 text-sm text-slate-600"><Phone className="w-3.5 h-3.5" /> {order.shippingAddress.phone}</p>
                 <p className="text-sm text-slate-600 mt-2">{order.shippingAddress.address}, {order.shippingAddress.district}, {order.shippingAddress.city}</p>
@@ -206,26 +206,26 @@ function AdminOrderDetails() {
         <div className="space-y-6">
           {/* Summary */}
           <div className='bg-slate-900 text-white rounded-3xl p-6 shadow-xl'>
-            <h2 className='text-lg font-bold mb-4 pb-4 border-b border-slate-700'>Order Summary</h2>
+            <h2 className='text-lg font-bold mb-4 pb-4 border-b border-slate-700'>Tóm Tắt Đơn Hàng</h2>
             
             <div className='space-y-3 text-sm text-slate-300'>
               <div className='flex justify-between'>
-                <span>Subtotal</span>
+                <span>Tạm tính</span>
                 <span className='font-medium text-white'>${order.subtotal?.toFixed(2)}</span>
               </div>
               <div className='flex justify-between'>
-                <span>Shipping</span>
+                <span>Phí vận chuyển</span>
                 <span className='font-medium text-white'>${order.shippingFee?.toFixed(2)}</span>
               </div>
               {order.discountAmount > 0 && (
                 <div className='flex justify-between text-brand-400 font-semibold'>
-                  <span>Discount {order.couponCode ? `(${order.couponCode})` : ''}</span>
+                  <span>Giảm giá {order.couponCode ? `(${order.couponCode})` : ''}</span>
                   <span className='font-medium'>-${order.discountAmount.toFixed(2)}</span>
                 </div>
               )}
               
               <div className='flex justify-between items-end pt-4 mt-2 border-t border-slate-700'>
-                <span className='font-bold text-white'>Total</span>
+                <span className='font-bold text-white'>Thành tiền</span>
                 <span className='text-2xl font-display font-bold text-brand-400'>${order.total?.toFixed(2)}</span>
               </div>
             </div>
@@ -234,7 +234,7 @@ function AdminOrderDetails() {
           {/* Payment */}
           <div className='bg-white rounded-3xl p-6 shadow-sm border border-slate-100'>
             <h2 className='text-lg font-bold text-slate-900 mb-4 flex items-center gap-2'>
-              <CreditCard className="w-5 h-5 text-brand-600" /> Payment
+              <CreditCard className="w-5 h-5 text-brand-600" /> Phương Thức Thanh Toán
             </h2>
             
             <div className="flex items-center gap-4 mb-4">
@@ -245,7 +245,7 @@ function AdminOrderDetails() {
               </div>
               <div>
                 <p className="font-bold text-slate-900 text-sm">
-                  {order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}
+                  {order.paymentMethod === 'cod' ? 'Thanh toán tiền mặt khi nhận hàng' : 'Chuyển khoản qua SePay'}
                 </p>
               </div>
             </div>
@@ -256,9 +256,9 @@ function AdminOrderDetails() {
                 : 'bg-amber-50 text-amber-700'
             }`}>
               {order.paymentStatus === 'completed' || order.paymentStatus === 'paid' ? (
-                <><CheckCircle2 className="w-4 h-4" /> Payment Completed</>
+                <><CheckCircle2 className="w-4 h-4" /> Đã thanh toán</>
               ) : (
-                <><Clock className="w-4 h-4" /> Payment Pending</>
+                <><Clock className="w-4 h-4" /> Chưa thanh toán</>
               )}
             </div>
           </div>

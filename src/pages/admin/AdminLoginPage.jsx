@@ -21,12 +21,12 @@ function AdminLoginPage() {
 
       localStorage.setItem('token', res.data.data.token);
       setUser(res.data.data.user);
-      toast.success('Admin authentication successful');
+      toast.success('Đăng nhập quản trị thành công');
       
       const from = location.state?.from || '/admin';
       navigate(from, { replace: true });
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Authentication failed');
+      toast.error(error.response?.data?.message || 'Đăng nhập thất bại');
     } finally {
       setLoading(false);
     }
@@ -47,16 +47,16 @@ function AdminLoginPage() {
               <Shield className="w-8 h-8 text-brand-500" />
             </div>
             <h1 className='text-3xl font-display font-bold text-white mb-2'>
-              Admin Portal
+              Cổng Quản Trị Hệ Thống
             </h1>
             <p className="text-slate-400">
-              Authorized personnel only
+              Chỉ dành cho Quản trị viên được cấp quyền
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className='block text-sm font-medium text-slate-300 mb-2'>Admin Email</label>
+              <label className='block text-sm font-medium text-slate-300 mb-2'>Địa Chỉ Email</label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                 <input 
@@ -64,14 +64,14 @@ function AdminLoginPage() {
                   value={formData.email} 
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })} 
                   className='w-full bg-slate-900/50 border border-slate-700 text-white rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors placeholder:text-slate-600' 
-                  placeholder="admin@cdstore.com"
+                  placeholder="anhlq1208@gmail.com"
                   required 
                 />
               </div>
             </div>
 
             <div>
-              <label className='block text-sm font-medium text-slate-300 mb-2'>Password</label>
+              <label className='block text-sm font-medium text-slate-300 mb-2'>Mật Khẩu</label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                 <input 
@@ -94,7 +94,7 @@ function AdminLoginPage() {
                 <span className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white/20 border-t-white"></span>
               ) : (
                 <>
-                  Authenticate
+                  Đăng Nhập Quản Trị
                   <ArrowRight className="w-5 h-5" />
                 </>
               )}
@@ -103,7 +103,7 @@ function AdminLoginPage() {
           
           <div className="mt-8 pt-6 border-t border-slate-700 text-center">
             <p className="text-sm text-slate-500">
-              Return to <a href="/" className="text-brand-500 hover:text-brand-400 font-medium">Storefront</a>
+              Quay lại <a href="/" className="text-brand-500 hover:text-brand-400 font-medium">Cửa Hàng Khách</a>
             </p>
           </div>
         </div>

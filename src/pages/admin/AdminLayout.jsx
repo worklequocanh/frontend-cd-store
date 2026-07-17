@@ -32,13 +32,13 @@ function AdminLayout() {
   const isActive = (path) => location.pathname === path || (path !== '/admin' && location.pathname.startsWith(path));
 
   const navItems = [
-    { name: 'Dashboard', path: '/admin', icon: <LayoutDashboard className="w-5 h-5" /> },
-    { name: 'Products', path: '/admin/products', icon: <PackageSearch className="w-5 h-5" /> },
-    { name: 'Orders', path: '/admin/orders', icon: <ShoppingCart className="w-5 h-5" /> },
-    { name: 'Users', path: '/admin/users', icon: <Users className="w-5 h-5" /> },
-    { name: 'Coupons', path: '/admin/coupons', icon: <Ticket className="w-5 h-5" /> },
-    { name: 'Reviews', path: '/admin/reviews', icon: <Star className="w-5 h-5" /> },
-    { name: 'Messages', path: '/admin/contacts', icon: <MessageSquare className="w-5 h-5" />, badge: unreadMessages },
+    { name: 'Bảng Điều Khiển', path: '/admin', icon: <LayoutDashboard className="w-5 h-5" /> },
+    { name: 'Quản Lý Sản Phẩm', path: '/admin/products', icon: <PackageSearch className="w-5 h-5" /> },
+    { name: 'Quản Lý Đơn Hàng', path: '/admin/orders', icon: <ShoppingCart className="w-5 h-5" /> },
+    { name: 'Người Dùng', path: '/admin/users', icon: <Users className="w-5 h-5" /> },
+    { name: 'Mã Giảm Giá', path: '/admin/coupons', icon: <Ticket className="w-5 h-5" /> },
+    { name: 'Đánh Giá', path: '/admin/reviews', icon: <Star className="w-5 h-5" /> },
+    { name: 'Tin Nhắn Liên Hệ', path: '/admin/contacts', icon: <MessageSquare className="w-5 h-5" />, badge: unreadMessages },
   ];
 
   const handleLogout = () => {
@@ -105,7 +105,7 @@ function AdminLayout() {
             <div className="bg-brand-50 p-2 rounded-xl text-brand-600">
               <Package className="w-7 h-7" />
             </div>
-            {!sidebarCollapsed && <span className="font-display font-bold text-xl text-slate-800 tracking-tight">CD Admin</span>}
+            {!sidebarCollapsed && <span className="font-display font-bold text-xl text-slate-800 tracking-tight">Quản Trị CD</span>}
           </Link>
         </div>
         
@@ -116,7 +116,7 @@ function AdminLayout() {
             </div>
             {!sidebarCollapsed && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="overflow-hidden">
-                <p className="text-xs font-medium text-slate-400">Welcome back,</p>
+                <p className="text-xs font-medium text-slate-400">Xin chào,</p>
                 <p className="font-bold text-slate-800 truncate w-36">{user?.name}</p>
               </motion.div>
             )}
@@ -131,10 +131,10 @@ function AdminLayout() {
           <button 
             onClick={handleLogout}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors group ${sidebarCollapsed ? 'justify-center' : ''}`}
-            title="Logout"
+            title="Đăng xuất"
           >
             <LogOut className="w-5 h-5 flex-shrink-0" />
-            {!sidebarCollapsed && <span className="font-medium">Logout</span>}
+            {!sidebarCollapsed && <span className="font-medium">Đăng xuất</span>}
           </button>
         </div>
 
@@ -155,7 +155,7 @@ function AdminLayout() {
             <div className="bg-brand-50 p-1.5 rounded-lg text-brand-600">
               <Package className="w-5 h-5" />
             </div>
-            <span className="font-display font-bold text-slate-800">Admin</span>
+            <span className="font-display font-bold text-slate-800">Quản Trị CD</span>
           </div>
           <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors">
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -180,7 +180,7 @@ function AdminLayout() {
                   className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors font-medium"
                 >
                   <LogOut className="w-5 h-5" />
-                  <span>Logout</span>
+                  <span>Đăng xuất</span>
                 </button>
               </div>
             </motion.div>
