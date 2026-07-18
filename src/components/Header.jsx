@@ -54,9 +54,13 @@ function Header() {
   // Keyboard shortcuts (Ctrl+K or / to search)
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      if (((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') || (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA')) {
         e.preventDefault();
-        searchContainerRef.current?.querySelector('input')?.focus();
+        const inputEl = searchContainerRef.current?.querySelector('input');
+        if (inputEl) {
+          inputEl.focus();
+          setSearchFocused(true);
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -281,9 +285,21 @@ function Header() {
                     </button>
                   )}
                   {!searchFocused && !search && (
-                    <span className="hidden xl:inline-block px-2 py-0.5 text-[10px] font-mono font-bold bg-slate-200/80 text-slate-500 rounded border border-slate-300/50 shadow-2xs">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const inputEl = searchContainerRef.current?.querySelector('input');
+                        if (inputEl) {
+                          inputEl.focus();
+                          setSearchFocused(true);
+                        }
+                      }}
+                      className="hidden xl:inline-block px-2 py-0.5 text-[10px] font-mono font-bold bg-slate-200/80 hover:bg-brand-100 hover:text-brand-600 hover:border-brand-300 text-slate-500 rounded border border-slate-300/50 shadow-2xs transition-all cursor-pointer"
+                      title="Bấm hoặc nhấn phím Ctrl + K để tìm kiếm"
+                    >
                       Ctrl K
-                    </span>
+                    </button>
                   )}
                   <button
                     type="submit"
