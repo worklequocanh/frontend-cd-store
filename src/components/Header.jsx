@@ -153,50 +153,270 @@ function Header() {
         </div>
       )}
 
-      {/* 2. Main Header Bar */}
-      <header className={`transition-all duration-300 ${
+      {/* 2. Main Header & Navigation Wrapper (Sticky) */}
+      <div className={`transition-all duration-300 ${
         scrolled 
-          ? 'bg-white/95 backdrop-blur-xl shadow-lg shadow-slate-900/5 border-b border-slate-100' 
-          : 'bg-white/85 backdrop-blur-md border-b border-slate-100/60'
+          ? 'bg-white/95 backdrop-blur-xl shadow-lg shadow-slate-900/5' 
+          : 'bg-white/90 backdrop-blur-md'
       }`}>
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between gap-3 lg:gap-6 h-16 md:h-18">
+        {/* Tier 1: Main Header Bar (Logo, Smart Search, User & Cart Actions) */}
+        <header className="border-b border-slate-100">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between gap-4 h-16 md:h-20">
 
-            {/* Logo & Category Button Container */}
-            <div className="flex items-center gap-3 shrink-0">
-              {/* Logo */}
-              <Link to="/" className="flex items-center gap-2.5 group">
+              {/* Brand Logo */}
+              <Link to="/" className="flex items-center gap-2.5 group shrink-0">
                 <div className="w-10 h-10 bg-gradient-to-br from-brand-600 via-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center shadow-md shadow-brand-500/20 group-hover:shadow-brand-500/40 group-hover:scale-105 group-hover:rotate-3 transition-all duration-300">
                   <Package className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <span className="font-display font-extrabold text-2xl tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-brand-700 to-indigo-900 hidden sm:block leading-none">
+                  <span className="font-display font-extrabold text-2xl tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-brand-700 to-indigo-900 leading-none block">
                     CD Store
                   </span>
-                  <span className="hidden sm:block text-[9px] uppercase tracking-widest font-bold text-brand-600 mt-0.5">
+                  <span className="text-[9px] uppercase tracking-widest font-bold text-brand-600 mt-0.5 block">
                     Tech & Audio
                   </span>
                 </div>
               </Link>
 
-              {/* Mega Menu Categories Dropdown Toggle (Desktop) */}
-              <div className="relative hidden lg:block ml-2" ref={categoryRef}>
+              {/* Center: Smart Search Bar (Desktop & Tablet) - expanded smoothly with flex-1 */}
+              <div className="hidden md:block flex-1 max-w-2xl mx-4 lg:mx-8 relative" ref={searchContainerRef}>
+                <form onSubmit={handleSearchSubmit} className="relative w-full group">
+                  <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${
+                    searchFocused ? 'text-brand-600' : 'text-slate-400 group-hover:text-slate-500'
+                  }`} />
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    onFocus={() => setSearchFocused(true)}
+                    placeholder="Tìm kiếm sản phẩm, tai nghe, loa..."
+                    className={`w-full bg-slate-100/90 border rounded-full pl-11 py-2.5 text-sm focus:outline-none transition-shadow placeholder:text-slate-400 ${
+                      !searchFocused && !search ? 'pr-28' : 'pr-20'
+                    } ${
+                      searchFocused 
+                        ? 'bg-white border-brand-400 ring-4 ring-brand-500/15 shadow-md text-slate-900' 
+                        : 'border-transparent hover:border-slate-200 text-slate-700'
+                    }`}
+                  />
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                    {search && (
+                      <button
+                        type="button"
+                        onClick={() => { setSearch(''); searchContainerRef.current?.querySelector('input')?.focus(); }}
+                        className="w-6 h-6 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center text-xs transition-colors"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                    {!searchFocused && !search && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const inputEl = searchContainerRef.current?.querySelector('input');
+                          if (inputEl) {
+                            inputEl.focus();
+                            setSearchFocused(true);
+                          }
+                        }}
+                        className="hidden xl:inline-block px-2 py-0.5 text-[10px] font-mono font-bold bg-slate-200/80 hover:bg-brand-100 hover:text-brand-600 hover:border-brand-300 text-slate-500 rounded border border-slate-300/50 shadow-2xs transition-all cursor-pointer"
+                        title="Bấm hoặc nhấn phím Ctrl + K để tìm kiếm"
+                      >
+                        Ctrl K
+                      </button>
+                    )}
+                    <button
+                      type="submit"
+                      className="w-8 h-8 bg-brand-600 text-white rounded-full hover:bg-brand-700 transition-colors flex items-center justify-center shadow-sm hover:scale-105 active:scale-95 shrink-0"
+                    >
+                      <Search className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </form>
+
+                {/* Trending Keywords Popover */}
+                {searchFocused && (
+                  <div className="absolute left-0 right-0 top-full mt-2.5 bg-white rounded-2xl shadow-xl shadow-slate-900/15 border border-slate-100 p-4 z-50 animate-fade-in">
+                    <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+                      <span className="flex items-center gap-1.5">
+                        <TrendingUp className="w-3.5 h-3.5 text-brand-500" /> Từ khóa tìm kiếm phổ biến
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {trendingKeywords.map((kw, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => handleKeywordSelect(kw)}
+                          className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-brand-50 text-slate-700 hover:text-brand-600 border border-slate-200/80 hover:border-brand-200 text-xs font-medium transition-all flex items-center gap-1.5"
+                        >
+                          <Search className="w-3 h-3 text-slate-400" />
+                          <span>{kw}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Right: User & Cart Actions */}
+              <div className="flex items-center gap-2.5 shrink-0">
+                {/* Cart Icon Button */}
+                <Link
+                  to="/cart"
+                  className="relative p-2.5 text-slate-700 hover:text-brand-600 bg-slate-100/80 hover:bg-brand-50 rounded-2xl transition-all border border-transparent hover:border-brand-200 flex items-center justify-center shadow-sm"
+                  title="Giỏ Hàng Của Bạn"
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                  {cartItemCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-rose-600 text-white text-[11px] font-extrabold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1 animate-bounce-short shadow-md border-2 border-white">
+                      {cartItemCount > 9 ? '9+' : cartItemCount}
+                    </span>
+                  )}
+                </Link>
+
+                {/* Orders shortcut for logged in users */}
+                {user && (
+                  <Link
+                    to="/orders"
+                    className="hidden sm:flex p-2.5 text-slate-700 hover:text-brand-600 bg-slate-100/80 hover:bg-brand-50 rounded-2xl transition-all border border-transparent hover:border-brand-200 items-center justify-center shadow-sm"
+                    title="Đơn Hàng Của Tôi"
+                  >
+                    <Package className="w-5 h-5" />
+                  </Link>
+                )}
+
+                {/* User Dropdown / Login Button */}
+                {user ? (
+                  <div className="relative ml-1" ref={dropdownRef}>
+                    <button
+                      onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                      className="flex items-center gap-2.5 pl-2 pr-3.5 py-1.5 rounded-2xl bg-slate-100/80 hover:bg-brand-50 border border-transparent hover:border-brand-200 transition-all shadow-sm"
+                    >
+                      <div className="w-8 h-8 bg-gradient-to-br from-brand-600 via-indigo-600 to-violet-600 rounded-xl flex items-center justify-center text-white font-extrabold text-sm shadow-md">
+                        {avatarLetter}
+                      </div>
+                      <div className="text-left hidden xl:block">
+                        <span className="block text-xs font-bold text-slate-800 max-w-[120px] truncate leading-tight">{user.name}</span>
+                        <span className="block text-[10px] font-semibold text-brand-600">
+                          {user.role === 'admin' ? 'Quản Trị Viên' : 'Thành Viên VIP'}
+                        </span>
+                      </div>
+                      <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${userDropdownOpen ? 'rotate-180 text-brand-600' : ''}`} />
+                    </button>
+
+                    {/* Dropdown Menu */}
+                    {userDropdownOpen && (
+                      <div className="absolute right-0 top-full mt-3 w-64 bg-white rounded-3xl shadow-2xl shadow-slate-900/15 border border-slate-100 py-3 animate-scale-in origin-top-right z-50">
+                        <div className="px-5 py-3 border-b border-slate-100">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="inline-flex items-center gap-1 bg-brand-50 text-brand-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase">
+                              <Award className="w-3 h-3" /> {user.role === 'admin' ? 'Quản Trị Viên' : 'Tài Khoản VIP'}
+                            </span>
+                          </div>
+                          <p className="text-sm font-bold text-slate-900 truncate">{user.name}</p>
+                          <p className="text-xs text-slate-400 truncate mt-0.5">{user.email}</p>
+                        </div>
+
+                        <div className="py-2 space-y-0.5 px-2">
+                          {user.role === 'admin' && (
+                            <Link 
+                              to="/admin" 
+                              onClick={() => setUserDropdownOpen(false)}
+                              className="flex items-center gap-3 px-3.5 py-2 text-sm font-semibold text-brand-600 bg-brand-50/70 hover:bg-brand-100 rounded-2xl transition-colors"
+                            >
+                              <span className="w-8 h-8 rounded-xl bg-brand-600 text-white flex items-center justify-center shadow-xs">
+                                <LayoutDashboard className="w-4 h-4" />
+                              </span>
+                              <span>Trang Quản Trị</span>
+                            </Link>
+                          )}
+
+                          <Link 
+                            to="/profile" 
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-3 px-3.5 py-2 text-sm font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50 rounded-2xl transition-colors"
+                          >
+                            <span className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500">
+                              <User className="w-4 h-4" />
+                            </span>
+                            <span>Hồ Sơ Cá Nhân</span>
+                          </Link>
+
+                          <Link 
+                            to="/orders" 
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-3 px-3.5 py-2 text-sm font-medium text-slate-700 hover:text-brand-600 hover:bg-slate-50 rounded-2xl transition-colors"
+                          >
+                            <span className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500">
+                              <Package className="w-4 h-4" />
+                            </span>
+                            <span>Đơn Hàng Của Tôi</span>
+                          </Link>
+                        </div>
+
+                        <div className="border-t border-slate-100 mt-2 pt-2 px-2">
+                          <button 
+                            onClick={handleLogout} 
+                            className="w-full flex items-center gap-3 px-3.5 py-2.5 text-sm font-bold text-rose-600 hover:bg-rose-50 rounded-2xl transition-colors text-left"
+                          >
+                            <span className="w-8 h-8 rounded-xl bg-rose-50 flex items-center justify-center text-rose-600">
+                              <LogOut className="w-4 h-4" />
+                            </span>
+                            <span>Đăng Xuất Tài Khoản</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <Link
+                    to="/auth"
+                    className="ml-1 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white px-6 py-2.5 rounded-2xl text-sm font-bold shadow-md shadow-brand-500/25 hover:shadow-lg hover:shadow-brand-500/40 hover:-translate-y-0.5 transition-all active:scale-95 shrink-0"
+                  >
+                    Đăng Nhập
+                  </Link>
+                )}
+
+                {/* Mobile Menu Toggle Button */}
+                <button
+                  aria-label="Mở Menu Di Động"
+                  className="md:hidden p-2.5 text-slate-700 hover:bg-slate-100 rounded-2xl transition-colors border border-slate-200/80"
+                  onClick={() => setMobileMenuOpen(true)}
+                >
+                  <Menu className="w-6 h-6" />
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </header>
+
+        {/* Tier 2: Sub-Header Navigation & Categories Bar (Desktop Only) */}
+        <nav className="hidden lg:block border-b border-slate-100 bg-white/95">
+          <div className="container mx-auto px-4 flex items-center justify-between h-12">
+            
+            {/* Left: Mega Menu Dropdown & Main Nav Links */}
+            <div className="flex items-center gap-8">
+              {/* Categories Dropdown Button */}
+              <div className="relative" ref={categoryRef}>
                 <button
                   onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all ${
+                  className={`flex items-center gap-2.5 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
                     categoryDropdownOpen 
                       ? 'bg-brand-600 text-white shadow-md shadow-brand-600/25' 
-                      : 'bg-slate-100/80 hover:bg-brand-50 text-slate-700 hover:text-brand-600 border border-transparent hover:border-brand-200'
+                      : 'bg-brand-600/10 hover:bg-brand-600 text-brand-600 hover:text-white border border-brand-200/60 hover:border-transparent'
                   }`}
                 >
                   <Grid className="w-4 h-4" />
-                  <span>Danh Mục</span>
+                  <span>Danh Mục Sản Phẩm</span>
                   <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${categoryDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {/* Categories Mega Dropdown */}
                 {categoryDropdownOpen && (
-                  <div className="absolute left-0 top-full mt-3 w-[440px] bg-white rounded-3xl shadow-2xl shadow-slate-900/15 border border-slate-100 p-6 animate-scale-in origin-top-left z-50">
+                  <div className="absolute left-0 top-full mt-2.5 w-[460px] bg-white rounded-3xl shadow-2xl shadow-slate-900/15 border border-slate-100 p-6 animate-scale-in origin-top-left z-50">
                     <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
                       <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5 text-brand-500" /> Khám phá danh mục nổi bật
@@ -252,271 +472,69 @@ function Header() {
                   </div>
                 )}
               </div>
-            </div>
 
-            {/* 3. Smart Search Bar (Desktop & Tablet) */}
-            <div className="hidden md:block w-full max-w-md xl:max-w-lg min-w-[280px] lg:min-w-[360px] relative shrink" ref={searchContainerRef}>
-              <form onSubmit={handleSearchSubmit} className="relative w-full group">
-                <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${
-                  searchFocused ? 'text-brand-600' : 'text-slate-400 group-hover:text-slate-500'
-                }`} />
-                <input
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  onFocus={() => setSearchFocused(true)}
-                  placeholder="Tìm kiếm sản phẩm, tai nghe, loa..."
-                  className={`w-full bg-slate-100/90 border rounded-full pl-11 py-2.5 text-sm focus:outline-none transition-shadow placeholder:text-slate-400 ${
-                    !searchFocused && !search ? 'pr-28' : 'pr-20'
-                  } ${
-                    searchFocused 
-                      ? 'bg-white border-brand-400 ring-4 ring-brand-500/15 shadow-md text-slate-900' 
-                      : 'border-transparent hover:border-slate-200 text-slate-700'
+              {/* Navigation Links */}
+              <div className="flex items-center gap-1">
+                <Link
+                  to="/"
+                  className={`px-3.5 py-1.5 text-sm font-semibold rounded-xl transition-all ${
+                    location.pathname === '/' 
+                      ? 'text-brand-600 bg-brand-50 font-bold' 
+                      : 'text-slate-600 hover:text-brand-600 hover:bg-slate-100/70'
                   }`}
-                />
-                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
-                  {search && (
-                    <button
-                      type="button"
-                      onClick={() => { setSearch(''); searchContainerRef.current?.querySelector('input')?.focus(); }}
-                      className="w-6 h-6 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center text-xs transition-colors"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                  {!searchFocused && !search && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const inputEl = searchContainerRef.current?.querySelector('input');
-                        if (inputEl) {
-                          inputEl.focus();
-                          setSearchFocused(true);
-                        }
-                      }}
-                      className="hidden xl:inline-block px-2 py-0.5 text-[10px] font-mono font-bold bg-slate-200/80 hover:bg-brand-100 hover:text-brand-600 hover:border-brand-300 text-slate-500 rounded border border-slate-300/50 shadow-2xs transition-all cursor-pointer"
-                      title="Bấm hoặc nhấn phím Ctrl + K để tìm kiếm"
-                    >
-                      Ctrl K
-                    </button>
-                  )}
-                  <button
-                    type="submit"
-                    className="w-8 h-8 bg-brand-600 text-white rounded-full hover:bg-brand-700 transition-colors flex items-center justify-center shadow-sm hover:scale-105 active:scale-95 shrink-0"
-                  >
-                    <Search className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </form>
-
-              {/* Trending Keywords Popover */}
-              {searchFocused && (
-                <div className="absolute left-0 right-0 top-full mt-2.5 bg-white rounded-2xl shadow-xl shadow-slate-900/15 border border-slate-100 p-4 z-50 animate-fade-in">
-                  <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-                    <span className="flex items-center gap-1.5">
-                      <TrendingUp className="w-3.5 h-3.5 text-brand-500" /> Từ khóa tìm kiếm phổ biến
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {trendingKeywords.map((kw, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => handleKeywordSelect(kw)}
-                        className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-brand-50 text-slate-700 hover:text-brand-600 border border-slate-200/80 hover:border-brand-200 text-xs font-medium transition-all flex items-center gap-1.5"
-                      >
-                        <Search className="w-3 h-3 text-slate-400" />
-                        <span>{kw}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* 4. Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-1 shrink-0">
-              <Link
-                to="/"
-                className={`px-3.5 py-2 text-sm font-semibold rounded-xl transition-all ${
-                  location.pathname === '/' 
-                    ? 'text-brand-600 bg-brand-50/80' 
-                    : 'text-slate-600 hover:text-brand-600 hover:bg-slate-100/70'
-                }`}
-              >
-                Trang Chủ
-              </Link>
-              <Link
-                to="/shop"
-                className={`px-3.5 py-2 text-sm font-semibold rounded-xl transition-all ${
-                  location.pathname === '/shop' 
-                    ? 'text-brand-600 bg-brand-50/80' 
-                    : 'text-slate-600 hover:text-brand-600 hover:bg-slate-100/70'
-                }`}
-              >
-                Cửa Hàng
-              </Link>
-              <Link
-                to="/about"
-                className={`px-3.5 py-2 text-sm font-semibold rounded-xl transition-all ${
-                  location.pathname === '/about' 
-                    ? 'text-brand-600 bg-brand-50/80' 
-                    : 'text-slate-600 hover:text-brand-600 hover:bg-slate-100/70'
-                }`}
-              >
-                Giới Thiệu
-              </Link>
-              <Link
-                to="/contact"
-                className={`px-3.5 py-2 text-sm font-semibold rounded-xl transition-all ${
-                  location.pathname === '/contact' 
-                    ? 'text-brand-600 bg-brand-50/80' 
-                    : 'text-slate-600 hover:text-brand-600 hover:bg-slate-100/70'
-                }`}
-              >
-                Liên Hệ
-              </Link>
-            </nav>
-
-            {/* Hotline Badge (Extra Large Desktop) */}
-            <div className="hidden xl:flex items-center gap-2.5 pl-3 border-l border-slate-200/80 shrink-0">
-              <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 shrink-0">
-                <Phone className="w-4 h-4 animate-bounce-short" />
-              </div>
-              <div className="text-left">
-                <span className="block text-[10px] uppercase font-bold text-slate-400 leading-none">Hỗ trợ 24/7</span>
-                <span className="text-xs font-extrabold text-slate-800 tracking-wide">1900.888.999</span>
+                >
+                  Trang Chủ
+                </Link>
+                <Link
+                  to="/shop"
+                  className={`px-3.5 py-1.5 text-sm font-semibold rounded-xl transition-all ${
+                    location.pathname === '/shop' 
+                      ? 'text-brand-600 bg-brand-50 font-bold' 
+                      : 'text-slate-600 hover:text-brand-600 hover:bg-slate-100/70'
+                  }`}
+                >
+                  Cửa Hàng
+                </Link>
+                <Link
+                  to="/about"
+                  className={`px-3.5 py-1.5 text-sm font-semibold rounded-xl transition-all ${
+                    location.pathname === '/about' 
+                      ? 'text-brand-600 bg-brand-50 font-bold' 
+                      : 'text-slate-600 hover:text-brand-600 hover:bg-slate-100/70'
+                  }`}
+                >
+                  Giới Thiệu
+                </Link>
+                <Link
+                  to="/contact"
+                  className={`px-3.5 py-1.5 text-sm font-semibold rounded-xl transition-all ${
+                    location.pathname === '/contact' 
+                      ? 'text-brand-600 bg-brand-50 font-bold' 
+                      : 'text-slate-600 hover:text-brand-600 hover:bg-slate-100/70'
+                  }`}
+                >
+                  Liên Hệ
+                </Link>
               </div>
             </div>
 
-            {/* 5. User & Cart Actions */}
-            <div className="flex items-center gap-2 shrink-0">
-              {/* Cart Icon Button */}
-              <Link
-                to="/cart"
-                className="relative p-2.5 text-slate-700 hover:text-brand-600 bg-slate-100/80 hover:bg-brand-50 rounded-2xl transition-all border border-transparent hover:border-brand-200 flex items-center justify-center shadow-sm"
-                title="Giỏ Hàng Của Bạn"
-              >
-                <ShoppingCart className="w-5 h-5" />
-                {cartItemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-rose-600 text-white text-[11px] font-extrabold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1 animate-bounce-short shadow-md border-2 border-white">
-                    {cartItemCount > 9 ? '9+' : cartItemCount}
-                  </span>
-                )}
-              </Link>
-
-              {/* Orders shortcut for logged in users */}
-              {user && (
-                <Link
-                  to="/orders"
-                  className="hidden sm:flex p-2.5 text-slate-700 hover:text-brand-600 bg-slate-100/80 hover:bg-brand-50 rounded-2xl transition-all border border-transparent hover:border-brand-200 items-center justify-center shadow-sm"
-                  title="Đơn Hàng Của Tôi"
-                >
-                  <Package className="w-5 h-5" />
-                </Link>
-              )}
-
-              {/* User Dropdown / Login Button */}
-              {user ? (
-                <div className="relative ml-1" ref={dropdownRef}>
-                  <button
-                    onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                    className="flex items-center gap-2.5 pl-2 pr-3.5 py-1.5 rounded-2xl bg-slate-100/80 hover:bg-brand-50 border border-transparent hover:border-brand-200 transition-all shadow-sm"
-                  >
-                    <div className="w-8 h-8 bg-gradient-to-br from-brand-600 via-indigo-600 to-violet-600 rounded-xl flex items-center justify-center text-white font-extrabold text-sm shadow-md">
-                      {avatarLetter}
-                    </div>
-                    <div className="text-left hidden lg:block">
-                      <span className="block text-xs font-bold text-slate-800 max-w-[100px] truncate leading-tight">{user.name}</span>
-                      <span className="block text-[10px] font-semibold text-brand-600">
-                        {user.role === 'admin' ? 'Quản Trị Viên' : 'Thành Viên VIP'}
-                      </span>
-                    </div>
-                    <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${userDropdownOpen ? 'rotate-180 text-brand-600' : ''}`} />
-                  </button>
-
-                  {/* Dropdown Menu */}
-                  {userDropdownOpen && (
-                    <div className="absolute right-0 top-full mt-3 w-64 bg-white rounded-3xl shadow-2xl shadow-slate-900/15 border border-slate-100 py-3 animate-scale-in origin-top-right z-50">
-                      <div className="px-5 py-3 border-b border-slate-100">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="inline-flex items-center gap-1 bg-brand-50 text-brand-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase">
-                            <Award className="w-3 h-3" /> {user.role === 'admin' ? 'Quản Trị Viên' : 'Tài Khoản VIP'}
-                          </span>
-                        </div>
-                        <p className="text-sm font-bold text-slate-900 truncate">{user.name}</p>
-                        <p className="text-xs text-slate-400 truncate mt-0.5">{user.email}</p>
-                      </div>
-
-                      <div className="p-2 space-y-1">
-                        <Link 
-                          to="/profile" 
-                          onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-3 px-3.5 py-2.5 text-sm font-medium text-slate-700 hover:bg-brand-50 hover:text-brand-600 rounded-2xl transition-colors"
-                        >
-                          <span className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600">👤</span>
-                          <span>Hồ Sơ & Bảo Mật</span>
-                        </Link>
-                        <Link 
-                          to="/orders" 
-                          onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-3 px-3.5 py-2.5 text-sm font-medium text-slate-700 hover:bg-brand-50 hover:text-brand-600 rounded-2xl transition-colors"
-                        >
-                          <span className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600">📦</span>
-                          <span>Đơn Hàng Của Tôi</span>
-                        </Link>
-
-                        {user.role === 'admin' && (
-                          <Link 
-                            to="/admin" 
-                            onClick={() => setUserDropdownOpen(false)}
-                            className="flex items-center gap-3 px-3.5 py-2.5 text-sm font-bold text-brand-600 bg-brand-50/60 hover:bg-brand-100/80 rounded-2xl transition-colors"
-                          >
-                            <span className="w-8 h-8 rounded-xl bg-brand-600 text-white flex items-center justify-center shadow-sm">
-                              <Zap className="w-4 h-4" />
-                            </span>
-                            <span>Vào Trang Quản Trị</span>
-                          </Link>
-                        )}
-                      </div>
-
-                      <div className="border-t border-slate-100 mt-2 pt-2 px-2">
-                        <button 
-                          onClick={handleLogout} 
-                          className="w-full flex items-center gap-3 px-3.5 py-2.5 text-sm font-bold text-rose-600 hover:bg-rose-50 rounded-2xl transition-colors text-left"
-                        >
-                          <span className="w-8 h-8 rounded-xl bg-rose-50 flex items-center justify-center text-rose-600">
-                            <LogOut className="w-4 h-4" />
-                          </span>
-                          <span>Đăng Xuất Tài Khoản</span>
-                        </button>
-                      </div>
-                    </div>
-                  )}
+            {/* Right: Hotline & Trust Badges */}
+            <div className="flex items-center gap-6 text-xs font-semibold text-slate-600">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+                  <Phone className="w-3.5 h-3.5" />
                 </div>
-              ) : (
-                <Link
-                  to="/auth"
-                  className="ml-1 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white px-6 py-2.5 rounded-2xl text-sm font-bold shadow-md shadow-brand-500/25 hover:shadow-lg hover:shadow-brand-500/40 hover:-translate-y-0.5 transition-all active:scale-95 shrink-0"
-                >
-                  Đăng Nhập
-                </Link>
-              )}
-
-              {/* Mobile Menu Toggle Button */}
-              <button
-                aria-label="Mở Menu Di Động"
-                className="md:hidden p-2.5 text-slate-700 hover:bg-slate-100 rounded-2xl transition-colors border border-slate-200/80"
-                onClick={() => setMobileMenuOpen(true)}
-              >
-                <Menu className="w-6 h-6" />
-              </button>
+                <span>Hỗ trợ 24/7: <strong className="text-slate-900 tracking-wide">1900.888.999</strong></span>
+              </div>
+              <div className="hidden xl:flex items-center gap-1.5 text-slate-500">
+                <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                <span>Bảo hành 1 đổi 1 30 ngày</span>
+              </div>
             </div>
 
           </div>
-        </div>
-      </header>
+        </nav>
+      </div>
 
       {/* 6. Mobile Slide-Out Drawer Overlay & Modal */}
       {mobileMenuOpen && (
