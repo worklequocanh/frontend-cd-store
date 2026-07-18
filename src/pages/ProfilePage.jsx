@@ -22,9 +22,9 @@ function ProfilePage() {
     try {
       const res = await axiosClient.put('/api/users/profile', formData);
       setUser(res.data.data);
-      toast.success('Profile updated successfully!');
+      toast.success('Đã cập nhật hồ sơ cá nhân!');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Update failed');
+      toast.error(err.response?.data?.message || 'Cập nhật thất bại');
     } finally {
       setLoading(false);
     }
@@ -33,11 +33,11 @@ function ProfilePage() {
   const handleChangePassword = async (e) => {
     e.preventDefault();
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast.error('Passwords do not match');
+      toast.error('Mật khẩu xác nhận không khớp');
       return;
     }
     if (passwordData.newPassword.length < 6) {
-      toast.error('Password must be at least 6 characters');
+      toast.error('Mật khẩu phải có ít nhất 6 ký tự');
       return;
     }
     setLoading(true);
@@ -46,18 +46,18 @@ function ProfilePage() {
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword,
       });
-      toast.success('Password changed successfully!');
+      toast.success('Đã đổi mật khẩu thành công!');
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to change password');
+      toast.error(err.response?.data?.message || 'Không thể đổi mật khẩu');
     } finally {
       setLoading(false);
     }
   };
 
   const tabs = [
-    { id: 'profile', label: 'Profile', icon: <User className='w-4 h-4' /> },
-    { id: 'security', label: 'Security', icon: <Lock className='w-4 h-4' /> },
+    { id: 'profile', label: 'Hồ Sơ Cá Nhân', icon: <User className='w-4 h-4' /> },
+    { id: 'security', label: 'Bảo Mật', icon: <Lock className='w-4 h-4' /> },
   ];
 
   const avatarLetter = user?.name?.charAt(0).toUpperCase() || '?';
@@ -80,7 +80,7 @@ function ProfilePage() {
               <div className='flex items-center gap-4 mt-3'>
                 <span className='inline-flex items-center gap-1.5 bg-brand-50 text-brand-700 text-xs font-semibold px-3 py-1.5 rounded-full'>
                   <ShoppingBag className='w-3 h-3' />
-                  Member
+                  Thành Viên
                 </span>
               </div>
             </div>
@@ -110,10 +110,10 @@ function ProfilePage() {
         {/* Profile tab */}
         {activeTab === 'profile' && (
           <div className='bg-white rounded-3xl border border-slate-100 shadow-sm p-6 md:p-8'>
-            <h2 className='text-lg font-display font-bold text-slate-900 mb-6'>Personal Information</h2>
+            <h2 className='text-lg font-display font-bold text-slate-900 mb-6'>Thông Tin Cá Nhân</h2>
             <form onSubmit={handleUpdateProfile} className='space-y-5'>
               <div>
-                <label className='block text-sm font-semibold text-slate-700 mb-2'>Full Name</label>
+                <label className='block text-sm font-semibold text-slate-700 mb-2'>Họ và Tên</label>
                 <div className='relative'>
                   <User className='absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400' />
                   <input
@@ -121,12 +121,12 @@ function ProfilePage() {
                     value={formData.name}
                     onChange={e => setFormData({...formData, name: e.target.value})}
                     className='w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-slate-400 transition-colors'
-                    placeholder='Your full name'
+                    placeholder='Nhập họ và tên của bạn'
                   />
                 </div>
               </div>
               <div>
-                <label className='block text-sm font-semibold text-slate-700 mb-2'>Email Address</label>
+                <label className='block text-sm font-semibold text-slate-700 mb-2'>Địa Chỉ Email</label>
                 <div className='relative'>
                   <Mail className='absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300' />
                   <input
@@ -136,10 +136,10 @@ function ProfilePage() {
                     className='w-full bg-slate-100 border border-slate-200 rounded-xl pl-11 pr-4 py-3 focus:outline-none placeholder:text-slate-400 opacity-60 cursor-not-allowed'
                   />
                 </div>
-                <p className='text-xs text-slate-400 mt-1'>Email cannot be changed</p>
+                <p className='text-xs text-slate-400 mt-1'>Không thể thay đổi địa chỉ email</p>
               </div>
               <div>
-                <label className='block text-sm font-semibold text-slate-700 mb-2'>Phone Number</label>
+                <label className='block text-sm font-semibold text-slate-700 mb-2'>Số Điện Thoại</label>
                 <div className='relative'>
                   <Phone className='absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400' />
                   <input
@@ -147,12 +147,12 @@ function ProfilePage() {
                     value={formData.phone}
                     onChange={e => setFormData({...formData, phone: e.target.value})}
                     className='w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-slate-400 transition-colors'
-                    placeholder='Your phone number'
+                    placeholder='Nhập số điện thoại của bạn'
                   />
                 </div>
               </div>
               <div>
-                <label className='block text-sm font-semibold text-slate-700 mb-2'>Address</label>
+                <label className='block text-sm font-semibold text-slate-700 mb-2'>Địa Chỉ Giao Hàng</label>
                 <div className='relative'>
                   <MapPin className='absolute left-4 top-4 w-4 h-4 text-slate-400' />
                   <textarea
@@ -160,13 +160,13 @@ function ProfilePage() {
                     onChange={e => setFormData({...formData, address: e.target.value})}
                     rows={3}
                     className='w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-slate-400 transition-colors resize-none'
-                    placeholder='Your delivery address'
+                    placeholder='Nhập địa chỉ nhận hàng mặc định của bạn'
                   />
                 </div>
               </div>
               <button type='submit' disabled={loading} className='btn-primary flex items-center gap-2'>
                 <Save className='w-4 h-4' />
-                {loading ? 'Saving...' : 'Save Changes'}
+                {loading ? 'Đang lưu...' : 'Lưu Thay Đổi'}
               </button>
             </form>
           </div>
@@ -175,12 +175,12 @@ function ProfilePage() {
         {/* Security tab */}
         {activeTab === 'security' && (
           <div className='bg-white rounded-3xl border border-slate-100 shadow-sm p-6 md:p-8'>
-            <h2 className='text-lg font-display font-bold text-slate-900 mb-6'>Change Password</h2>
+            <h2 className='text-lg font-display font-bold text-slate-900 mb-6'>Đổi Mật Khẩu</h2>
             <form onSubmit={handleChangePassword} className='space-y-5'>
               {[
-                { id: 'current', label: 'Current Password', key: 'currentPassword', placeholder: '••••••••' },
-                { id: 'new', label: 'New Password', key: 'newPassword', placeholder: 'At least 6 characters' },
-                { id: 'confirm', label: 'Confirm New Password', key: 'confirmPassword', placeholder: 'Repeat new password' },
+                { id: 'current', label: 'Mật Khẩu Hiện Tại', key: 'currentPassword', placeholder: '••••••••' },
+                { id: 'new', label: 'Mật Khẩu Mới', key: 'newPassword', placeholder: 'Ít nhất 6 ký tự' },
+                { id: 'confirm', label: 'Xác Nhận Mật Khẩu Mới', key: 'confirmPassword', placeholder: 'Nhập lại mật khẩu mới' },
               ].map(field => (
                 <div key={field.id}>
                   <label className='block text-sm font-semibold text-slate-700 mb-2'>{field.label}</label>
@@ -206,7 +206,7 @@ function ProfilePage() {
               ))}
               <button type='submit' disabled={loading} className='btn-primary flex items-center gap-2'>
                 <Lock className='w-4 h-4' />
-                {loading ? 'Changing...' : 'Change Password'}
+                {loading ? 'Đang cập nhật...' : 'Đổi Mật Khẩu'}
               </button>
             </form>
           </div>

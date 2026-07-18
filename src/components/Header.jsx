@@ -91,7 +91,7 @@ function Header() {
                 type='text'
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder='Search products...'
+                placeholder='Tìm kiếm sản phẩm...'
                 className='w-full bg-slate-100/80 border border-transparent rounded-full pl-11 pr-14 py-2.5 text-sm focus:outline-none focus:bg-white focus:border-brand-300 focus:ring-2 focus:ring-brand-500/20 transition-all placeholder:text-slate-400'
               />
               <button
@@ -109,32 +109,32 @@ function Header() {
               to='/'
               className='px-4 py-2 text-sm font-medium text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors'
             >
-              Home
+              Trang Chủ
             </Link>
             <Link
               to='/shop'
               className='px-4 py-2 text-sm font-medium text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors'
             >
-              Shop
+              Cửa Hàng
             </Link>
             <Link
               to='/about'
               className='px-4 py-2 text-sm font-medium text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors'
             >
-              About
+              Giới Thiệu
             </Link>
             <Link
               to='/contact'
               className='px-4 py-2 text-sm font-medium text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors'
             >
-              Contact
+              Liên Hệ
             </Link>
 
             {/* Cart */}
             <Link
               to='/cart'
               className='relative p-2.5 text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors'
-              title='Cart'
+              title='Giỏ Hàng'
             >
               <ShoppingCart className="w-5 h-5" />
               {cartItemCount > 0 && (
@@ -149,7 +149,7 @@ function Header() {
               <Link
                 to='/orders'
                 className='p-2.5 text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors'
-                title='My Orders'
+                title='Đơn Hàng Của Tôi'
               >
                 <Package className="w-5 h-5" />
               </Link>
@@ -173,27 +173,27 @@ function Header() {
                 {userDropdownOpen && (
                   <div className='absolute right-0 top-full mt-2 w-52 bg-white rounded-2xl shadow-xl shadow-slate-900/10 border border-slate-100 py-2 animate-scale-in origin-top-right z-50'>
                     <div className='px-4 py-3 border-b border-slate-100'>
-                      <p className='text-xs text-slate-400 font-medium'>Signed in as</p>
+                      <p className='text-xs text-slate-400 font-medium'>Đăng nhập với</p>
                       <p className='text-sm font-semibold text-slate-900 truncate'>{user.name}</p>
                       <p className='text-xs text-slate-400 truncate'>{user.email}</p>
                     </div>
                     <div className='p-2'>
                       <Link to='/profile' className='flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:bg-brand-50 hover:text-brand-600 rounded-xl transition-colors' onClick={() => setUserDropdownOpen(false)}>
-                        Profile Settings
+                        Cài Đặt Hồ Sơ
                       </Link>
                       <Link to='/orders' className='flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:bg-brand-50 hover:text-brand-600 rounded-xl transition-colors' onClick={() => setUserDropdownOpen(false)}>
-                        My Orders
+                        Đơn Hàng Của Tôi
                       </Link>
                       {user.role === 'admin' && (
                         <Link to='/admin' className='flex items-center gap-2 px-3 py-2 text-sm text-brand-600 font-medium hover:bg-brand-50 rounded-xl transition-colors' onClick={() => setUserDropdownOpen(false)}>
                           <Zap className='w-4 h-4' />
-                          Admin Dashboard
+                          Trang Quản Trị
                         </Link>
                       )}
                       <div className='border-t border-slate-100 mt-2 pt-2'>
                         <button onClick={handleLogout} className='w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-50 rounded-xl transition-colors'>
                           <LogOut className='w-4 h-4' />
-                          Sign Out
+                          Đăng Xuất
                         </button>
                       </div>
                     </div>
@@ -205,7 +205,7 @@ function Header() {
                 to='/auth'
                 className='ml-1 bg-brand-600 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-brand-700 hover:shadow-lg hover:shadow-brand-500/25 hover:-translate-y-0.5 transition-all active:scale-95'
               >
-                Sign In
+                Đăng Nhập
               </Link>
             )}
           </nav>
@@ -238,7 +238,7 @@ function Header() {
                 type='text'
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder='Search products...'
+                placeholder='Tìm kiếm sản phẩm...'
                 className='w-full bg-slate-100 rounded-full pl-10 pr-12 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500'
               />
               <button type='submit' className='absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 bg-brand-600 text-white rounded-full flex items-center justify-center'>
@@ -247,30 +247,30 @@ function Header() {
             </form>
 
             <div className="flex flex-col gap-1">
-              <Link to='/' className='px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl transition-colors'>Home</Link>
-              <Link to='/shop' className='px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl transition-colors'>Shop All</Link>
-              <Link to='/about' className='px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl transition-colors'>About Us</Link>
-              <Link to='/contact' className='px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl transition-colors'>Contact Us</Link>
+              <Link to='/' className='px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl transition-colors'>Trang Chủ</Link>
+              <Link to='/shop' className='px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl transition-colors'>Cửa Hàng</Link>
+              <Link to='/about' className='px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl transition-colors'>Giới Thiệu</Link>
+              <Link to='/contact' className='px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl transition-colors'>Liên Hệ</Link>
               <Link to='/cart' className='px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl flex items-center justify-between'>
-                Cart
+                Giỏ Hàng
                 {cartItemCount > 0 && <span className='bg-brand-600 text-white text-xs font-bold px-2 py-0.5 rounded-full'>{cartItemCount}</span>}
               </Link>
               {user ? (
                 <>
-                  <Link to='/orders' className='px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl'>My Orders</Link>
-                  <Link to='/profile' className='px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl'>Profile</Link>
+                  <Link to='/orders' className='px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl'>Đơn Hàng Của Tôi</Link>
+                  <Link to='/profile' className='px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-xl'>Hồ Sơ</Link>
                   {user.role === 'admin' && (
                     <Link to='/admin' className='px-3 py-2.5 text-sm font-medium text-brand-600 hover:bg-brand-50 rounded-xl flex items-center gap-2'>
-                      <Zap className='w-4 h-4' />Admin Dashboard
+                      <Zap className='w-4 h-4' />Trang Quản Trị
                     </Link>
                   )}
                   <button onClick={handleLogout} className='px-3 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 rounded-xl text-left'>
-                    Sign Out
+                    Đăng Xuất
                   </button>
                 </>
               ) : (
                 <Link to='/auth' className='mt-1 bg-brand-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold text-center'>
-                  Sign In
+                  Đăng Nhập
                 </Link>
               )}
             </div>

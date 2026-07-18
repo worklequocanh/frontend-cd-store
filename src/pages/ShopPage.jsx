@@ -119,8 +119,8 @@ function ShopPage() {
 
   const activeFilters = [
     searchQuery && { key: 'search', label: `"${searchQuery}"` },
-    categoryQuery && { key: 'category', label: categories.find(c => c._id === categoryQuery)?.name || 'Category' },
-    onSaleQuery && { key: 'onSale', label: '🔥 Flash Sale (-X%)' },
+    categoryQuery && { key: 'category', label: categories.find(c => c._id === categoryQuery)?.name || 'Danh mục' },
+    onSaleQuery && { key: 'onSale', label: '🔥 Giảm giá' },
   ].filter(Boolean);
 
   return (
@@ -130,8 +130,8 @@ function ShopPage() {
         <section className={`bg-slate-50 pb-6`}>
           <div className='container mx-auto px-4'>
             <div className='text-center mb-8'>
-              <h1 className='text-3xl md:text-4xl font-display font-bold text-slate-900'>Shop</h1>
-              <p className='text-slate-500 mt-2'>Find exactly what you're looking for</p>
+              <h1 className='text-3xl md:text-4xl font-display font-bold text-slate-900'>Cửa Hàng</h1>
+              <p className='text-slate-500 mt-2'>Tìm kiếm chính xác món đồ công nghệ bạn cần</p>
             </div>
             <div className='flex flex-wrap gap-2 justify-center md:justify-start'>
               <button
@@ -142,7 +142,7 @@ function ShopPage() {
                     : 'bg-white text-slate-600 border-slate-200 hover:border-brand-300 hover:text-brand-600 hover:bg-brand-50'
                 }`}
               >
-                All Products
+                Tất Cả Sản Phẩm
               </button>
               {categories.map((cat) => (
                 <button
@@ -165,7 +165,7 @@ function ShopPage() {
                     : 'bg-white text-rose-600 border-rose-200 hover:border-rose-400 hover:bg-rose-50'
                 }`}
               >
-                🔥 Flash Sale (-X%)
+                🔥 Khuyến Mãi (-X%)
               </button>
             </div>
           </div>
@@ -180,10 +180,10 @@ function ShopPage() {
           <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8'>
             <div className='flex items-center gap-3 flex-wrap'>
               <h2 className='text-xl font-display font-bold text-slate-900'>
-                {searchQuery ? `Results for "${searchQuery}"` : categoryQuery ? (categories.find(c => c._id === categoryQuery)?.name || 'Products') : 'All Products'}
+                {searchQuery ? `Kết quả tìm kiếm cho "${searchQuery}"` : categoryQuery ? (categories.find(c => c._id === categoryQuery)?.name || 'Sản phẩm') : 'Tất Cả Sản Phẩm'}
               </h2>
               <span className='bg-brand-100 text-brand-700 text-xs font-bold px-2.5 py-1 rounded-full'>
-                {pageData.total} items
+                {pageData.total} sản phẩm
               </span>
               {/* Active filters */}
               {activeFilters.map(f => (
@@ -198,16 +198,16 @@ function ShopPage() {
             </div>
 
             <div className='flex items-center gap-3'>
-              <label className='text-sm font-medium text-slate-500'>Sort:</label>
+              <label className='text-sm font-medium text-slate-500'>Sắp xếp:</label>
               <select
                 value={sortQuery}
                 onChange={(e) => updateParam('sort', e.target.value)}
                 className='bg-white border border-slate-200 text-slate-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 font-medium cursor-pointer shadow-sm'
               >
-                <option value='-createdAt'>Newest</option>
-                <option value='price'>Price: Low → High</option>
-                <option value='-price'>Price: High → Low</option>
-                <option value='-rating'>Top Rated</option>
+                <option value='-createdAt'>Mới nhất</option>
+                <option value='price'>Giá: Thấp → Cao</option>
+                <option value='-price'>Giá: Cao → Thấp</option>
+                <option value='-rating'>Đánh giá cao nhất</option>
               </select>
             </div>
           </div>
@@ -233,13 +233,13 @@ function ShopPage() {
           ) : (
             <div className='text-center py-24 bg-white rounded-3xl border border-slate-100 shadow-sm'>
               <div className='w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl'>🔍</div>
-              <h3 className='text-2xl font-display font-bold text-slate-900 mb-3'>No products found</h3>
-              <p className='text-slate-500 mb-8 max-w-sm mx-auto'>We couldn't find anything matching your current filters. Try adjusting your search.</p>
+              <h3 className='text-2xl font-display font-bold text-slate-900 mb-3'>Không tìm thấy sản phẩm nào</h3>
+              <p className='text-slate-500 mb-8 max-w-sm mx-auto'>Không có sản phẩm nào khớp với bộ lọc hiện tại của bạn. Vui lòng thử điều chỉnh tìm kiếm.</p>
               <button
                 onClick={() => navigate('/')}
                 className='btn-primary'
               >
-                Clear All Filters
+                Xóa Bộ Lọc
               </button>
             </div>
           )}

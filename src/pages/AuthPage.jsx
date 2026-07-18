@@ -36,7 +36,7 @@ function AuthPage({ initialMode }) {
 
       localStorage.setItem('token', res.data.data.token);
       setUser(res.data.data.user);
-      toast.success(isLogin ? 'Welcome back!' : 'Account created successfully!');
+      toast.success(isLogin ? 'Chào mừng trở lại!' : 'Tạo tài khoản thành công!');
       
       const from = location.state?.from || '/';
       const pendingCartItem = location.state?.pendingCartItem;
@@ -47,15 +47,15 @@ function AuthPage({ initialMode }) {
             headers: { Authorization: `Bearer ${res.data.data.token}` }
           });
           setCart(cartRes.data.data);
-          toast.success('Item added to cart!');
+          toast.success('Đã thêm sản phẩm vào giỏ hàng!');
         } catch (err) {
-          toast.error('Failed to add pending item to cart');
+          toast.error('Không thể thêm sản phẩm vào giỏ hàng');
         }
       }
 
       navigate(from, { replace: true });
     } catch (error) {
-      toast.error(error.response?.data?.message || 'An error occurred. Please try again.');
+      toast.error(error.response?.data?.message || 'Đã có lỗi xảy ra. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
@@ -81,9 +81,9 @@ function AuthPage({ initialMode }) {
             headers: { Authorization: `Bearer ${res.data.data.token}` }
           });
           setCart(cartRes.data.data);
-          toast.success('Item added to cart!');
+          toast.success('Đã thêm sản phẩm vào giỏ hàng!');
         } catch (err) {
-          toast.error('Failed to add pending item to cart');
+          toast.error('Không thể thêm sản phẩm vào giỏ hàng');
         }
       }
 
@@ -106,7 +106,7 @@ function AuthPage({ initialMode }) {
         <div className='absolute inset-0'>
           <img 
             src="https://images.unsplash.com/photo-1550009158-9effec7682a2?q=80&w=2000&auto=format&fit=crop" 
-            alt="Abstract Technology" 
+            alt="Công nghệ hiện đại" 
             className="w-full h-full object-cover opacity-40 mix-blend-overlay"
           />
           <div className='absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent'></div>
@@ -120,10 +120,10 @@ function AuthPage({ initialMode }) {
           
           <div className="mt-auto max-w-lg">
             <h2 className="text-4xl font-display font-bold mb-6 leading-tight">
-              Elevate your digital lifestyle with premium tech.
+              Nâng tầm trải nghiệm số với công nghệ cao cấp.
             </h2>
             <p className="text-lg text-slate-300">
-              Join thousands of satisfied customers and get access to exclusive deals, fast checkout, and easy order tracking.
+              Hàng nghìn khách hàng đã tin tưởng CD Store. Ưu đãi độc quyền, thanh toán nhanh, theo dõi đơn hàng dễ dàng.
             </p>
           </div>
         </div>
@@ -138,17 +138,17 @@ function AuthPage({ initialMode }) {
               <span>CD Store</span>
             </Link>
             <h1 className='text-3xl font-display font-bold text-slate-900 mb-2'>
-              {isLogin ? 'Welcome back' : 'Create an account'}
+              {isLogin ? 'Chào mừng trở lại' : 'Tạo tài khoản mới'}
             </h1>
             <p className="text-slate-500">
-              {isLogin ? 'Enter your credentials to access your account' : 'Sign up to start shopping premium tech'}
+              {isLogin ? 'Nhập thông tin đăng nhập để vào tài khoản' : 'Đăng ký để bắt đầu mua sắm ngay hôm nay'}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {!isLogin && (
               <div>
-                <label className='block text-sm font-medium text-slate-700 mb-2'>Full Name</label>
+                <label className='block text-sm font-medium text-slate-700 mb-2'>Họ và Tên</label>
                 <div className="relative">
                   <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                   <input 
@@ -156,7 +156,7 @@ function AuthPage({ initialMode }) {
                     value={formData.name} 
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })} 
                     className='w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors' 
-                    placeholder="John Doe"
+                    placeholder="Nguyễn Văn A"
                     required={!isLogin} 
                   />
                 </div>
@@ -164,7 +164,7 @@ function AuthPage({ initialMode }) {
             )}
 
             <div>
-              <label className='block text-sm font-medium text-slate-700 mb-2'>Email Address</label>
+              <label className='block text-sm font-medium text-slate-700 mb-2'>Địa Chỉ Email</label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <input 
@@ -172,7 +172,7 @@ function AuthPage({ initialMode }) {
                   value={formData.email} 
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })} 
                   className='w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-12 pr-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors' 
-                  placeholder="you@example.com"
+                  placeholder="ban@email.com"
                   required 
                 />
               </div>
@@ -180,8 +180,8 @@ function AuthPage({ initialMode }) {
 
             <div>
               <div className="flex justify-between items-center mb-2">
-                <label className='block text-sm font-medium text-slate-700'>Password</label>
-                {isLogin && <Link to="/forgot-password" className="text-sm text-brand-600 font-medium hover:underline">Forgot password?</Link>}
+                <label className='block text-sm font-medium text-slate-700'>Mật Khẩu</label>
+                {isLogin && <Link to="/forgot-password" className="text-sm text-brand-600 font-medium hover:underline">Quên mật khẩu?</Link>}
               </div>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -205,7 +205,7 @@ function AuthPage({ initialMode }) {
                 <span className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></span>
               ) : (
                 <>
-                  {isLogin ? 'Sign In' : 'Create Account'}
+                  {isLogin ? 'Đăng Nhập' : 'Tạo Tài Khoản'}
                   <ArrowRight className="w-5 h-5" />
                 </>
               )}
@@ -232,7 +232,7 @@ function AuthPage({ initialMode }) {
 
           <div className="mt-8 pt-8 border-t border-slate-100 text-center">
             <p className="text-slate-600">
-              {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
+              {isLogin ? 'Chưa có tài khoản?' : 'Đã có tài khoản?'}{' '}
               <button 
                 onClick={() => {
                   setIsLogin(!isLogin);
@@ -240,7 +240,7 @@ function AuthPage({ initialMode }) {
                 }} 
                 className='text-brand-600 font-bold hover:underline ml-1'
               >
-                {isLogin ? 'Sign up now' : 'Sign in'}
+                {isLogin ? 'Đăng ký ngay' : 'Đăng nhập'}
               </button>
             </p>
           </div>

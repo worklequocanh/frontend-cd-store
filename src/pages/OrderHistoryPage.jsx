@@ -4,11 +4,11 @@ import axiosClient from '../utils/axiosClient';
 import { Package, ChevronRight, Clock, CheckCircle, Truck, XCircle, CreditCard, Banknote, AlertCircle } from 'lucide-react';
 
 const STATUS_CONFIG = {
-  pending:   { label: 'Pending',   color: 'bg-amber-100 text-amber-700',   icon: <Clock className='w-3.5 h-3.5' /> },
-  confirmed: { label: 'Confirmed', color: 'bg-blue-100 text-blue-700',     icon: <CheckCircle className='w-3.5 h-3.5' /> },
-  shipped:   { label: 'Shipped',   color: 'bg-indigo-100 text-indigo-700', icon: <Truck className='w-3.5 h-3.5' /> },
-  delivered: { label: 'Delivered', color: 'bg-emerald-100 text-emerald-700', icon: <CheckCircle className='w-3.5 h-3.5' /> },
-  cancelled: { label: 'Cancelled', color: 'bg-red-100 text-red-700',       icon: <XCircle className='w-3.5 h-3.5' /> },
+  pending:   { label: 'Chờ xử lý',   color: 'bg-amber-100 text-amber-700',   icon: <Clock className='w-3.5 h-3.5' /> },
+  confirmed: { label: 'Đã xác nhận', color: 'bg-blue-100 text-blue-700',     icon: <CheckCircle className='w-3.5 h-3.5' /> },
+  shipped:   { label: 'Đang giao',   color: 'bg-indigo-100 text-indigo-700', icon: <Truck className='w-3.5 h-3.5' /> },
+  delivered: { label: 'Đã giao', color: 'bg-emerald-100 text-emerald-700', icon: <CheckCircle className='w-3.5 h-3.5' /> },
+  cancelled: { label: 'Đã hủy', color: 'bg-red-100 text-red-700',       icon: <XCircle className='w-3.5 h-3.5' /> },
 };
 
 function PaymentBadge({ method, paymentStatus }) {
@@ -28,17 +28,17 @@ function PaymentBadge({ method, paymentStatus }) {
     <div className='flex items-center gap-1.5'>
       <span className='inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-violet-100 text-violet-700'>
         <CreditCard className='w-3.5 h-3.5' />
-        Online
+        Chuyển khoản
       </span>
       {isPaid ? (
         <span className='inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700'>
           <CheckCircle className='w-3 h-3' />
-          Paid
+          Đã thanh toán
         </span>
       ) : (
         <span className='inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-red-100 text-red-600'>
           <AlertCircle className='w-3 h-3' />
-          Unpaid
+          Chưa thanh toán
         </span>
       )}
     </div>
@@ -60,7 +60,7 @@ function OrderCard({ order }) {
           </div>
           <div>
             <p className='text-sm font-bold text-slate-900'>#{order.orderNumber}</p>
-            <p className='text-xs text-slate-400'>{new Date(order.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
+            <p className='text-xs text-slate-400'>{new Date(order.createdAt).toLocaleDateString('vi-VN', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
           </div>
         </div>
         <div className='flex items-center gap-2'>
@@ -84,14 +84,14 @@ function OrderCard({ order }) {
             </div>
           ))}
           {order.items.length > 3 && (
-            <span className='text-xs text-slate-400 font-medium self-center'>+{order.items.length - 3} more</span>
+            <span className='text-xs text-slate-400 font-medium self-center'>+{order.items.length - 3} sản phẩm khác</span>
           )}
         </div>
 
         {/* Footer row: payment info + total */}
         <div className='flex items-center justify-between pt-3 border-t border-slate-50'>
           <PaymentBadge method={order.paymentMethod} paymentStatus={order.paymentStatus} />
-          <span className='font-display font-bold text-lg text-slate-900'>${order.total?.toFixed(2)}</span>
+          <span className='font-display font-bold text-lg text-slate-900'>{(order.total || 0).toLocaleString('vi-VN')}₫</span>
         </div>
       </div>
     </Link>
@@ -123,8 +123,8 @@ function OrderHistoryPage() {
     <div className='bg-slate-50 min-h-screen pb-20'>
       <div className='bg-white border-b border-slate-100'>
         <div className='container mx-auto px-4 py-8'>
-          <h1 className='text-2xl font-display font-bold text-slate-900'>My Orders</h1>
-          <p className='text-slate-400 text-sm mt-1'>{orders.length} orders in total</p>
+          <h1 className='text-2xl font-display font-bold text-slate-900'>Đơn Hàng Của Tôi</h1>
+          <p className='text-slate-400 text-sm mt-1'>Tổng cộng {orders.length} đơn hàng</p>
         </div>
       </div>
 
@@ -141,7 +141,7 @@ function OrderHistoryPage() {
                   : 'bg-white text-slate-600 border border-slate-200 hover:border-brand-300 hover:text-brand-600'
               }`}
             >
-              {f === 'all' ? 'All Orders' : STATUS_CONFIG[f]?.label || f}
+              {f === 'all' ? 'Tất cả' : STATUS_CONFIG[f]?.label || f}
               {f !== 'all' && orders.filter(o => o.orderStatus === f).length > 0 && (
                 <span className='ml-1.5 opacity-70'>({orders.filter(o => o.orderStatus === f).length})</span>
               )}
@@ -162,11 +162,11 @@ function OrderHistoryPage() {
             <div className='w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-5'>
               <Package className='w-10 h-10 text-slate-300' />
             </div>
-            <h3 className='text-xl font-display font-bold text-slate-900 mb-2'>No orders yet</h3>
+            <h3 className='text-xl font-display font-bold text-slate-900 mb-2'>Chưa có đơn hàng nào</h3>
             <p className='text-slate-400 mb-6 text-sm'>
-              {filter === 'all' ? "You haven't placed any orders yet." : `No ${filter} orders found.`}
+              {filter === 'all' ? "Bạn chưa đặt mua đơn hàng nào." : `Không tìm thấy đơn hàng ở trạng thái ${STATUS_CONFIG[filter]?.label || filter}.`}
             </p>
-            <Link to='/' className='btn-primary inline-flex'>Browse Products</Link>
+            <Link to='/' className='btn-primary inline-flex'>Khám Phá Sản Phẩm</Link>
           </div>
         )}
       </div>

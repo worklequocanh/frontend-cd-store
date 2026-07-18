@@ -13,7 +13,7 @@ function CartPage() {
   useEffect(() => {
     const fetchCart = async () => {
       if (!user) {
-        toast.error('Please log in first');
+        toast.error('Vui lòng đăng nhập trước');
         navigate('/auth');
         return;
       }
@@ -35,7 +35,7 @@ function CartPage() {
     try {
       const res = await axiosClient.delete(`/api/cart/items/${itemId}`);
       setCart(res.data.data);
-      toast.success('Item removed from cart');
+      toast.success('Đã xóa sản phẩm khỏi giỏ hàng');
     } catch (error) {
       console.error('Failed to remove item:', error);
     }
@@ -48,7 +48,7 @@ function CartPage() {
       setCart(res.data.data);
     } catch (error) {
       console.error('Failed to update quantity:', error);
-      toast.error('Failed to update quantity');
+      toast.error('Không thể cập nhật số lượng');
     }
   };
 
@@ -57,10 +57,10 @@ function CartPage() {
     try {
       const res = await axiosClient.put('/api/cart/coupon', { code: couponCode });
       setCart(res.data.data);
-      toast.success(`Coupon applied! Discount: $${res.data.data.discountAmount?.toFixed(2)}`);
+      toast.success(`Đã áp dụng mã giảm giá! Giảm: ${(res.data.data.discountAmount || 0).toLocaleString('vi-VN')}₫`);
       setCouponCode('');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Invalid coupon');
+      toast.error(error.response?.data?.message || 'Mã giảm giá không hợp lệ');
     }
   };
 
@@ -68,9 +68,9 @@ function CartPage() {
     try {
       const res = await axiosClient.delete('/api/cart/coupon');
       setCart(res.data.data);
-      toast.success('Coupon removed');
+      toast.success('Đã gỡ mã giảm giá');
     } catch (error) {
-      toast.error('Failed to remove coupon');
+      toast.error('Không thể gỡ mã giảm giá');
     }
   };
 
@@ -85,8 +85,8 @@ function CartPage() {
       {/* Header */}
       <div className='bg-white border-b border-slate-200 py-8 mb-10'>
         <div className='container mx-auto px-4'>
-          <h1 className='text-3xl font-display font-bold text-slate-900'>Shopping Cart</h1>
-          <p className="text-slate-500 mt-2">You have {cart.items?.length || 0} items in your cart</p>
+          <h1 className='text-3xl font-display font-bold text-slate-900'>Giỏ Hàng</h1>
+          <p className="text-slate-500 mt-2">Bạn đang có {cart.items?.length || 0} sản phẩm trong giỏ hàng</p>
         </div>
       </div>
 
@@ -98,10 +98,10 @@ function CartPage() {
               <div className='bg-white rounded-3xl p-6 shadow-sm border border-slate-100 mb-6'>
                 {/* Table Header */}
                 <div className="hidden md:grid grid-cols-12 gap-4 text-slate-500 text-sm font-semibold uppercase tracking-wider mb-4 pb-4 border-b border-slate-100">
-                  <div className="col-span-6">Product</div>
-                  <div className="col-span-3 text-center">Quantity</div>
-                  <div className="col-span-2 text-right">Price</div>
-                  <div className="col-span-1 text-right">Action</div>
+                  <div className="col-span-6">Sản phẩm</div>
+                  <div className="col-span-3 text-center">Số lượng</div>
+                  <div className="col-span-2 text-right">Đơn giá</div>
+                  <div className="col-span-1 text-right">Thao tác</div>
                 </div>
 
                 {cart.items.map((item) => (
@@ -119,7 +119,7 @@ function CartPage() {
                         <Link to={`/products/${item.productId?.slug}`} className="font-display font-semibold text-slate-900 text-lg hover:text-brand-600 transition-colors line-clamp-2 mb-1">
                           {item.productId?.name}
                         </Link>
-                        <p className="text-sm text-slate-500">{item.productId?.brand || 'Premium Brand'}</p>
+                        <p className="text-sm text-slate-500">{item.productId?.brand || 'Thương hiệu cao cấp'}</p>
                       </div>
                     </div>
 
@@ -146,7 +146,7 @@ function CartPage() {
                     {/* Price */}
                     <div className="col-span-1 md:col-span-2 flex justify-start md:justify-end items-center mt-2 md:mt-0">
                       <span className="font-bold text-lg text-slate-900">
-                        ${((item.productId?.discountPrice || item.productId?.price || 0) * item.quantity).toFixed(2)}
+                        {((item.productId?.discountPrice || item.productId?.price || 0) * item.quantity).toLocaleString('vi-VN')}₫
                       </span>
                     </div>
 
@@ -155,7 +155,7 @@ function CartPage() {
                       <button 
                         onClick={() => handleRemoveItem(item._id)} 
                         className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors group"
-                        title="Remove item"
+                        title="Xóa sản phẩm"
                       >
                         <Trash2 className="w-5 h-5 group-hover:scale-110 transition-transform" />
                       </button>
@@ -168,46 +168,46 @@ function CartPage() {
             {/* Order Summary */}
             <div className='w-full lg:w-1/3'>
               <div className='bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100 sticky top-24'>
-                <h2 className='text-2xl font-display font-bold text-slate-900 mb-6'>Order Summary</h2>
+                <h2 className='text-2xl font-display font-bold text-slate-900 mb-6'>Tóm Tắt Đơn Hàng</h2>
                 
                 <div className='space-y-4 mb-6 text-slate-600'>
                   <div className='flex justify-between items-center'>
-                    <span>Subtotal</span>
-                    <span className="font-medium text-slate-900">${cart.subtotal?.toFixed(2) || '0.00'}</span>
+                    <span>Tạm tính</span>
+                    <span className="font-medium text-slate-900">{(cart.subtotal || 0).toLocaleString('vi-VN')}₫</span>
                   </div>
                   <div className='flex justify-between items-center'>
-                    <span>Estimated Shipping</span>
-                    <span className="font-medium text-slate-900">$25.00</span>
+                    <span>Phí giao hàng dự kiến</span>
+                    <span className="font-medium text-slate-900">25.000₫</span>
                   </div>
                   {cart.discountAmount > 0 && (
                     <div className='flex justify-between items-center text-brand-600 font-semibold'>
                       <div className="flex items-center gap-2">
-                        <span>Discount ({cart.couponCode})</span>
-                        <button onClick={handleRemoveCoupon} className="text-xs text-red-500 hover:underline">Remove</button>
+                        <span>Giảm giá ({cart.couponCode})</span>
+                        <button onClick={handleRemoveCoupon} className="text-xs text-red-500 hover:underline">Gỡ</button>
                       </div>
-                      <span>-${cart.discountAmount.toFixed(2)}</span>
+                      <span>-{(cart.discountAmount || 0).toLocaleString('vi-VN')}₫</span>
                     </div>
                   )}
                   
                   <div className='pt-4 mt-4 border-t border-slate-100'>
                     <div className='flex justify-between items-end'>
-                      <span className="font-medium text-lg text-slate-900">Total</span>
+                      <span className="font-medium text-lg text-slate-900">Tổng cộng</span>
                       <span className="text-3xl font-display font-bold text-brand-600">
-                        ${Math.max(0, (cart.subtotal || 0) + 25 - (cart.discountAmount || 0)).toFixed(2)}
+                        {Math.max(0, (cart.subtotal || 0) + 25000 - (cart.discountAmount || 0)).toLocaleString('vi-VN')}₫
                       </span>
                     </div>
-                    <p className="text-xs text-slate-500 text-right mt-1">Includes taxes and fees</p>
+                    <p className="text-xs text-slate-500 text-right mt-1">Đã bao gồm thuế và các loại phí</p>
                   </div>
                 </div>
 
                 <div className='mb-8'>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Discount Code</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Mã Giảm Giá</label>
                   <div className='flex gap-2'>
                     <div className="relative flex-1">
                       <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                       <input 
                         type='text' 
-                        placeholder='Enter code' 
+                        placeholder='Nhập mã' 
                         value={couponCode} 
                         onChange={(e) => setCouponCode(e.target.value)} 
                         className='w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors uppercase' 
@@ -218,7 +218,7 @@ function CartPage() {
                       disabled={!couponCode.trim()}
                       className='bg-slate-900 text-white px-6 rounded-xl font-medium hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-400 transition-colors'
                     >
-                      Apply
+                      Áp dụng
                     </button>
                   </div>
                 </div>
@@ -227,12 +227,12 @@ function CartPage() {
                   to='/checkout' 
                   className='w-full flex items-center justify-center gap-2 bg-brand-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-brand-700 hover:shadow-lg hover:shadow-brand-500/30 transition-all hover:-translate-y-0.5'
                 >
-                  Proceed to Checkout <ArrowRight className="w-5 h-5" />
+                  Tiến Hành Thanh Toán <ArrowRight className="w-5 h-5" />
                 </Link>
 
                 <div className="mt-6 flex items-center justify-center gap-2 text-sm text-slate-500">
                   <ShieldCheck className="w-4 h-4 text-green-500" />
-                  <span>Secure SSL Checkout</span>
+                  <span>Thanh Toán Bảo Mật SSL</span>
                 </div>
               </div>
             </div>
@@ -242,13 +242,13 @@ function CartPage() {
             <div className="w-24 h-24 bg-brand-50 rounded-full flex items-center justify-center mx-auto mb-6">
               <ShoppingBag className="w-10 h-10 text-brand-600" />
             </div>
-            <h2 className='text-3xl font-display font-bold text-slate-900 mb-4'>Your cart is empty</h2>
-            <p className='text-slate-500 mb-8 text-lg'>Looks like you haven't added anything to your cart yet. Discover our premium collections and find something you love.</p>
+            <h2 className='text-3xl font-display font-bold text-slate-900 mb-4'>Giỏ hàng của bạn đang trống</h2>
+            <p className='text-slate-500 mb-8 text-lg'>Có vẻ như bạn chưa thêm sản phẩm nào vào giỏ hàng. Hãy khám phá các bộ sưu tập cao cấp và chọn cho mình món đồ yêu thích nhé.</p>
             <Link 
               to='/' 
               className='inline-flex items-center gap-2 bg-brand-600 text-white px-8 py-4 rounded-full font-bold hover:bg-brand-700 hover:shadow-lg hover:-translate-y-0.5 transition-all'
             >
-              Start Shopping
+              Khám Phá Ngay
             </Link>
           </div>
         )}

@@ -98,16 +98,16 @@ function HomePage() {
         <div className='relative z-10 container mx-auto px-4 py-28 md:py-36 flex flex-col items-center text-center'>
           <div className='inline-flex items-center gap-2 bg-white/10 border border-white/20 backdrop-blur-sm rounded-full px-4 py-2 mb-8 animate-fade-in'>
             <Sparkles className='w-4 h-4 text-brand-300' />
-            <span className='text-sm font-medium text-white/90'>New arrivals every week</span>
+            <span className='text-sm font-medium text-white/90'>Sản phẩm mới mỗi tuần</span>
           </div>
 
           <h1 className='text-5xl sm:text-6xl md:text-7xl font-display font-bold mb-6 leading-[1.1] animate-fade-in-up'>
-            Premium Tech,<br />
-            <span className='text-gradient-light'>Unbeatable Prices.</span>
+            Công Nghệ Cao Cấp,<br />
+            <span className='text-gradient-light'>Giá Cả Tốt Nhất.</span>
           </h1>
 
           <p className='text-slate-300 max-w-xl mx-auto text-lg md:text-xl mb-10 leading-relaxed animate-fade-in-up animate-delay-100'>
-            Discover the latest smartphones, laptops, and smart wearables. Elevate your digital lifestyle today.
+            Khám phá điện thoại, laptop và thiết bị thông minh mới nhất. Nâng tầm trải nghiệm số của bạn ngay hôm nay.
           </p>
 
           <div className='flex flex-col sm:flex-row gap-4 animate-fade-in-up animate-delay-200'>
@@ -115,23 +115,23 @@ function HomePage() {
               onClick={() => navigate('/shop')}
               className='bg-white text-slate-900 px-8 py-4 rounded-full font-bold text-lg hover:bg-brand-50 hover:scale-105 transition-all shadow-2xl shadow-white/10 animate-pulse-glow'
             >
-              Shop Collection
+              Khám Phá Sản Phẩm
             </button>
             <button
               onClick={() => navigate('/shop?sort=price')}
               className='border border-white/30 text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white/10 transition-all backdrop-blur-sm'
             >
-              View Best Deals
+              Xem Ưu Đãi Tốt Nhất
             </button>
           </div>
 
           {/* Stats */}
           <div className='flex flex-wrap justify-center gap-8 mt-16 animate-fade-in-up animate-delay-300'>
             {[
-              { value: '10K+', label: 'Products' },
-              { value: '50K+', label: 'Happy Customers' },
-              { value: '4.9★', label: 'Avg Rating' },
-              { value: 'Free', label: 'Shipping' },
+              { value: '10K+', label: 'Sản Phẩm' },
+              { value: '50K+', label: 'Khách Hàng' },
+              { value: '4.9★', label: 'Đánh Giá TB' },
+              { value: 'Miễn Phí', label: 'Vận Chuyển' },
             ].map((stat) => (
               <div key={stat.label} className='text-center'>
                 <p className='text-2xl font-display font-bold text-white'>{stat.value}</p>
@@ -149,10 +149,10 @@ function HomePage() {
       <section className='bg-white border-b border-slate-100'>
         <div className='container mx-auto px-4 py-6'>
           <div className='grid grid-cols-2 md:grid-cols-4 gap-6'>
-            <TrustItem icon={<Truck className="w-5 h-5" />} title="Free Shipping" desc="On orders over $50" />
-            <TrustItem icon={<Shield className="w-5 h-5" />} title="Secure Payment" desc="100% protected" />
-            <TrustItem icon={<RotateCcw className="w-5 h-5" />} title="Easy Returns" desc="30-day policy" />
-            <TrustItem icon={<Headphones className="w-5 h-5" />} title="24/7 Support" desc="Here to help" />
+            <TrustItem icon={<Truck className="w-5 h-5" />} title="Miễn Phí Vận Chuyển" desc="Đơn hàng trên 500.000đ" />
+            <TrustItem icon={<Shield className="w-5 h-5" />} title="Thanh Toán An Toàn" desc="Bảo mật 100%" />
+            <TrustItem icon={<RotateCcw className="w-5 h-5" />} title="Đổi Trả Dễ Dàng" desc="Chính sách 30 ngày" />
+            <TrustItem icon={<Headphones className="w-5 h-5" />} title="Hỗ Trợ 24/7" desc="Luôn sẵn sàng hỗ trợ" />
           </div>
         </div>
       </section>
@@ -162,14 +162,14 @@ function HomePage() {
         <section className='bg-slate-50 pt-10 pb-6'>
           <div className='container mx-auto px-4'>
             <div className='text-center mb-6'>
-              <h2 className='text-2xl font-display font-bold text-slate-900'>Browse by Category</h2>
+              <h2 className='text-2xl font-display font-bold text-slate-900'>Danh Mục Sản Phẩm</h2>
             </div>
             <div className='flex flex-wrap gap-2 justify-center'>
               <button
                 onClick={() => navigate('/shop')}
                 className='px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 border bg-brand-600 text-white border-brand-600 shadow-md shadow-brand-500/20'
               >
-                All Products
+                Tất Cả
               </button>
               {categories.map((cat) => (
                 <button
@@ -193,7 +193,7 @@ function HomePage() {
           <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8'>
             <div className='flex items-center gap-3 flex-wrap'>
               <h2 className='text-3xl font-display font-bold text-slate-900'>
-                Featured Products
+                Sản Phẩm Nổi Bật
               </h2>
             </div>
             
@@ -201,7 +201,7 @@ function HomePage() {
               onClick={() => navigate('/shop')}
               className='text-brand-600 font-bold hover:text-brand-700 flex items-center gap-1 transition-colors'
             >
-              View Full Shop <ChevronRight className="w-5 h-5" />
+              Xem Toàn Bộ Cửa Hàng <ChevronRight className="w-5 h-5" />
             </button>
           </div>
 
@@ -221,7 +221,7 @@ function HomePage() {
           ) : (
             <div className='text-center py-24 bg-white rounded-3xl border border-slate-100 shadow-sm'>
               <div className='w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl'>🔍</div>
-              <h3 className='text-2xl font-display font-bold text-slate-900 mb-3'>No products found</h3>
+              <h3 className='text-2xl font-display font-bold text-slate-900 mb-3'>Không tìm thấy sản phẩm nào</h3>
             </div>
           )}
         </div>

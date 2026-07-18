@@ -22,7 +22,7 @@ function ProductCard({ product }) {
     e.preventDefault();
     e.stopPropagation();
     if (!user) {
-      toast.error('Please sign in to add items to cart');
+      toast.error('Vui lòng đăng nhập để thêm vào giỏ hàng');
       navigate('/auth', { 
         state: { 
           from: location.pathname + location.search,
@@ -34,9 +34,9 @@ function ProductCard({ product }) {
     try {
       const res = await axiosClient.post('/api/cart/items', { productId: product._id, quantity: 1 });
       setCart(res.data.data);
-      toast.success(`${product.name} added to cart!`);
+      toast.success(`Đã thêm ${product.name} vào giỏ hàng!`);
     } catch {
-      toast.error('Failed to add to cart');
+      toast.error('Không thể thêm vào giỏ hàng');
     }
   };
 
@@ -56,14 +56,14 @@ function ProductCard({ product }) {
       {isLowStock && (
         <span className='absolute top-3 right-3 z-10 bg-amber-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1'>
           <Zap className="w-2.5 h-2.5" />
-          {product.stock} left
+          Còn {product.stock}
         </span>
       )}
 
       {/* Out of Stock overlay */}
       {isOutOfStock && (
         <div className='absolute inset-0 z-10 bg-white/60 backdrop-blur-[1px] flex items-center justify-center'>
-          <span className='bg-slate-900/80 text-white text-xs font-bold px-3 py-1.5 rounded-full'>Out of Stock</span>
+          <span className='bg-slate-900/80 text-white text-xs font-bold px-3 py-1.5 rounded-full'>Hết hàng</span>
         </div>
       )}
 
@@ -89,7 +89,7 @@ function ProductCard({ product }) {
               className='w-full bg-slate-900/90 backdrop-blur-sm text-white text-sm font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2 hover:bg-brand-600 transition-colors shadow-lg'
             >
               <ShoppingCart className="w-4 h-4" />
-              Add to Cart
+              Thêm vào giỏ
             </button>
           </div>
         )}
@@ -99,7 +99,7 @@ function ProductCard({ product }) {
       <div className='p-4 flex flex-col flex-grow'>
         {/* Brand */}
         <p className='text-[11px] font-bold text-brand-500 uppercase tracking-widest mb-1.5'>
-          {product.brand || 'Premium'}
+          {product.brand || 'Cao cấp'}
         </p>
 
         {/* Name */}
@@ -123,9 +123,9 @@ function ProductCard({ product }) {
         {/* Price */}
         <div className='flex items-center justify-between pt-3 border-t border-slate-50'>
           <div className='flex items-baseline gap-2'>
-            <span className='font-display font-bold text-lg text-slate-900'>${product.price}</span>
+            <span className='font-display font-bold text-lg text-slate-900'>{(Number(product.price) || 0).toLocaleString('vi-VN')}₫</span>
             {hasDiscount && (
-              <span className='text-xs text-slate-400 line-through'>${Number(product.discountPrice).toFixed(2)}</span>
+              <span className='text-xs text-slate-400 line-through'>{(Number(product.discountPrice) || 0).toLocaleString('vi-VN')}₫</span>
             )}
           </div>
           {product.rating > 0 && (

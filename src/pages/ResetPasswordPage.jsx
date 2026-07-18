@@ -16,8 +16,8 @@ function ResetPasswordPage() {
   if (!email) {
     return (
       <div className='container mx-auto px-4 py-16 max-w-md text-center'>
-        <p className='mb-4'>Invalid request.</p>
-        <Link to='/forgot-password' className='text-blue-600 hover:underline'>Back to Forgot Password</Link>
+        <p className='mb-4'>Yêu cầu không hợp lệ.</p>
+        <Link to='/forgot-password' className='text-blue-600 hover:underline'>Quay lại Quên mật khẩu</Link>
       </div>
     );
   }
@@ -28,9 +28,9 @@ function ResetPasswordPage() {
     try {
       await axiosClient.post('/api/auth/verify-otp', { email, otp });
       setStep(2);
-      toast.success('OTP verified');
+      toast.success('Xác thực mã OTP thành công');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Invalid OTP');
+      toast.error(error.response?.data?.message || 'Mã OTP không hợp lệ');
     } finally {
       setLoading(false);
     }
@@ -41,10 +41,10 @@ function ResetPasswordPage() {
     setLoading(true);
     try {
       await axiosClient.post('/api/auth/reset-password', { email, otp, newPassword });
-      toast.success('Password reset successful! You can now login.');
+      toast.success('Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay bây giờ.');
       navigate('/auth');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to reset password');
+      toast.error(error.response?.data?.message || 'Đặt lại mật khẩu thất bại');
     } finally {
       setLoading(false);
     }
@@ -53,13 +53,13 @@ function ResetPasswordPage() {
   return (
     <div className='container mx-auto px-4 py-16 max-w-md'>
       <div className='bg-white p-8 rounded-lg shadow-md'>
-        <h1 className='text-2xl font-bold mb-6 text-center'>Reset Password</h1>
+        <h1 className='text-2xl font-bold mb-6 text-center'>Đặt Lại Mật Khẩu</h1>
         
         {step === 1 ? (
           <form onSubmit={handleVerifyOtp}>
-            <p className='text-sm text-gray-600 mb-4'>Enter the 6-digit OTP sent to {email}</p>
+            <p className='text-sm text-gray-600 mb-4'>Nhập mã OTP 6 chữ số đã được gửi đến {email}</p>
             <div className='mb-4'>
-              <label className='block font-medium mb-2'>OTP</label>
+              <label className='block font-medium mb-2'>Mã OTP</label>
               <input
                 type='text'
                 required
@@ -74,13 +74,13 @@ function ResetPasswordPage() {
               disabled={loading}
               className='w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition disabled:bg-blue-400'
             >
-              {loading ? 'Verifying...' : 'Verify OTP'}
+              {loading ? 'Đang xác thực...' : 'Xác Thực OTP'}
             </button>
           </form>
         ) : (
           <form onSubmit={handleResetPassword}>
             <div className='mb-4'>
-              <label className='block font-medium mb-2'>New Password</label>
+              <label className='block font-medium mb-2'>Mật Khẩu Mới</label>
               <input
                 type='password'
                 required
@@ -95,7 +95,7 @@ function ResetPasswordPage() {
               disabled={loading}
               className='w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition disabled:bg-blue-400'
             >
-              {loading ? 'Resetting...' : 'Set New Password'}
+              {loading ? 'Đang đặt lại...' : 'Lưu Mật Khẩu Mới'}
             </button>
           </form>
         )}

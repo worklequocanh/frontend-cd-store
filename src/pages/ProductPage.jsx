@@ -29,12 +29,12 @@ function ReviewForm({ productId, onSubmit }) {
     setLoading(true);
     try {
       await axiosClient.post('/api/reviews', { productId, rating, comment });
-      toast.success('Review submitted! Thank you.');
+      toast.success('Đã gửi đánh giá! Cảm ơn bạn.');
       setComment('');
       setRating(5);
       onSubmit();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to submit review');
+      toast.error(err.response?.data?.message || 'Không thể gửi đánh giá');
     } finally {
       setLoading(false);
     }
@@ -44,10 +44,10 @@ function ReviewForm({ productId, onSubmit }) {
     <form onSubmit={handleSubmit} className='bg-slate-50 rounded-2xl p-6 border border-slate-100'>
       <h3 className='font-display font-bold text-slate-900 mb-4 flex items-center gap-2'>
         <MessageSquare className='w-5 h-5 text-brand-500' />
-        Write a Review
+        Viết Đánh Giá
       </h3>
       <div className='mb-4'>
-        <p className='text-sm font-medium text-slate-600 mb-2'>Your Rating</p>
+        <p className='text-sm font-medium text-slate-600 mb-2'>Điểm Đánh Giá</p>
         <div className='flex gap-1'>
           {[1,2,3,4,5].map(i => (
             <button
@@ -65,18 +65,18 @@ function ReviewForm({ productId, onSubmit }) {
         </div>
       </div>
       <div className='mb-4'>
-        <label className='block text-sm font-medium text-slate-600 mb-2'>Your Review</label>
+        <label className='block text-sm font-medium text-slate-600 mb-2'>Nội Dung Đánh Giá</label>
         <textarea
           value={comment}
           onChange={e => setComment(e.target.value)}
           required
           rows={3}
-          placeholder='Share your experience with this product...'
+          placeholder='Chia sẻ trải nghiệm của bạn về sản phẩm này...'
           className='input-base resize-none text-sm'
         />
       </div>
       <button type='submit' disabled={loading} className='btn-primary text-sm py-2.5 px-6'>
-        {loading ? 'Submitting...' : 'Submit Review'}
+        {loading ? 'Đang gửi...' : 'Gửi Đánh Giá'}
       </button>
     </form>
   );
@@ -107,7 +107,7 @@ function ProductPage() {
 
   const handleAddToCart = async () => {
     if (!user) {
-      toast.error('Please sign in to add items to cart');
+      toast.error('Vui lòng đăng nhập để thêm vào giỏ hàng');
       navigate('/auth', { 
         state: { 
           from: location.pathname + location.search,
@@ -119,9 +119,9 @@ function ProductPage() {
     try {
       const res = await axiosClient.post('/api/cart/items', { productId: product._id, quantity });
       setCart(res.data.data);
-      toast.success('Added to cart!');
+      toast.success('Đã thêm vào giỏ hàng!');
     } catch {
-      toast.error('Failed to add to cart');
+      toast.error('Không thể thêm vào giỏ hàng');
     }
   };
 
@@ -129,7 +129,7 @@ function ProductPage() {
     <div className='min-h-screen flex items-center justify-center bg-slate-50'>
       <div className="flex flex-col items-center gap-4">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-600"></div>
-        <p className='text-slate-400 text-sm font-medium'>Loading product...</p>
+        <p className='text-slate-400 text-sm font-medium'>Đang tải thông tin sản phẩm...</p>
       </div>
     </div>
   );
@@ -138,9 +138,9 @@ function ProductPage() {
   const lowStock = inStock && product.stock <= 5;
 
   const tabs = [
-    { id: 'description', label: 'Description' },
-    { id: 'reviews', label: `Reviews (${reviews.length})` },
-    { id: 'shipping', label: 'Shipping & Returns' },
+    { id: 'description', label: 'Mô Tả Sản Phẩm' },
+    { id: 'reviews', label: `Đánh Giá (${reviews.length})` },
+    { id: 'shipping', label: 'Vận Chuyển & Đổi Trả' },
   ];
 
   return (
@@ -148,7 +148,7 @@ function ProductPage() {
       {/* Breadcrumb */}
       <div className='bg-white border-b border-slate-100'>
         <div className='container mx-auto px-4 py-3.5 flex items-center gap-2 text-sm'>
-          <button onClick={() => navigate('/')} className='text-slate-400 hover:text-brand-600 transition-colors'>Home</button>
+          <button onClick={() => navigate('/')} className='text-slate-400 hover:text-brand-600 transition-colors'>Trang Chủ</button>
           <ChevronRight className='w-3.5 h-3.5 text-slate-300' />
           {product.categoryId?.name && (
             <>
@@ -179,7 +179,7 @@ function ProductPage() {
                 )}
                 {!inStock && (
                   <div className='absolute inset-0 bg-white/80 flex items-center justify-center'>
-                    <span className='bg-slate-900 text-white font-bold px-4 py-2 rounded-full text-sm'>Out of Stock</span>
+                    <span className='bg-slate-900 text-white font-bold px-4 py-2 rounded-full text-sm'>Hết Hàng</span>
                   </div>
                 )}
               </div>
@@ -205,7 +205,7 @@ function ProductPage() {
                   <span className='text-xs font-bold text-brand-600 bg-brand-50 px-3 py-1 rounded-full uppercase tracking-wider'>{product.brand}</span>
                 )}
                 {lowStock && (
-                  <span className='text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-full'>Only {product.stock} left</span>
+                  <span className='text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-full'>Chỉ còn {product.stock} sản phẩm</span>
                 )}
               </div>
 
@@ -218,23 +218,23 @@ function ProductPage() {
                   <span className='font-bold text-slate-700'>{product.rating}</span>
                   <span className='text-slate-400 text-sm'>·</span>
                   <button onClick={() => setActiveTab('reviews')} className='text-sm text-brand-600 hover:underline font-medium'>
-                    {reviews.length} reviews
+                    {reviews.length} đánh giá
                   </button>
                   <span className='text-slate-400 text-sm'>·</span>
                   <span className={`text-sm font-semibold ${inStock ? 'text-emerald-600' : 'text-red-500'}`}>
-                    {inStock ? `In Stock (${product.stock})` : 'Out of Stock'}
+                    {inStock ? `Còn hàng (${product.stock})` : 'Hết hàng'}
                   </span>
                 </div>
               )}
 
               {/* Price */}
               <div className='flex items-end gap-3 mb-6'>
-                <span className='text-4xl font-display font-bold text-slate-900'>${product.price?.toFixed(2)}</span>
+                <span className='text-4xl font-display font-bold text-slate-900'>{(Number(product.price) || 0).toLocaleString('vi-VN')}₫</span>
                 {product.discountPrice && Number(product.discountPrice) > Number(product.price) && (
                   <>
-                    <span className='text-xl text-slate-400 line-through mb-0.5'>${Number(product.discountPrice).toFixed(2)}</span>
+                    <span className='text-xl text-slate-400 line-through mb-0.5'>{(Number(product.discountPrice) || 0).toLocaleString('vi-VN')}₫</span>
                     <span className='bg-gradient-to-r from-red-600 to-rose-500 text-white text-sm font-bold px-3 py-0.5 rounded-full mb-0.5 shadow-sm animate-pulse'>
-                      -{Math.round(((product.discountPrice - product.price) / product.discountPrice) * 100)}% (Tiết kiệm ${(product.discountPrice - product.price).toFixed(2)})
+                      -{Math.round(((product.discountPrice - product.price) / product.discountPrice) * 100)}% (Tiết kiệm {(product.discountPrice - product.price).toLocaleString('vi-VN')}₫)
                     </span>
                   </>
                 )}
@@ -269,17 +269,17 @@ function ProductPage() {
                   }`}
                 >
                   <ShoppingCart className='w-5 h-5' />
-                  {inStock ? 'Add to Cart' : 'Out of Stock'}
+                  {inStock ? 'Thêm Vào Giỏ Hàng' : 'Hết Hàng'}
                 </button>
               </div>
 
               {/* Feature pills */}
               <div className='grid grid-cols-2 gap-3 mt-auto'>
                 {[
-                  { icon: <Truck className='w-4 h-4' />, label: 'Free Shipping' },
-                  { icon: <ShieldCheck className='w-4 h-4' />, label: '1 Year Warranty' },
-                  { icon: <RotateCcw className='w-4 h-4' />, label: '30-Day Returns' },
-                  { icon: <Headphones className='w-4 h-4' />, label: '24/7 Support' },
+                  { icon: <Truck className='w-4 h-4' />, label: 'Miễn Phí Vận Chuyển' },
+                  { icon: <ShieldCheck className='w-4 h-4' />, label: 'Bảo Hành 1 Năm' },
+                  { icon: <RotateCcw className='w-4 h-4' />, label: 'Đổi Trả 30 Ngày' },
+                  { icon: <Headphones className='w-4 h-4' />, label: 'Hỗ Trợ 24/7' },
                 ].map(f => (
                   <div key={f.label} className='flex items-center gap-2.5 p-3 bg-slate-50 rounded-xl border border-slate-100'>
                     <div className='text-brand-500'>{f.icon}</div>
@@ -315,7 +315,7 @@ function ProductPage() {
             {activeTab === 'description' && (
               <div className='prose prose-slate max-w-none'>
                 <p className='text-slate-600 leading-relaxed text-base whitespace-pre-line'>
-                  {product.description || 'No description available for this product.'}
+                  {product.description || 'Chưa có thông tin mô tả chi tiết cho sản phẩm này.'}
                 </p>
               </div>
             )}
@@ -328,7 +328,7 @@ function ProductPage() {
                     <div className='text-center'>
                       <p className='text-5xl font-display font-bold text-slate-900'>{product.rating || '—'}</p>
                       <StarRow rating={product.rating || 0} size='md' />
-                      <p className='text-xs text-slate-400 mt-1'>{reviews.length} reviews</p>
+                      <p className='text-xs text-slate-400 mt-1'>{reviews.length} đánh giá</p>
                     </div>
                   </div>
                 )}
@@ -342,7 +342,7 @@ function ProductPage() {
                           <div className='w-9 h-9 bg-gradient-to-br from-brand-500 to-violet-600 text-white font-bold rounded-full flex items-center justify-center text-sm'>
                             {r.userId?.name?.charAt(0) || 'U'}
                           </div>
-                          <span className='font-semibold text-slate-900 text-sm'>{r.userId?.name || 'Anonymous'}</span>
+                          <span className='font-semibold text-slate-900 text-sm'>{r.userId?.name || 'Ẩn danh'}</span>
                         </div>
                         <StarRow rating={r.rating} size='sm' />
                       </div>
@@ -352,7 +352,7 @@ function ProductPage() {
                   {reviews.length === 0 && (
                     <div className='col-span-2 text-center py-12 text-slate-400'>
                       <Star className='w-12 h-12 mx-auto mb-4 text-slate-200' />
-                      <p className='font-medium'>No reviews yet. Be the first!</p>
+                      <p className='font-medium'>Chưa có đánh giá nào. Hãy là người đầu tiên!</p>
                     </div>
                   )}
                 </div>
@@ -363,8 +363,8 @@ function ProductPage() {
                 )}
                 {!user && (
                   <div className='text-center py-6 bg-brand-50 rounded-2xl'>
-                    <p className='text-slate-600 mb-3'>Sign in to write a review</p>
-                    <button onClick={() => navigate('/auth')} className='btn-primary text-sm py-2 px-5'>Sign In</button>
+                    <p className='text-slate-600 mb-3'>Đăng nhập để viết đánh giá</p>
+                    <button onClick={() => navigate('/auth')} className='btn-primary text-sm py-2 px-5'>Đăng Nhập</button>
                   </div>
                 )}
               </div>
@@ -375,22 +375,22 @@ function ProductPage() {
                 <div className='flex items-start gap-3 p-4 bg-slate-50 rounded-xl'>
                   <Truck className='w-5 h-5 text-brand-500 mt-0.5 shrink-0' />
                   <div>
-                    <p className='font-semibold text-slate-900'>Free Standard Shipping</p>
-                    <p>Orders over $50 qualify for free shipping. Estimated delivery: 3–7 business days.</p>
+                    <p className='font-semibold text-slate-900'>Miễn Phí Vận Chuyển Tiêu Chuẩn</p>
+                    <p>Đơn hàng từ 500.000đ được miễn phí vận chuyển. Thời gian giao hàng dự kiến: 3–7 ngày làm việc.</p>
                   </div>
                 </div>
                 <div className='flex items-start gap-3 p-4 bg-slate-50 rounded-xl'>
                   <RotateCcw className='w-5 h-5 text-brand-500 mt-0.5 shrink-0' />
                   <div>
-                    <p className='font-semibold text-slate-900'>30-Day Returns</p>
-                    <p>Not satisfied? Return within 30 days for a full refund. Items must be in original condition.</p>
+                    <p className='font-semibold text-slate-900'>Đổi Trả Trong 30 Ngày</p>
+                    <p>Nếu không hài lòng, bạn có thể đổi trả trong vòng 30 ngày để hoàn tiền. Sản phẩm phải còn nguyên trạng.</p>
                   </div>
                 </div>
                 <div className='flex items-start gap-3 p-4 bg-slate-50 rounded-xl'>
                   <ShieldCheck className='w-5 h-5 text-brand-500 mt-0.5 shrink-0' />
                   <div>
-                    <p className='font-semibold text-slate-900'>1 Year Warranty</p>
-                    <p>All products come with a 1-year manufacturer warranty against defects.</p>
+                    <p className='font-semibold text-slate-900'>Bảo Hành 1 Năm</p>
+                    <p>Tất cả sản phẩm đều đi kèm chính sách bảo hành chính hãng 1 năm đối với lỗi từ nhà sản xuất.</p>
                   </div>
                 </div>
               </div>

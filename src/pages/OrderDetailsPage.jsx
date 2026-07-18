@@ -19,7 +19,7 @@ function OrderDetailsPage() {
   useEffect(() => {
     const fetchOrder = async () => {
       if (!user) {
-        toast.error('Please log in first');
+        toast.error('Vui lòng đăng nhập trước');
         navigate('/auth');
         return;
       }
@@ -61,7 +61,7 @@ function OrderDetailsPage() {
         }
       } catch (error) {
         console.error('Failed to fetch order:', error);
-        toast.error(error.response?.data?.message || 'Failed to load order');
+        toast.error(error.response?.data?.message || 'Không thể tải thông tin đơn hàng');
       } finally {
         setLoading(false);
       }
@@ -79,7 +79,7 @@ function OrderDetailsPage() {
         const res = await axiosClient.get(`/api/orders/${id}`);
         if (res.data?.data?.paymentStatus === 'completed') {
           setOrder(res.data.data);
-          toast.success('Payment confirmed automatically via API!');
+          toast.success('Hệ thống đã tự động xác nhận thanh toán!');
         }
       } catch (err) {
         console.error('API status check error:', err);
@@ -112,7 +112,7 @@ function OrderDetailsPage() {
         window.location.href = checkoutUrl;
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Error creating SePay checkout form');
+      toast.error(error.response?.data?.message || 'Lỗi khi tạo cổng thanh toán SePay');
       setPayosLoading(false);
     }
   };
@@ -168,9 +168,9 @@ function OrderDetailsPage() {
   if (!order) return (
     <div className='min-h-screen flex items-center justify-center bg-slate-50'>
       <div className="text-center">
-        <h2 className="text-2xl font-display font-bold text-slate-900 mb-2">Order not found</h2>
-        <p className="text-slate-500 mb-6">The order you're looking for doesn't exist or you don't have access to it.</p>
-        <Link to='/' className="text-brand-600 font-medium hover:underline">Return to Home</Link>
+        <h2 className="text-2xl font-display font-bold text-slate-900 mb-2">Không tìm thấy đơn hàng</h2>
+        <p className="text-slate-500 mb-6">Đơn hàng bạn đang tìm kiếm không tồn tại hoặc bạn không có quyền truy cập.</p>
+        <Link to='/' className="text-brand-600 font-medium hover:underline">Quay về Trang chủ</Link>
       </div>
     </div>
   );
@@ -180,11 +180,11 @@ function OrderDetailsPage() {
       <div className='bg-white border-b border-slate-200 py-6 mb-10'>
         <div className='container mx-auto px-4'>
           <button onClick={() => navigate('/orders')} className="flex items-center gap-2 text-sm text-slate-500 hover:text-brand-600 transition-colors mb-4">
-            <ChevronLeft className="w-4 h-4" /> Back to Orders
+            <ChevronLeft className="w-4 h-4" /> Quay lại Danh sách đơn hàng
           </button>
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
-              <h1 className='text-3xl font-display font-bold text-slate-900 mb-2'>Order Details</h1>
+              <h1 className='text-3xl font-display font-bold text-slate-900 mb-2'>Chi Tiết Đơn Hàng</h1>
               <p className="text-slate-500 font-mono">#{order.orderNumber}</p>
             </div>
             <div className="flex items-center gap-3">
@@ -210,7 +210,7 @@ function OrderDetailsPage() {
             {/* Order Items */}
             <div className='bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100'>
               <h2 className='text-xl font-display font-bold text-slate-900 mb-6 flex items-center gap-2'>
-                <Package className="w-6 h-6 text-brand-600" /> Order Items
+                <Package className="w-6 h-6 text-brand-600" /> Danh Sách Sản Phẩm
               </h2>
               
               <div className='space-y-6'>
@@ -227,10 +227,10 @@ function OrderDetailsPage() {
                       <Link to={`/products/${item.productId?.slug}`} className='font-display font-semibold text-slate-900 hover:text-brand-600 transition-colors line-clamp-2'>
                         {item.name}
                       </Link>
-                      <p className='text-slate-500 text-sm mt-1'>Qty: {item.quantity}</p>
+                      <p className='text-slate-500 text-sm mt-1'>SL: {item.quantity}</p>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className='font-bold text-slate-900'>${(item.price * item.quantity).toFixed(2)}</p>
+                      <p className='font-bold text-slate-900'>{(item.price * item.quantity).toLocaleString('vi-VN')}₫</p>
                     </div>
                   </div>
                 ))}
@@ -240,15 +240,15 @@ function OrderDetailsPage() {
             {/* Order Timeline (Status) */}
             <div className='bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100'>
               <h2 className='text-xl font-display font-bold text-slate-900 mb-8 flex items-center gap-2'>
-                <Truck className="w-6 h-6 text-brand-600" /> Order Tracking Timeline
+                <Truck className="w-6 h-6 text-brand-600" /> Theo Dõi Trạng Thái Đơn Hàng
               </h2>
               
               {order.orderStatus === 'cancelled' ? (
                 <div className="bg-red-50 border border-red-200 rounded-2xl p-6 text-center">
                   <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3 text-red-600 font-bold">✕</div>
-                  <h3 className="text-lg font-bold text-red-700">Order Cancelled</h3>
-                  <p className="text-sm text-red-600 mt-1">{order.cancelReason || 'This order has been cancelled.'}</p>
-                  {order.cancelledAt && <p className="text-xs text-red-400 mt-2">Cancelled on {new Date(order.cancelledAt).toLocaleString()}</p>}
+                  <h3 className="text-lg font-bold text-red-700">Đơn Hàng Đã Hủy</h3>
+                  <p className="text-sm text-red-600 mt-1">{order.cancelReason || 'Đơn hàng này đã bị hủy.'}</p>
+                  {order.cancelledAt && <p className="text-xs text-red-400 mt-2">Đã hủy lúc {new Date(order.cancelledAt).toLocaleString('vi-VN')}</p>}
                 </div>
               ) : (
                 <div className="space-y-6">
@@ -260,8 +260,8 @@ function OrderDetailsPage() {
                       const isCompleted = currentIdx >= idx;
                       const isCurrent = currentIdx === idx;
                       
-                      const stepTitles = ['Pending Approval', 'Order Confirmed', 'In Transit (Shipped)', 'Delivered'];
-                      const stepDescs = ['Order received', 'Processing in warehouse', 'Handed to courier', 'Completed'];
+                      const stepTitles = ['Chờ xác nhận', 'Đã xác nhận', 'Đang giao hàng', 'Đã giao thành công'];
+                      const stepDescs = ['Đã tiếp nhận đơn', 'Đang chuẩn bị hàng', 'Đang vận chuyển', 'Giao thành công'];
 
                       return (
                         <div key={stepStatus} className="flex flex-col items-center text-center">
@@ -288,8 +288,8 @@ function OrderDetailsPage() {
                         {order.paymentStatus === 'completed' ? <CheckCircle2 className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-slate-900">Payment Status: {order.paymentStatus.toUpperCase()}</p>
-                        <p className="text-xs text-slate-500">{order.paymentMethod === 'cod' ? 'Cash on delivery' : 'Online payment via SePay Sandbox'}</p>
+                        <p className="text-sm font-bold text-slate-900">Trạng Thái Thanh Toán: {order.paymentStatus === 'completed' ? 'ĐÃ THANH TOÁN' : 'CHƯA THANH TOÁN'}</p>
+                        <p className="text-xs text-slate-500">{order.paymentMethod === 'cod' ? 'Thanh toán tiền mặt khi nhận hàng (COD)' : 'Thanh toán online qua cổng SePay'}</p>
                       </div>
                     </div>
                   </div>
@@ -301,27 +301,27 @@ function OrderDetailsPage() {
           <div className="space-y-8">
             {/* Order Summary */}
             <div className='bg-slate-900 text-white rounded-3xl p-6 md:p-8 shadow-xl'>
-              <h2 className='text-xl font-display font-bold mb-6 pb-4 border-b border-slate-700'>Summary</h2>
+              <h2 className='text-xl font-display font-bold mb-6 pb-4 border-b border-slate-700'>Tổng Tiền</h2>
               
               <div className='space-y-4 text-sm text-slate-300'>
                 <div className='flex justify-between'>
-                  <span>Subtotal</span>
-                  <span className='font-medium text-white'>${order.subtotal?.toFixed(2)}</span>
+                  <span>Tạm tính</span>
+                  <span className='font-medium text-white'>{(order.subtotal || 0).toLocaleString('vi-VN')}₫</span>
                 </div>
                 <div className='flex justify-between'>
-                  <span>Shipping Fee</span>
-                  <span className='font-medium text-white'>${order.shippingFee?.toFixed(2)}</span>
+                  <span>Phí vận chuyển</span>
+                  <span className='font-medium text-white'>{(order.shippingFee || 0).toLocaleString('vi-VN')}₫</span>
                 </div>
                 {order.discountAmount > 0 && (
                   <div className='flex justify-between text-brand-400 font-semibold'>
-                    <span>Discount {order.couponCode ? `(${order.couponCode})` : ''}</span>
-                    <span className='font-medium'>-${order.discountAmount.toFixed(2)}</span>
+                    <span>Giảm giá {order.couponCode ? `(${order.couponCode})` : ''}</span>
+                    <span className='font-medium'>-{(order.discountAmount || 0).toLocaleString('vi-VN')}₫</span>
                   </div>
                 )}
                 
                 <div className='flex justify-between items-end pt-6 mt-4 border-t border-slate-700'>
-                  <span className='font-bold text-lg text-white'>Total</span>
-                  <span className='text-3xl font-display font-bold text-brand-400'>${order.total?.toFixed(2)}</span>
+                  <span className='font-bold text-lg text-white'>Tổng cộng</span>
+                  <span className='text-3xl font-display font-bold text-brand-400'>{(order.total || 0).toLocaleString('vi-VN')}₫</span>
                 </div>
               </div>
             </div>
@@ -329,7 +329,7 @@ function OrderDetailsPage() {
             {/* Shipping Info */}
             <div className='bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100'>
               <h2 className='text-xl font-display font-bold text-slate-900 mb-6 flex items-center gap-2'>
-                <MapPin className="w-5 h-5 text-brand-600" /> Shipping Info
+                <MapPin className="w-5 h-5 text-brand-600" /> Thông Tin Nhận Hàng
               </h2>
               
               <div className="space-y-4 text-slate-600">
@@ -348,7 +348,7 @@ function OrderDetailsPage() {
             {/* Payment Info */}
             <div className='bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100'>
               <h2 className='text-xl font-display font-bold text-slate-900 mb-6 flex items-center gap-2'>
-                <CreditCard className="w-5 h-5 text-brand-600" /> Payment Details
+                <CreditCard className="w-5 h-5 text-brand-600" /> Chi Tiết Thanh Toán
               </h2>
               
               <div className="flex items-center gap-4 mb-6">
@@ -359,7 +359,7 @@ function OrderDetailsPage() {
                 </div>
                 <div>
                   <p className="font-bold text-slate-900 mb-1">
-                    {order.paymentMethod === 'cod' ? 'Cash on Delivery (COD)' : 'Online Payment'}
+                    {order.paymentMethod === 'cod' ? 'Thanh toán tiền mặt (COD)' : 'Thanh toán trực tuyến'}
                   </p>
                   
                   {order.paymentMethod !== 'cod' ? (
@@ -369,14 +369,14 @@ function OrderDetailsPage() {
                         : 'bg-red-100 text-red-600'
                     }`}>
                       {order.paymentStatus === 'completed' || order.paymentStatus === 'paid' ? (
-                        <><CheckCircle2 className="w-3.5 h-3.5" /> Successfully Paid</>
+                        <><CheckCircle2 className="w-3.5 h-3.5" /> Đã Thanh Toán Thành Công</>
                       ) : (
-                        <><AlertCircle className="w-3.5 h-3.5" /> Unpaid</>
+                        <><AlertCircle className="w-3.5 h-3.5" /> Chưa Thanh Toán</>
                       )}
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
-                      Payment on delivery
+                      Thanh toán khi nhận hàng
                     </span>
                   )}
                 </div>
@@ -435,7 +435,7 @@ function OrderDetailsPage() {
                       <div className="flex justify-between items-center pb-2 border-b border-slate-100">
                         <span className="text-slate-500">Số tiền:</span>
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-brand-600 text-base">${order.total?.toFixed(2)} ({Math.round(order.total).toLocaleString('vi-VN')} VND)</span>
+                          <span className="font-bold text-brand-600 text-base">{(order.total || 0).toLocaleString('vi-VN')}₫ ({Math.round(order.total).toLocaleString('vi-VN')} VND)</span>
                           <button 
                             onClick={() => handleCopy(String(Math.round(order.total)), 'Số tiền')}
                             className="text-brand-600 hover:bg-brand-50 p-1 rounded transition-colors"
