@@ -261,29 +261,33 @@ function Header() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   onFocus={() => setSearchFocused(true)}
-                  placeholder="Tìm kiếm tai nghe, loa, bàn phím cơ, smartwatch..."
-                  className={`w-full bg-slate-100/90 border rounded-full pl-11 pr-20 py-2.5 text-sm focus:outline-none transition-all placeholder:text-slate-400 ${
+                  placeholder={searchFocused ? "Gõ tên sản phẩm cần tìm..." : "Tìm kiếm sản phẩm, tai nghe, loa..."}
+                  className={`w-full bg-slate-100/90 border rounded-full pl-11 py-2.5 text-sm focus:outline-none transition-all placeholder:text-slate-400 ${
+                    !searchFocused && !search ? 'pr-28' : 'pr-20'
+                  } ${
                     searchFocused 
                       ? 'bg-white border-brand-400 ring-4 ring-brand-500/15 shadow-md text-slate-900' 
                       : 'border-transparent hover:border-slate-200 text-slate-700'
                   }`}
                 />
-                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
                   {search && (
                     <button
                       type="button"
                       onClick={() => { setSearch(''); searchContainerRef.current?.querySelector('input')?.focus(); }}
-                      className="w-6 h-6 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center text-xs"
+                      className="w-6 h-6 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center text-xs transition-colors"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
                   )}
-                  <span className="hidden xl:inline-block px-2 py-0.5 text-[10px] font-mono font-bold bg-slate-200/80 text-slate-500 rounded border border-slate-300/50">
-                    Ctrl K
-                  </span>
+                  {!searchFocused && !search && (
+                    <span className="hidden xl:inline-block px-2 py-0.5 text-[10px] font-mono font-bold bg-slate-200/80 text-slate-500 rounded border border-slate-300/50 shadow-2xs">
+                      Ctrl K
+                    </span>
+                  )}
                   <button
                     type="submit"
-                    className="w-8 h-8 bg-brand-600 text-white rounded-full hover:bg-brand-700 transition-colors flex items-center justify-center shadow-sm hover:scale-105 active:scale-95"
+                    className="w-8 h-8 bg-brand-600 text-white rounded-full hover:bg-brand-700 transition-colors flex items-center justify-center shadow-sm hover:scale-105 active:scale-95 shrink-0"
                   >
                     <Search className="w-3.5 h-3.5" />
                   </button>
