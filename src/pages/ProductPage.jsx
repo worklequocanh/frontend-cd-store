@@ -229,12 +229,12 @@ function ProductPage() {
 
               {/* Price */}
               <div className='flex items-end gap-3 mb-6'>
-                <span className='text-4xl font-display font-bold text-slate-900'>{(Number(product.price) || 0).toLocaleString('vi-VN')}₫</span>
+                <span className='text-4xl font-display font-bold text-slate-900'>${Number(product.price || 0).toFixed(2)}</span>
                 {product.discountPrice && Number(product.discountPrice) > Number(product.price) && (
                   <>
-                    <span className='text-xl text-slate-400 line-through mb-0.5'>{(Number(product.discountPrice) || 0).toLocaleString('vi-VN')}₫</span>
+                    <span className='text-xl text-slate-400 line-through mb-0.5'>${Number(product.discountPrice || 0).toFixed(2)}</span>
                     <span className='bg-gradient-to-r from-red-600 to-rose-500 text-white text-sm font-bold px-3 py-0.5 rounded-full mb-0.5 shadow-sm animate-pulse'>
-                      -{Math.round(((product.discountPrice - product.price) / product.discountPrice) * 100)}% (Tiết kiệm {(product.discountPrice - product.price).toLocaleString('vi-VN')}₫)
+                      -{Math.round(((product.discountPrice - product.price) / product.discountPrice) * 100)}% (Tiết kiệm ${Number(product.discountPrice - product.price).toFixed(2)})
                     </span>
                   </>
                 )}

@@ -91,7 +91,7 @@ function OrderCard({ order }) {
         {/* Footer row: payment info + total */}
         <div className='flex items-center justify-between pt-3 border-t border-slate-50'>
           <PaymentBadge method={order.paymentMethod} paymentStatus={order.paymentStatus} />
-          <span className='font-display font-bold text-lg text-slate-900'>{(order.total || 0).toLocaleString('vi-VN')}₫</span>
+          <span className='font-display font-bold text-lg text-slate-900'>${(order.total || 0).toFixed(2)}</span>
         </div>
       </div>
     </Link>

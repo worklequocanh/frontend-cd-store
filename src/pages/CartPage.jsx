@@ -57,7 +57,7 @@ function CartPage() {
     try {
       const res = await axiosClient.put('/api/cart/coupon', { code: couponCode });
       setCart(res.data.data);
-      toast.success(`Đã áp dụng mã giảm giá! Giảm: ${(res.data.data.discountAmount || 0).toLocaleString('vi-VN')}₫`);
+      toast.success(`Đã áp dụng mã giảm giá! Giảm: $${(res.data.data.discountAmount || 0).toFixed(2)}`);
       setCouponCode('');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Mã giảm giá không hợp lệ');
@@ -146,7 +146,7 @@ function CartPage() {
                     {/* Price */}
                     <div className="col-span-1 md:col-span-2 flex justify-start md:justify-end items-center mt-2 md:mt-0">
                       <span className="font-bold text-lg text-slate-900">
-                        {((item.productId?.discountPrice || item.productId?.price || 0) * item.quantity).toLocaleString('vi-VN')}₫
+                        ${((item.productId?.discountPrice || item.productId?.price || 0) * item.quantity).toFixed(2)}
                       </span>
                     </div>
 
@@ -173,11 +173,13 @@ function CartPage() {
                 <div className='space-y-4 mb-6 text-slate-600'>
                   <div className='flex justify-between items-center'>
                     <span>Tạm tính</span>
-                    <span className="font-medium text-slate-900">{(cart.subtotal || 0).toLocaleString('vi-VN')}₫</span>
+                    <span className="font-medium text-slate-900">${(cart.subtotal || 0).toFixed(2)}</span>
                   </div>
                   <div className='flex justify-between items-center'>
                     <span>Phí giao hàng dự kiến</span>
-                    <span className="font-medium text-slate-900">25.000₫</span>
+                    <span className="font-medium text-slate-900">
+                      {(cart.subtotal || 0) > 500000 ? <span className="text-green-600">Miễn phí</span> : '$250.00'}
+                    </span>
                   </div>
                   {cart.discountAmount > 0 && (
                     <div className='flex justify-between items-center text-brand-600 font-semibold'>
@@ -185,7 +187,7 @@ function CartPage() {
                         <span>Giảm giá ({cart.couponCode})</span>
                         <button onClick={handleRemoveCoupon} className="text-xs text-red-500 hover:underline">Gỡ</button>
                       </div>
-                      <span>-{(cart.discountAmount || 0).toLocaleString('vi-VN')}₫</span>
+                      <span>-${(cart.discountAmount || 0).toFixed(2)}</span>
                     </div>
                   )}
                   
@@ -193,7 +195,7 @@ function CartPage() {
                     <div className='flex justify-between items-end'>
                       <span className="font-medium text-lg text-slate-900">Tổng cộng</span>
                       <span className="text-3xl font-display font-bold text-brand-600">
-                        {Math.max(0, (cart.subtotal || 0) + 25000 - (cart.discountAmount || 0)).toLocaleString('vi-VN')}₫
+                        ${Math.max(0, (cart.subtotal || 0) + ((cart.subtotal || 0) > 500000 ? 0 : 250) - (cart.discountAmount || 0)).toFixed(2)}
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 text-right mt-1">Đã bao gồm thuế và các loại phí</p>

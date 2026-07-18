@@ -123,9 +123,9 @@ function ProductCard({ product }) {
         {/* Price */}
         <div className='flex items-center justify-between pt-3 border-t border-slate-50'>
           <div className='flex items-baseline gap-2'>
-            <span className='font-display font-bold text-lg text-slate-900'>{(Number(product.price) || 0).toLocaleString('vi-VN')}₫</span>
+            <span className='font-display font-bold text-lg text-slate-900'>${Number(product.price || 0).toFixed(2)}</span>
             {hasDiscount && (
-              <span className='text-xs text-slate-400 line-through'>{(Number(product.discountPrice) || 0).toLocaleString('vi-VN')}₫</span>
+              <span className='text-xs text-slate-400 line-through'>${Number(product.discountPrice || 0).toFixed(2)}</span>
             )}
           </div>
           {product.rating > 0 && (

@@ -69,7 +69,7 @@ function AdminDashboard() {
   );
 
   const statCards = [
-    { title: 'Tổng Doanh Thu', value: `${Number(dashboard.totalRevenue || 0).toLocaleString('vi-VN')} VND`, icon: <DollarSign className="w-7 h-7" />, color: 'from-emerald-500 to-teal-400', shadow: 'shadow-emerald-500/20' },
+    { title: 'Tổng Doanh Thu', value: `$${Number(dashboard.totalRevenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, icon: <DollarSign className="w-7 h-7" />, color: 'from-emerald-500 to-teal-400', shadow: 'shadow-emerald-500/20' },
     { title: 'Tổng Đơn Hàng', value: dashboard.totalOrders || 0, icon: <ShoppingCart className="w-7 h-7" />, color: 'from-blue-500 to-cyan-400', shadow: 'shadow-blue-500/20' },
     { title: 'Khách Hàng', value: dashboard.totalUsers || 0, icon: <Users className="w-7 h-7" />, color: 'from-violet-500 to-purple-400', shadow: 'shadow-violet-500/20' },
     { title: 'Sản Phẩm', value: dashboard.totalProducts || 0, icon: <PackageSearch className="w-7 h-7" />, color: 'from-brand-500 to-indigo-400', shadow: 'shadow-brand-500/20' },
@@ -186,7 +186,7 @@ function AdminDashboard() {
                   axisLine={false} 
                   tickLine={false} 
                   tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 500 }}
-                  tickFormatter={(value) => `${(value/1000).toLocaleString()}k`}
+                  tickFormatter={(value) => value >= 1000 ? `$${(value/1000).toFixed(1)}k` : `$${value}`}
                   dx={-10}
                 />
                 <Tooltip 
@@ -200,7 +200,7 @@ function AdminDashboard() {
                     padding: '12px 16px'
                   }}
                   formatter={(value, name) => [
-                    name === 'revenue' ? `${value.toLocaleString('vi-VN')} VND` : value,
+                    name === 'revenue' ? `$${Number(value).toFixed(2)}` : value,
                     name === 'revenue' ? 'Doanh Thu' : 'Số Đơn'
                   ]}
                 />
@@ -240,7 +240,7 @@ function AdminDashboard() {
                   <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 11, fontWeight: 600 }} width={80} />
                   <Tooltip 
                     contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
-                    formatter={(value, name) => [name === 'sold' ? `${value} đĩa` : `${value.toLocaleString('vi-VN')} VND`, name === 'sold' ? 'Đã bán' : 'Doanh thu']}
+                    formatter={(value, name) => [name === 'sold' ? `${value} đĩa` : `$${Number(value).toFixed(2)}`, name === 'sold' ? 'Đã bán' : 'Doanh thu']}
                   />
                   <Bar dataKey="sold" fill="#3b82f6" radius={[0, 8, 8, 0]} barSize={20} />
                 </BarChart>
@@ -387,7 +387,7 @@ function AdminDashboard() {
                       >
                         {order.orderStatus === 'completed' ? 'Hoàn thành' : order.orderStatus === 'pending' ? 'Chờ xác nhận' : order.orderStatus === 'cancelled' ? 'Đã hủy' : 'Đang xử lý'}
                       </span>
-                      <span className='font-bold text-lg text-slate-800'>${Number(order.total || 0).toLocaleString('vi-VN')}</span>
+                      <span className='font-bold text-lg text-slate-800'>${Number(order.total || 0).toFixed(2)}</span>
                     </div>
                   </Link>
                 ))}

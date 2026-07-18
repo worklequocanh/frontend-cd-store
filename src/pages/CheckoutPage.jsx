@@ -287,7 +287,7 @@ function CheckoutPage() {
                           <p className='text-xs text-slate-400'>Số lượng: {item.quantity}</p>
                         </div>
                         <p className='font-semibold whitespace-nowrap'>
-                          {((item.productId?.discountPrice || item.productId?.price || item.price || 0) * item.quantity).toLocaleString('vi-VN')}₫
+                          ${((item.productId?.discountPrice || item.productId?.price || item.price || 0) * item.quantity).toFixed(2)}
                         </p>
                       </div>
                     ))}
@@ -296,27 +296,27 @@ function CheckoutPage() {
                   <div className='border-t border-slate-700 pt-6 space-y-4 text-sm text-slate-300'>
                     <div className='flex justify-between'>
                       <span>Tạm tính</span>
-                      <span className='font-medium text-white'>{(cart.subtotal || 0).toLocaleString('vi-VN')}₫</span>
+                      <span className='font-medium text-white'>${(cart.subtotal || 0).toFixed(2)}</span>
                     </div>
                     <div className='flex justify-between'>
                       <span>Phí vận chuyển</span>
                       <span className='font-medium text-white'>
                         {(cart.subtotal || 0) > 500000
                           ? <span className="text-green-400">Miễn phí</span>
-                          : '25.000₫'}
+                          : '$250.00'}
                       </span>
                     </div>
                     {cart.discountAmount > 0 && (
                       <div className='flex justify-between text-brand-400 font-semibold'>
                         <span>Giảm giá ({cart.couponCode})</span>
-                        <span>-{cart.discountAmount.toLocaleString('vi-VN')}₫</span>
+                        <span>-${(cart.discountAmount || 0).toFixed(2)}</span>
                       </div>
                     )}
 
                     <div className='flex justify-between items-end mt-6 pt-6 border-t border-slate-700'>
                       <span className='font-bold text-lg text-white'>Tổng cộng</span>
                       <span className='font-display font-bold text-3xl text-brand-400'>
-                        {Math.max(0, (cart.subtotal || 0) + ((cart.subtotal || 0) > 500000 ? 0 : 25000) - (cart.discountAmount || 0)).toLocaleString('vi-VN')}₫
+                        ${Math.max(0, (cart.subtotal || 0) + ((cart.subtotal || 0) > 500000 ? 0 : 250) - (cart.discountAmount || 0)).toFixed(2)}
                       </span>
                     </div>
                   </div>

@@ -133,7 +133,7 @@ function Header() {
                 <Flame className="w-3 h-3 text-amber-400 fill-amber-400" /> Ưu Đãi VIP
               </span>
               <p className="truncate text-slate-200 font-medium">
-                Nhập mã <strong className="text-brand-300 font-bold underline">VIP100</strong> giảm ngay <strong className="text-emerald-400">100.000₫</strong> cho đơn hàng từ 1 Triệu • Miễn phí vận chuyển hỏa tốc 2H
+                Nhập mã <strong className="text-brand-300 font-bold underline">VIP100</strong> giảm ngay <strong className="text-emerald-400">$10.00</strong> cho đơn hàng từ $100 • Miễn phí vận chuyển hỏa tốc 2H
               </p>
             </div>
             <div className="flex items-center gap-4 shrink-0">

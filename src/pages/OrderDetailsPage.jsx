@@ -230,7 +230,7 @@ function OrderDetailsPage() {
                       <p className='text-slate-500 text-sm mt-1'>SL: {item.quantity}</p>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className='font-bold text-slate-900'>{(item.price * item.quantity).toLocaleString('vi-VN')}₫</p>
+                      <p className='font-bold text-slate-900'>${(item.price * item.quantity).toFixed(2)}</p>
                     </div>
                   </div>
                 ))}
@@ -306,22 +306,22 @@ function OrderDetailsPage() {
               <div className='space-y-4 text-sm text-slate-300'>
                 <div className='flex justify-between'>
                   <span>Tạm tính</span>
-                  <span className='font-medium text-white'>{(order.subtotal || 0).toLocaleString('vi-VN')}₫</span>
+                  <span className='font-medium text-white'>${(order.subtotal || 0).toFixed(2)}</span>
                 </div>
                 <div className='flex justify-between'>
                   <span>Phí vận chuyển</span>
-                  <span className='font-medium text-white'>{(order.shippingFee || 0).toLocaleString('vi-VN')}₫</span>
+                  <span className='font-medium text-white'>${(order.shippingFee || 0).toFixed(2)}</span>
                 </div>
                 {order.discountAmount > 0 && (
                   <div className='flex justify-between text-brand-400 font-semibold'>
                     <span>Giảm giá {order.couponCode ? `(${order.couponCode})` : ''}</span>
-                    <span className='font-medium'>-{(order.discountAmount || 0).toLocaleString('vi-VN')}₫</span>
+                    <span className='font-medium'>-${(order.discountAmount || 0).toFixed(2)}</span>
                   </div>
                 )}
                 
                 <div className='flex justify-between items-end pt-6 mt-4 border-t border-slate-700'>
                   <span className='font-bold text-lg text-white'>Tổng cộng</span>
-                  <span className='text-3xl font-display font-bold text-brand-400'>{(order.total || 0).toLocaleString('vi-VN')}₫</span>
+                  <span className='text-3xl font-display font-bold text-brand-400'>${(order.total || 0).toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -435,9 +435,9 @@ function OrderDetailsPage() {
                       <div className="flex justify-between items-center pb-2 border-b border-slate-100">
                         <span className="text-slate-500">Số tiền:</span>
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-brand-600 text-base">{(order.total || 0).toLocaleString('vi-VN')}₫ ({Math.round(order.total).toLocaleString('vi-VN')} VND)</span>
+                          <span className="font-bold text-brand-600 text-base">${(order.total || 0).toFixed(2)}</span>
                           <button 
-                            onClick={() => handleCopy(String(Math.round(order.total)), 'Số tiền')}
+                            onClick={() => handleCopy(String(order.total?.toFixed(2)), 'Số tiền')}
                             className="text-brand-600 hover:bg-brand-50 p-1 rounded transition-colors"
                           >
                             {copiedField === 'Số tiền' ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
