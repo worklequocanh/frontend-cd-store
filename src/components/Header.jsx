@@ -255,7 +255,7 @@ function Header() {
             </div>
 
             {/* 3. Smart Search Bar (Desktop & Tablet) */}
-            <div className="hidden md:block flex-1 max-w-lg transition-all duration-300 relative" ref={searchContainerRef}>
+            <div className="hidden md:block w-full max-w-md xl:max-w-lg min-w-[280px] lg:min-w-[360px] relative shrink" ref={searchContainerRef}>
               <form onSubmit={handleSearchSubmit} className="relative w-full group">
                 <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${
                   searchFocused ? 'text-brand-600' : 'text-slate-400 group-hover:text-slate-500'
@@ -265,8 +265,8 @@ function Header() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   onFocus={() => setSearchFocused(true)}
-                  placeholder={searchFocused ? "Gõ tên sản phẩm cần tìm..." : "Tìm kiếm sản phẩm, tai nghe, loa..."}
-                  className={`w-full bg-slate-100/90 border rounded-full pl-11 py-2.5 text-sm focus:outline-none transition-all placeholder:text-slate-400 ${
+                  placeholder="Tìm kiếm sản phẩm, tai nghe, loa..."
+                  className={`w-full bg-slate-100/90 border rounded-full pl-11 py-2.5 text-sm focus:outline-none transition-shadow placeholder:text-slate-400 ${
                     !searchFocused && !search ? 'pr-28' : 'pr-20'
                   } ${
                     searchFocused 
