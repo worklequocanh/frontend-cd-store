@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useStore } from '../../store/store';
 import axiosClient from '../../utils/axiosClient';
-import { LayoutDashboard, PackageSearch, ShoppingCart, Users, LogOut, Package, Menu, X, Ticket, ChevronLeft, ChevronRight, Star, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, PackageSearch, ShoppingCart, Users, LogOut, Package, Menu, X, Ticket, ChevronLeft, ChevronRight, Star, MessageSquare, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 function AdminLayout() {
@@ -37,6 +37,7 @@ function AdminLayout() {
     { name: 'Quản Lý Đơn Hàng', path: '/admin/orders', icon: <ShoppingCart className="w-5 h-5" /> },
     { name: 'Người Dùng', path: '/admin/users', icon: <Users className="w-5 h-5" /> },
     { name: 'Mã Giảm Giá', path: '/admin/coupons', icon: <Ticket className="w-5 h-5" /> },
+    { name: 'Chiến Dịch Khuyến Mãi', path: '/admin/campaigns', icon: <Zap className="w-5 h-5" /> },
     { name: 'Đánh Giá', path: '/admin/reviews', icon: <Star className="w-5 h-5" /> },
     { name: 'Tin Nhắn Liên Hệ', path: '/admin/contacts', icon: <MessageSquare className="w-5 h-5" />, badge: unreadMessages },
   ];
