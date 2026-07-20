@@ -3,7 +3,8 @@ import axiosClient from '../utils/axiosClient';
 import { useStore } from '../store/store';
 import toast from 'react-hot-toast';
 import { useNavigate, Link } from 'react-router-dom';
-import { MapPin, Phone, User, CreditCard, Banknote, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { MapPin, Phone, User, CreditCard, Banknote, ShieldCheck, AlertTriangle, Ticket, Sparkles } from 'lucide-react';
+import CouponCenterModal from '../components/CouponCenterModal';
 
 function CheckoutPage() {
   const navigate = useNavigate();
@@ -18,6 +19,18 @@ function CheckoutPage() {
 
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [loading, setLoading] = useState(false);
+  const [showCouponModal, setShowCouponModal] = useState(false);
+
+  const handleApplyCoupon = async (code) => {
+    if (!code || !code.trim()) return;
+    try {
+      const res = await axiosClient.post('/api/cart/coupon', { code: code.trim() });
+      setCart(res.data.data);
+      toast.success(`Đã áp dụng mã giảm giá! Giảm: $${(res.data.data.discountAmount || 0).toFixed(2)}`);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Mã giảm giá không hợp lệ');
+    }
+  };
 
   // Auto-fill when toggling to default info
   React.useEffect(() => {
@@ -306,8 +319,31 @@ function CheckoutPage() {
                           : '$250.00'}
                       </span>
                     </div>
+
+                    {/* Coupon center button in Checkout summary */}
+                    <div className="pt-2">
+                      <div className="bg-slate-800/80 border border-slate-700 rounded-2xl p-3 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Ticket className="w-4 h-4 text-brand-400 shrink-0" />
+                          <div className="text-xs">
+                            <span className="text-slate-300 block font-medium">Mã ưu đãi</span>
+                            <span className="font-bold text-white font-mono">
+                              {cart.couponCode || 'Chưa áp dụng mã'}
+                            </span>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setShowCouponModal(true)}
+                          className="px-3 py-1.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl font-bold text-xs transition-colors shadow-sm"
+                        >
+                          {cart.couponCode ? 'Đổi mã' : 'Chọn voucher'}
+                        </button>
+                      </div>
+                    </div>
+
                     {cart.discountAmount > 0 && (
-                      <div className='flex justify-between text-brand-400 font-semibold'>
+                      <div className='flex justify-between text-brand-400 font-semibold pt-1'>
                         <span>Giảm giá ({cart.couponCode})</span>
                         <span>-${(cart.discountAmount || 0).toFixed(2)}</span>
                       </div>
@@ -329,6 +365,14 @@ function CheckoutPage() {
 
         </div>
       </div>
+
+      <CouponCenterModal
+        isOpen={showCouponModal}
+        onClose={() => setShowCouponModal(false)}
+        onApplyCoupon={handleApplyCoupon}
+        subtotal={cart.subtotal || 0}
+        currentCouponCode={cart.couponCode}
+      />
     </div>
   );
 }

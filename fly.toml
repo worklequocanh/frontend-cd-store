@@ -1,0 +1,23 @@
+# fly.toml app configuration file generated for cd-store-frontend
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+
+app = 'cd-store-frontend'
+primary_region = 'sin' # Singapore (tối ưu tốc độ cho Việt Nam & Châu Á)
+
+[build]
+  dockerfile = "Dockerfile"
+  [build.args]
+    VITE_API_URL = "https://cd-store-backend.fly.dev" # Nhớ thay bằng URL thực tế của backend sau khi deploy!
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ['app']
+
+[[vm]]
+  memory = '512mb'
+  cpu_kind = 'shared'
+  cpus = 1

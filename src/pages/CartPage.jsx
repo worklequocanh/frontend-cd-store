@@ -3,11 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import axiosClient from '../utils/axiosClient';
 import { useStore } from '../store/store';
 import toast from 'react-hot-toast';
-import { Trash2, ShoppingBag, ArrowRight, Tag, ShieldCheck, Minus, Plus } from 'lucide-react';
+import { Trash2, ShoppingBag, ArrowRight, Tag, ShieldCheck, Minus, Plus, Ticket, Sparkles } from 'lucide-react';
+import CouponCenterModal from '../components/CouponCenterModal';
 
 function CartPage() {
   const { user, cart, setCart } = useStore();
   const [couponCode, setCouponCode] = useState('');
+  const [showCouponModal, setShowCouponModal] = useState(false);
+  const [couponError, setCouponError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -52,15 +55,20 @@ function CartPage() {
     }
   };
 
-  const handleApplyCoupon = async () => {
-    if (!couponCode.trim()) return;
+  const handleApplyCoupon = async (codeParam) => {
+    const codeToUse = typeof codeParam === 'string' ? codeParam : couponCode;
+    if (!codeToUse || !codeToUse.trim()) return;
+    setCouponError(null);
     try {
-      const res = await axiosClient.put('/api/cart/coupon', { code: couponCode });
+      const res = await axiosClient.post('/api/cart/coupon', { code: codeToUse.trim() });
       setCart(res.data.data);
       toast.success(`Đã áp dụng mã giảm giá! Giảm: $${(res.data.data.discountAmount || 0).toFixed(2)}`);
       setCouponCode('');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Mã giảm giá không hợp lệ');
+      const msg = error.response?.data?.message || 'Mã giảm giá không hợp lệ';
+      const errCode = error.response?.data?.errorCode;
+      toast.error(msg);
+      setCouponError({ message: msg, code: errCode, targetCode: codeToUse });
     }
   };
 
@@ -203,27 +211,65 @@ function CartPage() {
                 </div>
 
                 <div className='mb-8'>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Mã Giảm Giá</label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-slate-700">Mã Giảm Giá</label>
+                    <button
+                      type="button"
+                      onClick={() => setShowCouponModal(true)}
+                      className="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1 transition-colors cursor-pointer"
+                    >
+                      <Ticket className="w-3.5 h-3.5" />
+                      <span>Chọn mã ưu đãi (Kho Voucher)</span>
+                    </button>
+                  </div>
                   <div className='flex gap-2'>
                     <div className="relative flex-1">
                       <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                       <input 
                         type='text' 
-                        placeholder='Nhập mã' 
+                        placeholder='Nhập mã ưu đãi' 
                         value={couponCode} 
-                        onChange={(e) => setCouponCode(e.target.value)} 
-                        className='w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors uppercase' 
+                        onChange={(e) => {
+                          setCouponCode(e.target.value);
+                          if (couponError) setCouponError(null);
+                        }} 
+                        className='w-full bg-slate-50 border border-slate-200 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors uppercase font-mono font-bold text-sm' 
                       />
                     </div>
                     <button 
                       onClick={handleApplyCoupon} 
                       disabled={!couponCode.trim()}
-                      className='bg-slate-900 text-white px-6 rounded-xl font-medium hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-400 transition-colors'
+                      className='bg-slate-900 text-white px-6 rounded-xl font-medium hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-400 transition-colors shrink-0'
                     >
                       Áp dụng
                     </button>
                   </div>
+
+                  {/* Error / VIP Action Feedback */}
+                  {couponError && (
+                    <div className="mt-3 p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 animate-fade-in">
+                      <p className="font-semibold">{couponError.message}</p>
+                      {couponError.code === 'NEWSLETTER_REQUIRED' && (
+                        <button
+                          type="button"
+                          onClick={() => setShowCouponModal(true)}
+                          className="mt-2 inline-flex items-center gap-1 font-bold text-brand-600 hover:text-brand-700 underline"
+                        >
+                          <Sparkles className="w-3.5 h-3.5" />
+                          <span>Mở Kho Mã Ưu Đãi để kích hoạt VIP100 ngay ↗</span>
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
+
+                <CouponCenterModal
+                  isOpen={showCouponModal}
+                  onClose={() => setShowCouponModal(false)}
+                  onApplyCoupon={handleApplyCoupon}
+                  subtotal={cart.subtotal || 0}
+                  currentCouponCode={cart.couponCode}
+                />
 
                 <Link 
                   to='/checkout' 

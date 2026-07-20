@@ -353,10 +353,10 @@ function AdminContacts() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-100 my-8"
+              className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-100 my-auto max-h-[90vh] flex flex-col"
             >
               {/* Modal Header */}
-              <div className="bg-slate-900 text-white p-6 flex items-center justify-between">
+              <div className="bg-slate-900 text-white p-6 flex items-center justify-between shrink-0">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     {getStatusBadge(selectedContact.status)}
@@ -375,7 +375,7 @@ function AdminContacts() {
               </div>
 
               {/* Modal Body */}
-              <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar-light">
+              <div className="p-6 space-y-6 overflow-y-auto flex-1 custom-scrollbar-light">
                 {/* Sender Info Box */}
                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                   <div className="flex items-center gap-2.5">
@@ -529,7 +529,7 @@ function AdminContacts() {
               </div>
 
               {/* Modal Footer */}
-              <div className="bg-slate-50 px-6 py-4 border-t border-slate-200 flex items-center justify-between gap-4">
+              <div className="bg-slate-50 px-6 py-4 border-t border-slate-200 flex items-center justify-between gap-4 shrink-0">
                 <button
                   onClick={() => handleDelete(selectedContact._id)}
                   className="px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-xl transition-colors flex items-center gap-1.5"

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axiosClient from '../../utils/axiosClient';
 import toast from 'react-hot-toast';
-import { Ticket, Plus, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { Ticket, Plus, Trash2, CheckCircle, XCircle, Sparkles, UserCheck, Clock, Infinity as InfinityIcon } from 'lucide-react';
 
 function AdminCoupons() {
   const [coupons, setCoupons] = useState([]);
@@ -14,6 +14,9 @@ function AdminCoupons() {
     minOrderValue: 0,
     maxDiscount: 0,
     maxUsage: 100,
+    usagePerUserLimit: 1,
+    requiresNewsletter: false,
+    isUnlimitedTime: false,
     startDate: new Date().toISOString().split('T')[0],
     expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
   });
@@ -111,7 +114,7 @@ function AdminCoupons() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {coupons.map((c) => {
-                const isExpired = new Date(c.expiredAt) < new Date();
+                const isExpired = !c.isUnlimitedTime && c.expiredAt && new Date(c.expiredAt) < new Date();
                 return (
                   <tr key={c._id} className='hover:bg-slate-50 transition-colors'>
                     <td className='px-6 py-4 whitespace-nowrap'>
@@ -120,7 +123,19 @@ function AdminCoupons() {
                           <Ticket className="w-5 h-5" />
                         </div>
                         <div>
-                          <span className='font-bold text-slate-900 font-mono'>{c.code}</span>
+                          <span className='font-bold text-slate-900 font-mono text-base'>{c.code}</span>
+                          <div className="flex items-center gap-1.5 mt-1">
+                            {c.requiresNewsletter && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                                ⭐ VIP Only
+                              </span>
+                            )}
+                            {c.usagePerUserLimit > 0 && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
+                                👤 {c.usagePerUserLimit} lần/user
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -132,11 +147,13 @@ function AdminCoupons() {
                     </td>
                     <td className='px-6 py-4 whitespace-nowrap'>
                       <div className="text-sm font-medium text-slate-700">
-                        {c.usedCount} / {c.maxUsage}
+                        {c.usedCount} / {c.maxUsage || '∞'}
                       </div>
-                      <div className="w-full bg-slate-200 rounded-full h-1.5 mt-2">
-                        <div className="bg-brand-500 h-1.5 rounded-full" style={{ width: `${Math.min((c.usedCount / c.maxUsage) * 100, 100)}%` }}></div>
-                      </div>
+                      {c.maxUsage && (
+                        <div className="w-full bg-slate-200 rounded-full h-1.5 mt-2">
+                          <div className="bg-brand-500 h-1.5 rounded-full" style={{ width: `${Math.min((c.usedCount / c.maxUsage) * 100, 100)}%` }}></div>
+                        </div>
+                      )}
                     </td>
                     <td className='px-6 py-4 whitespace-nowrap'>
                       <button 
@@ -153,7 +170,13 @@ function AdminCoupons() {
                       {isExpired && <span className="block text-xs text-red-500 font-semibold mt-1">Hết hạn</span>}
                     </td>
                     <td className='px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-medium'>
-                      {new Date(c.expiredAt).toLocaleDateString()}
+                      {c.isUnlimitedTime ? (
+                        <span className="inline-flex items-center gap-1 text-emerald-600 font-bold">
+                          <InfinityIcon className="w-4 h-4" /> Vĩnh viễn
+                        </span>
+                      ) : (
+                        new Date(c.expiredAt).toLocaleDateString()
+                      )}
                     </td>
                     <td className='px-6 py-4 whitespace-nowrap text-right'>
                       <button 
@@ -183,16 +206,16 @@ function AdminCoupons() {
 
       {/* Create Coupon Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden animate-fade-in">
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 overflow-y-auto flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden animate-fade-in max-h-[90vh] flex flex-col my-auto">
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between shrink-0">
               <h2 className="text-xl font-display font-bold text-slate-900">Tạo Mã Ưu Đãi Mới</h2>
               <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600">
                 <XCircle className="w-6 h-6" />
               </button>
             </div>
             
-            <form onSubmit={handleCreateCoupon} className="p-6 space-y-4">
+            <form onSubmit={handleCreateCoupon} className="p-6 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1">Mã Khuyến Mãi</label>
                 <div className="flex gap-2">
@@ -260,29 +283,82 @@ function AdminCoupons() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Giới Hạn Sử Dụng</label>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Tổng Lượt Dùng Toàn Cửa Hàng</label>
                   <input 
                     type="number" 
-                    required 
-                    min="1"
-                    value={formData.maxUsage}
-                    onChange={(e) => setFormData({...formData, maxUsage: Number(e.target.value)})}
+                    min="0"
+                    placeholder="Để trống/0 = Không giới hạn"
+                    value={formData.maxUsage || ''}
+                    onChange={(e) => setFormData({...formData, maxUsage: e.target.value ? Number(e.target.value) : 0})}
                     className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Ngày Hết Hạn</label>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Mỗi User Được Dùng Tối Đa (Lần)</label>
                   <input 
-                    type="date" 
+                    type="number" 
                     required 
-                    value={formData.expiredAt}
-                    onChange={(e) => setFormData({...formData, expiredAt: e.target.value})}
+                    min="1"
+                    value={formData.usagePerUserLimit}
+                    onChange={(e) => setFormData({...formData, usagePerUserLimit: Number(e.target.value)})}
                     className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500"
                   />
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
+              <div className="space-y-3 pt-2">
+                <label className="flex items-center gap-3 p-3 bg-amber-50 border border-amber-200 rounded-xl cursor-pointer hover:bg-amber-100/70 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={formData.requiresNewsletter}
+                    onChange={(e) => setFormData({...formData, requiresNewsletter: e.target.checked})}
+                    className="w-5 h-5 text-amber-600 rounded focus:ring-amber-500"
+                  />
+                  <div className="text-sm">
+                    <span className="font-bold text-amber-900 block">⭐ Khóa Đặc Quyền VIP Newsletter</span>
+                    <span className="text-amber-700 text-xs">Chỉ người dùng đã gửi email đăng ký bản tin ở chân trang mới được dùng mã này.</span>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-3 p-3 bg-indigo-50 border border-indigo-200 rounded-xl cursor-pointer hover:bg-indigo-100/70 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={formData.isUnlimitedTime}
+                    onChange={(e) => setFormData({...formData, isUnlimitedTime: e.target.checked})}
+                    className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
+                  />
+                  <div className="text-sm">
+                    <span className="font-bold text-indigo-900 block">⏳ Mã Vĩnh Viễn (Không giới hạn thời gian)</span>
+                    <span className="text-indigo-700 text-xs">Mã sẽ có hiệu lực liên tục mà không bao giờ hết hạn.</span>
+                  </div>
+                </label>
+              </div>
+
+              {!formData.isUnlimitedTime && (
+                <div className="grid grid-cols-2 gap-4 pt-1">
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">Ngày Bắt Đầu</label>
+                    <input 
+                      type="date" 
+                      value={formData.startDate}
+                      onChange={(e) => setFormData({...formData, startDate: e.target.value})}
+                      className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">Ngày Hết Hạn</label>
+                    <input 
+                      type="date" 
+                      required={!formData.isUnlimitedTime}
+                      value={formData.expiredAt}
+                      onChange={(e) => setFormData({...formData, expiredAt: e.target.value})}
+                      className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="pt-4 border-t border-slate-100 flex justify-end gap-3 shrink-0">
                 <button type="button" onClick={() => setShowModal(false)} className="px-6 py-2.5 font-bold text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors">
                   Hủy
                 </button>
