@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axiosClient from '../../utils/axiosClient';
 import toast from 'react-hot-toast';
-import { Plus, Edit2, Trash2, X, Zap, Play, Pause, Search, CheckSquare, Square, Tag, DollarSign, Percent, AlertCircle } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Zap, Play, Pause, Search, CheckSquare, Square, Tag, DollarSign, Percent, AlertCircle, Calendar, Clock } from 'lucide-react';
 import Pagination from '../../components/Pagination';
 
 function AdminCampaigns() {
+  const formatDateTimeLocal = (dateString) => {
+    if (!dateString) return '';
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return '';
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
   const [campaigns, setCampaigns] = useState([]);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -21,7 +29,9 @@ function AdminCampaigns() {
     targetType: 'all_products',
     targetCategories: [],
     targetProducts: [],
-    isUnlimitedTime: true
+    isUnlimitedTime: true,
+    startDate: formatDateTimeLocal(new Date()),
+    endDate: ''
   });
 
   const [searchProduct, setSearchProduct] = useState('');
@@ -75,7 +85,9 @@ function AdminCampaigns() {
       targetType: 'all_products',
       targetCategories: [],
       targetProducts: [],
-      isUnlimitedTime: true
+      isUnlimitedTime: true,
+      startDate: formatDateTimeLocal(new Date()),
+      endDate: ''
     });
     setShowForm(true);
   };
@@ -92,7 +104,9 @@ function AdminCampaigns() {
       targetType: c.targetType || 'all_products',
       targetCategories: (c.targetCategories || []).map(cat => typeof cat === 'object' ? cat._id : cat),
       targetProducts: (c.targetProducts || []).map(p => typeof p === 'object' ? p._id : p),
-      isUnlimitedTime: c.isUnlimitedTime !== undefined ? c.isUnlimitedTime : true
+      isUnlimitedTime: c.isUnlimitedTime !== undefined ? c.isUnlimitedTime : true,
+      startDate: formatDateTimeLocal(c.startDate || new Date()),
+      endDate: formatDateTimeLocal(c.endDate)
     });
     setShowForm(true);
   };
@@ -105,12 +119,20 @@ function AdminCampaigns() {
     if (formData.targetType === 'by_products' && formData.targetProducts.length === 0) {
       return toast.error('Vui lòng chọn ít nhất 1 sản phẩm');
     }
+    if (!formData.isUnlimitedTime && (!formData.startDate || !formData.endDate)) {
+      return toast.error('Vui lòng chọn đầy đủ Thời Gian Bắt Đầu và Thời Gian Kết Thúc');
+    }
+    if (!formData.isUnlimitedTime && new Date(formData.endDate) <= new Date(formData.startDate)) {
+      return toast.error('Thời gian kết thúc phải lớn hơn thời gian bắt đầu');
+    }
 
     try {
       setIsSubmitting(true);
       const payload = {
         ...formData,
-        maxDiscountAmount: formData.maxDiscountAmount ? Number(formData.maxDiscountAmount) : null
+        maxDiscountAmount: formData.maxDiscountAmount ? Number(formData.maxDiscountAmount) : null,
+        startDate: formData.startDate ? new Date(formData.startDate).toISOString() : new Date().toISOString(),
+        endDate: (!formData.isUnlimitedTime && formData.endDate) ? new Date(formData.endDate).toISOString() : null
       };
 
       if (editingId) {
@@ -489,11 +511,65 @@ function AdminCampaigns() {
                 </div>
               </div>
 
-              {/* Section 3: Target Scope Selection */}
+              {/* Section 3: Time Settings */}
+              <div className="bg-slate-50/70 p-6 rounded-2xl border border-slate-100 space-y-4">
+                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-brand-600" />
+                  3. Cấu Hình Thời Gian Áp Dụng
+                </h3>
+                
+                <div className="space-y-4">
+                  <label className="flex items-center gap-3 p-3.5 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors w-fit">
+                    <input
+                      type="checkbox"
+                      checked={formData.isUnlimitedTime}
+                      onChange={(e) => setFormData({ ...formData, isUnlimitedTime: e.target.checked })}
+                      className="w-5 h-5 text-brand-600 rounded border-slate-300 focus:ring-brand-500"
+                    />
+                    <div>
+                      <div className="font-bold text-slate-900 text-sm">⚡ Không giới hạn thời gian (Vĩnh viễn)</div>
+                      <div className="text-xs text-slate-500">Chiến dịch sẽ chạy liên tục cho đến khi bạn bấm Tạm dừng hoặc Xóa thủ công.</div>
+                    </div>
+                  </label>
+
+                  {!formData.isUnlimitedTime && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-200/60 animate-fade-in">
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
+                          <Calendar className="w-4 h-4 text-brand-600" />
+                          Thời Gian Bắt Đầu
+                        </label>
+                        <input
+                          type="datetime-local"
+                          required={!formData.isUnlimitedTime}
+                          value={formData.startDate}
+                          onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl font-semibold text-slate-800 focus:ring-2 focus:ring-brand-500 focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-1 flex items-center gap-1.5">
+                          <Calendar className="w-4 h-4 text-brand-600" />
+                          Thời Gian Kết Thúc
+                        </label>
+                        <input
+                          type="datetime-local"
+                          required={!formData.isUnlimitedTime}
+                          value={formData.endDate}
+                          onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl font-semibold text-slate-800 focus:ring-2 focus:ring-brand-500 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Section 4: Target Scope Selection */}
               <div className="bg-slate-50/70 p-6 rounded-2xl border border-slate-100 space-y-4">
                 <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
                   <CheckSquare className="w-4 h-4 text-brand-600" />
-                  3. Phạm Vi Áp Dụng
+                  4. Phạm Vi Áp Dụng
                 </h3>
                 
                 <div className="flex flex-wrap gap-4 mb-4">
@@ -619,11 +695,11 @@ function AdminCampaigns() {
                 )}
               </div>
 
-              {/* Section 4: Live Price Calculator Preview */}
+              {/* Section 5: Live Price Calculator Preview */}
               <div className="bg-emerald-50/80 border border-emerald-200 p-6 rounded-2xl space-y-3">
                 <h4 className="text-sm font-bold text-emerald-900 flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 text-emerald-600" />
-                  Bảng Tính Thử Giá (Live Preview)
+                  5. Bảng Tính Thử Giá (Live Preview)
                 </h4>
                 <p className="text-xs text-emerald-800">
                   Dưới đây là mô phỏng giá bán sau khi áp dụng mức giảm <b>{formData.discountType === 'percent' ? `${formData.discountValue}%` : `$${formData.discountValue}`}</b> cho sản phẩm mẫu:
