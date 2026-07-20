@@ -13,6 +13,19 @@ function AdminCampaigns() {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   };
 
+  const formatDisplayTime = (dateStr) => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleString('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   const [campaigns, setCampaigns] = useState([]);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -299,6 +312,7 @@ function AdminCampaigns() {
                 <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Tên Chiến Dịch</th>
                 <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Mức Giảm</th>
                 <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Phạm Vi Áp Dụng</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Thời Gian</th>
                 <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Trạng Thái</th>
                 <th className="px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Thao Tác</th>
               </tr>
@@ -333,6 +347,27 @@ function AdminCampaigns() {
                       {c.targetType === 'by_categories' && `📂 ${c.targetCategories?.length || 0} Danh mục`}
                       {c.targetType === 'by_products' && `🎯 ${c.targetProducts?.length || 0} Sản phẩm`}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {c.isUnlimitedTime ? (
+                      <div className="flex items-center gap-1.5 text-slate-700 bg-amber-50 border border-amber-200/60 px-2.5 py-1 rounded-lg text-xs font-bold w-fit">
+                        <Clock className="w-3.5 h-3.5 text-amber-600" />
+                        <span>⚡ Vĩnh viễn</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-1 text-xs">
+                        <div className="flex items-center gap-1.5 text-slate-700">
+                          <Calendar className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span className="font-semibold text-slate-500">Từ:</span>
+                          <span className="font-bold">{formatDisplayTime(c.startDate)}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-slate-700">
+                          <Calendar className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                          <span className="font-semibold text-slate-500">Đến:</span>
+                          <span className="font-bold">{formatDisplayTime(c.endDate)}</span>
+                        </div>
+                      </div>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {getStatusBadge(c.status)}
@@ -385,7 +420,7 @@ function AdminCampaigns() {
 
               {campaigns.length === 0 && (
                 <tr>
-                  <td colSpan="5" className="px-6 py-12 text-center text-slate-500">
+                  <td colSpan="6" className="px-6 py-12 text-center text-slate-500">
                     Chưa có chiến dịch nào. Hãy tạo chiến dịch đầu tiên để thúc đẩy doanh số!
                   </td>
                 </tr>
