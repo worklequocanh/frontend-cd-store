@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axiosClient from '../../utils/axiosClient';
 import { useStore } from '../../store/store';
 import toast from 'react-hot-toast';
-import { Plus, Edit2, Trash2, Image as ImageIcon, X, PackageSearch, Save, Download } from 'lucide-react';
+import { Plus, Edit2, Trash2, Image as ImageIcon, X, PackageSearch, Save, Download, History, ArrowUpRight, ArrowDownRight, RefreshCw } from 'lucide-react';
 import Pagination from '../../components/Pagination';
 
 function AdminProducts() {
@@ -15,6 +15,11 @@ function AdminProducts() {
 
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
+  const [activeTab, setActiveTab] = useState('products');
+  const [stockLogs, setStockLogs] = useState([]);
+  const [logsPage, setLogsPage] = useState(1);
+  const [logsPages, setLogsPages] = useState(1);
 
   useEffect(() => {
     if (user?.role !== 'admin') {
@@ -34,6 +39,22 @@ function AdminProducts() {
 
     fetchProducts();
   }, [user, page]);
+
+  useEffect(() => {
+    if (activeTab === 'ledger' && user?.role === 'admin') {
+      fetchStockLogs(logsPage);
+    }
+  }, [activeTab, logsPage, user]);
+
+  const fetchStockLogs = async (pageIndex = 1) => {
+    try {
+      const res = await axiosClient.get(`/api/admin/inventory/logs?page=${pageIndex}&limit=12`);
+      setStockLogs(res.data?.data?.logs || []);
+      setLogsPages(res.data?.data?.pages || 1);
+    } catch (error) {
+      toast.error('Tải lịch sử biến động kho thất bại');
+    }
+  };
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -280,88 +301,190 @@ function AdminProducts() {
         </div>
       )}
 
-      <div className='bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden'>
-        <div className='overflow-x-auto'>
-          <table className='w-full'>
-            <thead>
-              <tr className='bg-slate-50 border-b border-slate-100'>
-                <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider'>Sản Phẩm</th>
-                <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider'>Giá Bán</th>
-                <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider'>Kho</th>
-                <th className='px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider'>Trạng Thái</th>
-                <th className='px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider'>Thao Tác</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {products.map((product) => (
-                <tr key={product._id} className='hover:bg-slate-50 transition-colors group'>
-                  <td className='px-6 py-4 whitespace-nowrap'>
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center shrink-0 overflow-hidden border border-slate-200">
-                        {product.images?.[0] ? (
-                          <img src={product.images[0]} alt={product.name} className='w-full h-full object-cover' />
-                        ) : (
-                          <PackageSearch className="w-6 h-6 text-slate-400" />
-                        )}
-                      </div>
-                      <div>
-                        <div className="font-bold text-slate-900">{product.name}</div>
-                        <div className="text-sm text-slate-500">{product.slug}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className='px-6 py-4 whitespace-nowrap'>
-                    <div className="flex flex-col">
-                      <span className="font-bold text-slate-900">${product.price?.toFixed(2)}</span>
-                      {product.discountPrice > product.price && (
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="text-xs text-slate-400 line-through">${Number(product.discountPrice).toFixed(2)}</span>
-                          <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                            -{Math.round(((product.discountPrice - product.price) / product.discountPrice) * 100)}%
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                  <td className='px-6 py-4 whitespace-nowrap'>
-                    <span className="font-medium text-slate-900">{product.stock}</span>
-                  </td>
-                  <td className='px-6 py-4 whitespace-nowrap'>
-                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      product.stock > 10 ? 'bg-green-100 text-green-800' : 
-                      product.stock > 0 ? 'bg-amber-100 text-amber-800' : 
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {product.stock > 10 ? 'Còn hàng' : product.stock > 0 ? 'Sắp hết' : 'Hết hàng'}
-                    </span>
-                  </td>
-                  <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-medium'>
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => handleEdit(product)} className='p-2 text-brand-600 hover:bg-brand-50 rounded-lg transition-colors' title="Sửa">
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button onClick={() => handleDelete(product._id)} className='p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors' title="Xóa">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              
-              {products.length === 0 && (
-                <tr>
-                  <td colSpan="5" className="px-6 py-12 text-center text-slate-500">
-                    Chưa có sản phẩm nào. Hãy thêm sản phẩm đầu tiên để bắt đầu!
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-        <div className="p-4 border-t border-slate-100 bg-white">
-          <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
-        </div>
+      {/* Tabs Switcher */}
+      <div className="flex items-center gap-2 border-b border-slate-200 mb-6">
+        <button
+          onClick={() => setActiveTab('products')}
+          className={`px-6 py-3 font-bold border-b-2 transition-all flex items-center gap-2 text-sm ${
+            activeTab === 'products' ? 'border-brand-600 text-brand-600 bg-brand-50/50' : 'border-transparent text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <PackageSearch className="w-4 h-4" /> Danh Sách Sản Phẩm ({products.length})
+        </button>
+        <button
+          onClick={() => { setActiveTab('ledger'); fetchStockLogs(); }}
+          className={`px-6 py-3 font-bold border-b-2 transition-all flex items-center gap-2 text-sm ${
+            activeTab === 'ledger' ? 'border-brand-600 text-brand-600 bg-brand-50/50' : 'border-transparent text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <History className="w-4 h-4" /> Lịch Sử Biến Động Kho (Stock Ledger)
+        </button>
       </div>
+
+      {activeTab === 'products' ? (
+        <div className='bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden'>
+          <div className='overflow-x-auto'>
+            <table className='w-full'>
+              <thead>
+                <tr className='bg-slate-50 border-b border-slate-100 text-left text-xs font-bold text-slate-500 uppercase tracking-wider'>
+                  <th className='px-6 py-4'>Sản Phẩm</th>
+                  <th className='px-6 py-4'>Giá Bán</th>
+                  <th className='px-6 py-4'>Kho</th>
+                  <th className='px-6 py-4'>Trạng Thái</th>
+                  <th className='px-6 py-4 text-right'>Thao Tác</th>
+                </tr>
+              </thead>
+              <tbody className='divide-y divide-slate-100'>
+                {products.map((product) => (
+                  <tr key={product._id} className='hover:bg-slate-50/80 transition-colors group'>
+                    <td className='px-6 py-4 whitespace-nowrap'>
+                      <div className='flex items-center gap-4'>
+                        <div className='h-12 w-12 rounded-xl bg-slate-100 border border-slate-200/60 overflow-hidden shrink-0 flex items-center justify-center shadow-sm'>
+                          {product.images && product.images[0] ? (
+                            <img className='h-full w-full object-cover' src={product.images[0]} alt={product.name} />
+                          ) : (
+                            <PackageSearch className="w-6 h-6 text-slate-300" />
+                          )}
+                        </div>
+                        <div>
+                          <div className='text-sm font-bold text-slate-800 group-hover:text-brand-600 transition-colors'>{product.name}</div>
+                          <div className='text-xs text-slate-400 font-mono mt-0.5'>{product.slug}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap'>
+                      <div className='text-sm font-bold text-slate-800'>${Number(product.price || 0).toFixed(2)}</div>
+                      {product.discountPrice && (
+                        <div className='text-xs text-emerald-600 font-bold'>Giảm: ${Number(product.discountPrice).toFixed(2)}</div>
+                      )}
+                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap'>
+                      <span className='text-sm font-bold text-slate-800 bg-slate-100 px-3 py-1 rounded-lg'>{product.stock || 0}</span>
+                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap'>
+                      <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        product.stock > 10 ? 'bg-green-100 text-green-800' : 
+                        product.stock > 0 ? 'bg-amber-100 text-amber-800' : 
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {product.stock > 10 ? 'Còn hàng' : product.stock > 0 ? 'Sắp hết' : 'Hết hàng'}
+                      </span>
+                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-medium'>
+                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => handleEdit(product)} className='p-2 text-brand-600 hover:bg-brand-50 rounded-lg transition-colors' title="Sửa">
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleDelete(product._id)} className='p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors' title="Xóa">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                
+                {products.length === 0 && (
+                  <tr>
+                    <td colSpan="5" className="px-6 py-12 text-center text-slate-500">
+                      Chưa có sản phẩm nào. Hãy thêm sản phẩm đầu tiên để bắt đầu!
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+          <div className="p-4 border-t border-slate-100 bg-white">
+            <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
+          </div>
+        </div>
+      ) : (
+        <div className='bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden'>
+          <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <div>
+              <h3 className="font-display font-bold text-slate-800">Nhật Ký Biến Động Tồn Kho</h3>
+              <p className="text-xs text-slate-500 mt-0.5">Theo dõi chính xác mọi thay đổi nhập, xuất, hoàn trả kho kèm người thực hiện.</p>
+            </div>
+            <button onClick={() => fetchStockLogs(logsPage)} className="p-2 bg-white border border-slate-200 text-slate-600 hover:text-brand-600 rounded-xl transition-colors shadow-sm flex items-center gap-1.5 text-xs font-bold">
+              <RefreshCw className="w-3.5 h-3.5" /> Làm mới
+            </button>
+          </div>
+
+          <div className='overflow-x-auto overflow-y-auto max-h-[650px]'>
+            <table className='w-full'>
+              <thead className="sticky top-0 bg-slate-50 z-10 border-b border-slate-100 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <tr>
+                  <th className='px-6 py-4'>Sản Phẩm</th>
+                  <th className='px-6 py-4'>Loại Biến Động</th>
+                  <th className='px-6 py-4 text-center'>Thay Đổi</th>
+                  <th className='px-6 py-4 text-center'>Trước &rarr; Sau</th>
+                  <th className='px-6 py-4'>Ghi Chú</th>
+                  <th className='px-6 py-4 text-right'>Thời Gian</th>
+                </tr>
+              </thead>
+              <tbody className='divide-y divide-slate-100'>
+                {stockLogs && stockLogs.map(log => (
+                  <tr key={log._id} className='hover:bg-slate-50/80 transition-colors'>
+                    <td className='px-6 py-4 whitespace-nowrap'>
+                      <div className='flex items-center gap-3'>
+                        <div className='h-10 w-10 rounded-xl bg-slate-100 border border-slate-200/60 overflow-hidden shrink-0 flex items-center justify-center'>
+                          {log.productId?.images && log.productId?.images[0] ? (
+                            <img className='h-full w-full object-cover' src={log.productId.images[0]} alt={log.productId?.name} />
+                          ) : (
+                            <PackageSearch className="w-5 h-5 text-slate-300" />
+                          )}
+                        </div>
+                        <div>
+                          <div className='text-sm font-bold text-slate-800 truncate max-w-[200px]'>{log.productId?.name || 'Sản phẩm đã xóa'}</div>
+                          <div className='text-[11px] text-slate-400'>By: {log.performedBy?.name || 'Hệ thống'}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap'>
+                      <span className={`px-3 py-1 inline-flex items-center gap-1 text-xs font-bold rounded-full ${
+                        log.type === 'import' ? 'bg-emerald-100 text-emerald-800' :
+                        log.type === 'order_deduction' ? 'bg-blue-100 text-blue-800' :
+                        log.type === 'cancellation_return' ? 'bg-purple-100 text-purple-800' :
+                        'bg-amber-100 text-amber-800'
+                      }`}>
+                        {log.type === 'import' && <ArrowUpRight className="w-3.5 h-3.5" />}
+                        {log.type === 'order_deduction' && <ArrowDownRight className="w-3.5 h-3.5" />}
+                        {log.type === 'import' ? 'Nhập kho' : log.type === 'order_deduction' ? 'Bán hàng (trừ kho)' : log.type === 'cancellation_return' ? 'Hoàn kho hủy đơn' : 'Điều chỉnh tay'}
+                      </span>
+                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap text-center font-bold'>
+                      <span className={`text-sm ${log.quantityChange > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                        {log.quantityChange > 0 ? `+${log.quantityChange}` : log.quantityChange}
+                      </span>
+                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap text-center'>
+                      <span className='text-xs font-mono bg-slate-100 px-2.5 py-1 rounded-lg text-slate-700 font-bold'>
+                        {log.previousStock} &rarr; {log.newStock}
+                      </span>
+                    </td>
+                    <td className='px-6 py-4'>
+                      <div className='text-xs text-slate-600 max-w-[250px] line-clamp-2'>{log.note || 'Không có ghi chú'}</div>
+                    </td>
+                    <td className='px-6 py-4 whitespace-nowrap text-right text-xs text-slate-400 font-medium'>
+                      {new Date(log.createdAt).toLocaleString('vi-VN')}
+                    </td>
+                  </tr>
+                ))}
+                
+                {(!stockLogs || stockLogs.length === 0) && (
+                  <tr>
+                    <td colSpan="6" className="px-6 py-12 text-center text-slate-500">
+                      Chưa có dữ liệu nhật ký kho nào được ghi nhận.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+          <div className="p-4 border-t border-slate-100 bg-white">
+            <Pagination currentPage={logsPage} totalPages={logsPages} onPageChange={(p) => setLogsPage(p)} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

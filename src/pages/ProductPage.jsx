@@ -137,6 +137,30 @@ function ProductPage() {
   const inStock = product.stock > 0;
   const lowStock = inStock && product.stock <= 5;
 
+  const jsonLdSchema = {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    "name": product.name,
+    "image": product.images || [],
+    "description": product.description || `Mua ${product.name} chính hãng với giá tốt nhất tại cửa hàng.`,
+    "sku": product._id,
+    "offers": {
+      "@type": "Offer",
+      "url": window.location.href,
+      "priceCurrency": "USD",
+      "price": product.discountPrice || product.price,
+      "priceValidUntil": new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      "availability": inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+    },
+    ...(reviews.length > 0 && {
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": product.averageRating || 5,
+        "reviewCount": reviews.length
+      }
+    })
+  };
+
   const tabs = [
     { id: 'description', label: 'Mô Tả Sản Phẩm' },
     { id: 'reviews', label: `Đánh Giá (${reviews.length})` },
@@ -145,6 +169,9 @@ function ProductPage() {
 
   return (
     <div className='bg-slate-50 min-h-screen pb-20'>
+      {/* Rich Snippets / SEO JSON-LD Schema */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSchema) }} />
+
       {/* Breadcrumb */}
       <div className='bg-white border-b border-slate-100'>
         <div className='container mx-auto px-4 py-3.5 flex items-center gap-2 text-sm'>

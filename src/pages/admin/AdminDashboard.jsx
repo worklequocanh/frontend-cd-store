@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import axiosClient from '../../utils/axiosClient';
 import { useStore } from '../../store/store';
 import toast from 'react-hot-toast';
-import { ShoppingCart, Users, PackageSearch, DollarSign, Clock, ArrowRight, TrendingUp, Activity, Package, ChevronRight, MessageSquare, BarChart2, PieChart as PieIcon, Layers } from 'lucide-react';
+import { ShoppingCart, Users, PackageSearch, DollarSign, Clock, ArrowRight, TrendingUp, Activity, Package, ChevronRight, MessageSquare, BarChart2, PieChart as PieIcon, Layers, AlertTriangle, Plus, X } from 'lucide-react';
 import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { motion } from 'framer-motion';
 
@@ -16,6 +16,8 @@ function AdminDashboard() {
   const [productData, setProductData] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
   const [statusData, setStatusData] = useState([]);
+  const [lowStockProducts, setLowStockProducts] = useState([]);
+  const [adjustModal, setAdjustModal] = useState({ open: false, product: null, quantity: 10, note: 'Nhập kho bổ sung từ Dashboard', loading: false });
   const { user } = useStore();
 
   useEffect(() => {
@@ -26,12 +28,13 @@ function AdminDashboard() {
       }
 
       try {
-        const [dashRes, revRes, prodRes, catRes, statRes] = await Promise.all([
+        const [dashRes, revRes, prodRes, catRes, statRes, alertRes] = await Promise.all([
           axiosClient.get('/api/admin/dashboard'),
           axiosClient.get(`/api/admin/analytics/revenue?timeframe=${timeframe}`),
           axiosClient.get(`/api/admin/analytics/products?timeframe=${timeframe}&limit=6`),
           axiosClient.get(`/api/admin/analytics/categories?timeframe=${timeframe}`),
-          axiosClient.get(`/api/admin/analytics/status?timeframe=${timeframe}`)
+          axiosClient.get(`/api/admin/analytics/status?timeframe=${timeframe}`),
+          axiosClient.get('/api/admin/inventory/alerts')
         ]);
         
         setDashboard(dashRes.data.data);
@@ -45,7 +48,8 @@ function AdminDashboard() {
         setRevenueData(formattedRev);
         setProductData(prodRes.data.data || []);
         setCategoryData(catRes.data.data || []);
-        setStatusData(statRes.data.data || []);
+        setStatusData((statRes.data.data || []).map(item => ({ ...item, value: item.count || item.value })));
+        setLowStockProducts(alertRes.data?.data?.lowStockProducts || []);
       } catch (error) {
         console.error("Dashboard fetch error:", error);
         toast.error('Tải dữ liệu dashboard thất bại');
@@ -54,6 +58,28 @@ function AdminDashboard() {
 
     fetchDashboard();
   }, [user, timeframe]);
+
+  const handleQuickAdjust = async (e) => {
+    e.preventDefault();
+    if (!adjustModal.product) return;
+    setAdjustModal(prev => ({ ...prev, loading: true }));
+    try {
+      await axiosClient.post('/api/admin/inventory/adjust', {
+        productId: adjustModal.product._id,
+        quantityChange: Number(adjustModal.quantity),
+        type: 'import',
+        note: adjustModal.note
+      });
+      toast.success(`Đã nhập thêm ${adjustModal.quantity} vào kho ${adjustModal.product.name}`);
+      // Refresh alerts
+      const res = await axiosClient.get('/api/admin/inventory/alerts');
+      setLowStockProducts(res.data?.data?.lowStockProducts || []);
+      setAdjustModal({ open: false, product: null, quantity: 10, note: 'Nhập kho bổ sung từ Dashboard', loading: false });
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Lỗi khi nhập kho');
+      setAdjustModal(prev => ({ ...prev, loading: false }));
+    }
+  };
 
   if (!dashboard) return (
     <div className='flex items-center justify-center h-full min-h-[400px]'>
@@ -323,6 +349,56 @@ function AdminDashboard() {
         </motion.div>
       </div>
 
+      {/* Low Stock Alerts Section */}
+      <motion.div variants={itemVariants} className='bg-white rounded-3xl p-6 lg:p-8 border border-slate-100 shadow-sm'>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className='text-xl font-display font-bold text-slate-800'>Cảnh Báo Tồn Kho Thấp (&le; 10 sản phẩm)</h2>
+              <p className="text-sm text-slate-500">Các sản phẩm sắp hết hàng cần kịp thời nhập kho bổ sung.</p>
+            </div>
+          </div>
+          <Link to='/admin/products' className="text-sm font-semibold text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 px-4 py-2 rounded-lg transition-colors flex items-center gap-1">
+            Quản Lý Kho <ChevronRight className="w-4 h-4" />
+          </Link>
+        </div>
+
+        {lowStockProducts && lowStockProducts.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {lowStockProducts.map(item => (
+              <div key={item._id} className="p-4 rounded-2xl bg-amber-50/30 border border-amber-200/60 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-12 h-12 rounded-xl bg-white border border-amber-100 flex items-center justify-center font-bold text-amber-600 text-lg shrink-0 shadow-sm">
+                    {item.stock}
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="font-bold text-slate-800 text-sm truncate" title={item.name}>{item.name}</h4>
+                    <span className="text-xs text-amber-700 font-semibold uppercase">
+                      {item.stock === 0 ? 'Hết hàng' : `Còn đúng ${item.stock} cái`}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setAdjustModal({ open: true, product: item, quantity: 10, note: 'Nhập kho bổ sung từ Dashboard', loading: false })}
+                  className="bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 shrink-0 shadow-sm shadow-amber-600/20"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Nhập Kho
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200 p-8 text-center">
+            <Package className="w-10 h-10 text-emerald-400 mb-2" />
+            <p className="text-slate-600 font-bold">Tuyệt vời! Tất cả sản phẩm đều có lượng tồn kho ổn định.</p>
+            <p className="text-slate-400 text-xs mt-1">Không có sản phẩm nào dưới 10 sản phẩm.</p>
+          </div>
+        )}
+      </motion.div>
+
       <div className='grid grid-cols-1 xl:grid-cols-3 gap-8'>
         {/* Pending Orders Action Card */}
         <motion.div variants={itemVariants} className='xl:col-span-1'>
@@ -457,6 +533,81 @@ function AdminDashboard() {
           )}
         </div>
       </motion.div>
+
+      {/* Quick Adjust Modal Panel */}
+      {adjustModal.open && adjustModal.product && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-slate-100 max-h-[90vh] flex flex-col overflow-y-auto">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+              <h3 className="text-lg font-display font-bold text-slate-800">Nhập Kho Bổ Sung Nhanh</h3>
+              <button
+                type="button"
+                onClick={() => setAdjustModal({ open: false, product: null, quantity: 10, note: '', loading: false })}
+                className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleQuickAdjust} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Sản phẩm</label>
+                <div className="p-3 bg-slate-50 rounded-xl font-bold text-slate-800 text-sm border border-slate-200/60">
+                  {adjustModal.product.name}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Tồn kho hiện tại</label>
+                <div className="text-sm font-bold text-amber-600">
+                  {adjustModal.product.stock} sản phẩm
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Số lượng nhập thêm</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="10000"
+                  required
+                  value={adjustModal.quantity}
+                  onChange={(e) => setAdjustModal(prev => ({ ...prev, quantity: e.target.value }))}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 font-semibold text-slate-800"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Ghi chú nhật ký kho</label>
+                <textarea
+                  rows="2"
+                  value={adjustModal.note}
+                  onChange={(e) => setAdjustModal(prev => ({ ...prev, note: e.target.value }))}
+                  className="w-full px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-slate-700"
+                  placeholder="Ví dụ: Nhập lô hàng mới tháng 7..."
+                />
+              </div>
+
+              <div className="pt-4 flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setAdjustModal({ open: false, product: null, quantity: 10, note: '', loading: false })}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors text-sm"
+                >
+                  Hủy bỏ
+                </button>
+                <button
+                  type="submit"
+                  disabled={adjustModal.loading}
+                  className="flex-1 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-xl font-bold transition-all text-sm shadow-md shadow-brand-500/20 disabled:opacity-60"
+                >
+                  {adjustModal.loading ? 'Đang xử lý...' : 'Xác nhận nhập kho'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }

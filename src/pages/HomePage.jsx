@@ -78,8 +78,28 @@ function HomePage() {
     fetchData();
   }, []);
 
+  const jsonLdSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "AudioVibe - Modern E-Commerce Store",
+    "url": window.location.origin,
+    "logo": `${window.location.origin}/logo.png`,
+    "sameAs": [
+      "https://facebook.com",
+      "https://twitter.com",
+      "https://instagram.com"
+    ],
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": `${window.location.origin}/shop?search={search_term_string}`,
+      "query-input": "required name=search_term_string"
+    }
+  };
+
   return (
     <div className='min-h-screen'>
+      {/* Rich Snippets / SEO JSON-LD Schema */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSchema) }} />
 
       {/* ─── Hero Section ─── */}
       <section className='relative hero-bg text-white overflow-hidden'>
