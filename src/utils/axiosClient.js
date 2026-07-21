@@ -33,18 +33,27 @@ axiosClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Interceptor for Responses (Handle 401)
+// Interceptor for Responses (Handle 401 or User Not Found 404)
 axiosClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
-      // Clear invalid token
-      localStorage.removeItem('token');
+    const status = error.response?.status;
+    const isUserNotFound = status === 404 && error.response?.data?.message?.toLowerCase().includes('user');
+
+    if (status === 401 || isUserNotFound) {
+      // Use Zustand store directly to clear state and local storage globally
+      import('../store/store').then((module) => {
+        module.useStore.getState().logout();
+      });
       
-      // Only show session expired and redirect if it wasn't a login attempt or initial auth check
-      if (error.config.url !== '/api/auth/me' && error.config.url !== '/api/auth/login') {
-        toast.error('Session expired. Please login again.');
-        window.location.href = '/auth'; // Redirect to login
+      // Prevent showing error on login page itself
+      if (error.config.url !== '/api/auth/login') {
+        toast.error('Phiên đăng nhập đã hết hạn hoặc tài khoản không tồn tại. Đã tự động đăng xuất!');
+        
+        // Redirect to auth if not already there
+        if (window.location.pathname !== '/auth') {
+          window.location.href = '/auth';
+        }
       }
     }
     return Promise.reject(error);
