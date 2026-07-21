@@ -5,7 +5,7 @@ import axiosClient from '../utils/axiosClient';
 import { 
   Search, ShoppingCart, Package, LogOut, Menu, X, ChevronDown, Zap, 
   Grid, Headphones, Watch, Keyboard, Speaker, Smartphone, Sparkles, 
-  TrendingUp, Phone, ShieldCheck, ChevronRight, CheckCircle2, Flame, Award
+  TrendingUp, Phone, ShieldCheck, ChevronRight, CheckCircle2, Flame, Award, LayoutDashboard, User
 } from 'lucide-react';
 
 function Header() {
