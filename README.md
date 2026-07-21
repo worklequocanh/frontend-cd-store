@@ -13,6 +13,15 @@
 
 ---
 
+## 🔗 Live Demo & Source Code
+
+- **🌐 Live Frontend App (Fly.io):** [https://cd-store-frontend.fly.dev/](https://cd-store-frontend.fly.dev/)
+- **💻 Frontend Repository:** [https://github.com/worklequocanh/frontend-cd-store](https://github.com/worklequocanh/frontend-cd-store)
+- **🚀 Live Backend API:** [https://cd-store-backend.fly.dev/](https://cd-store-backend.fly.dev/)
+- **💻 Backend Repository:** [https://github.com/worklequocanh/backend-cd-store](https://github.com/worklequocanh/backend-cd-store)
+
+---
+
 ## 🌟 Tổng Quan Trang Giao Diện (`Frontend Overview`)
 
 **CD Store Frontend UI** là ứng dụng trang đơn (SPA - Single Page Application) thế hệ mới được tối ưu hóa toàn diện về tốc độ tải trang, trải nghiệm tương tác mượt mà và giao diện thẩm mỹ cao cấp. Sử dụng **React 18** và công cụ build siêu tốc **Vite 5**, kết hợp cùng bộ tạo kiểu **Tailwind CSS** theo phong cách **Glassmorphism** sang trọng.
